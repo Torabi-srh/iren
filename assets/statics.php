@@ -1,10 +1,11 @@
 <?php
   include 'jdf.php';
-  function isdebug() { 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-  }
+
+    function isdebug() {
+      ini_set('display_errors', 1);
+      ini_set('display_startup_errors', 1);
+      error_reporting(E_ALL);
+    }
   function islocal()
   {
       $whitelist = array(
@@ -19,7 +20,7 @@
   }
   function mysqlserverport()
   {
-      return "2083";
+      return "3306";
   }
   function mysqlservername()
   {
@@ -61,6 +62,7 @@
   {
       return "assets/images/users/";
   }
+
 
 //site specific configuration declartion
 define( 'BASE_PATH', 'http://cyberdream.ir/authorized.php');

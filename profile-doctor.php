@@ -1,3 +1,36 @@
+<?php
+  include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
+  if(isset($_POST['exit_btn'])) {
+    lagout() ;
+    saferedirect('login.php');
+  }
+?>
+<?php
+  $log_check = login_check() ;
+  if ($log_check === false) {
+    redirect("login.php") ;
+  } else {
+    if($log_check[0] === false) {
+      redirect("login.php") ;
+    } elseif ($log_check[1] === 0) {
+      redirect("profile-user.php") ;
+    }
+  }
+?>
+
+<?php
+  // in script baraye check kardan email hast ke dar qesmat form
+  // davat be site to page profile-doctor hast
+  // age taraf email vared kone vasash mail davat be site mifreste !
+  if(isset($_POST['send_mail'])) {
+    $email = $_POST['send_mail'] ;
+    $subject = "دعوت به سایت" ;
+    $message = "welcome to telepathy webiste !" ;
+    if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      sendemail($email, $subject, $message) ;
+    }
+  }
+?>
 <?php include("pages/header.php");head("doc"); ?>
       <!-- section 3 -->
       <div class="row">
@@ -103,13 +136,16 @@
           <div class="panel panel-default">
           <div class="panel-body">
 						<div class="row" style="margin-top: 25px;margin-bottom: 25px;">
-								<div class="pull-left" style="display: flex;width: 100%;">
-									<input class="form-control" placeholder="پست‌الکترونیکی / شماره تلفن" required="" style="width: 100%;margin-left: 10px;" type="text">
-									<button type="button" class="btn btn-success" style="margin-left: 36px;">
+              <form action="profile-doctor.php" method="post">
+                <div class="pull-left" style="display: flex;width: 100%;">
+									<input class="form-control" name="send_mail" placeholder="پست‌الکترونیکی / شماره تلفن" required="" style="width: 100%;margin-left: 10px;" type="text">
+									<button type="submit" class="btn btn-success" style="margin-left: 36px;">
 											<i class="fa fa-heart" aria-hidden="true"></i>
 											دعوت به سایت
 									</button>
 								</div>
+              </form>
+
 							<table class="table table-striped">
 								<thead>
 										<tr>
@@ -121,156 +157,55 @@
 										</tr>
 								</thead>
 								<tbody>
-										<tr>
-												<td class="col-md-1">
-														<h4>1</h4>
-												</td>
-												<td class="col-md-2"><h5><strong>5/5/1371</strong></h5></td>
-												<td class="col-md-1">
-														<a href="profile-user.php">
-														علی علی‌نژاد
-														</a>
-												</td> 
-												<td class="col-md-3">
-														<input type="text" class="form-control" placeholder="">
-												</td> 
-												<td class="col-sm-4 col-md-4" style="display: contents;">
-													<div class="btn-group" style="margin-top: 5px;">
-														<button type="button" class="btn btn-warning">
-																<i class="fa fa-user-md" aria-hidden="true"></i>
-																دعوت‌به‌مطب
-														</button>
-														<button type="button" class="btn btn-success">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																ثبت
-														</button>
-														<button type="button" class="btn btn-danger">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																حذف
-														</button>
-													</div>
-												</td>
-										</tr>
-										<tr>
-												<td class="col-md-1">
-														<h4>2</h4>
-												</td>
-												<td class="col-md-2"><h5><strong>5/5/1371</strong></h5></td>
-												<td class="col-md-1">
-														<a href="profile-user.php">
-														علی علی‌نژاد
-														</a>
-												</td> 
-												<td class="col-md-3">
-														<input type="text" class="form-control" placeholder="">
-												</td> 
-												<td class="col-sm-4 col-md-4" style="display: contents;">
-													<div class="btn-group" style="margin-top: 5px;">
-														<button type="button" class="btn btn-warning">
-																<i class="fa fa-user-md" aria-hidden="true"></i>
-																دعوت‌به‌مطب
-														</button>
-														<button type="button" class="btn btn-success">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																ثبت
-														</button>
-														<button type="button" class="btn btn-danger">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																حذف
-														</button>
-													</div>
-												</td>
-										</tr>
-										<tr>
-												<td class="col-md-1">
-														<h4>1</h4>
-												</td>
-												<td class="col-md-2"><h5><strong>5/5/1371</strong></h5></td>
-												<td class="col-md-1"> 
-														<a href="profile-user.php">
-														علی علی‌نژاد
-														</a> 
-												</td> 
-												<td class="col-md-3">
-														<input type="text" class="form-control" placeholder="">
-												</td> 
-												<td class="col-sm-4 col-md-4" style="display: contents;">
-													<div class="btn-group" style="margin-top: 5px;">
-														<button type="button" class="btn btn-warning">
-																<i class="fa fa-user-md" aria-hidden="true"></i>
-																دعوت‌به‌مطب
-														</button>
-														<button type="button" class="btn btn-success">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																ثبت
-														</button>
-														<button type="button" class="btn btn-danger">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																حذف
-														</button>
-													</div>
-												</td>
-										</tr>
-										<tr>
-												<td class="col-md-1">
-														<h4>1</h4>
-												</td>
-												<td class="col-md-2"><h5><strong>5/5/1371</strong></h5></td>
-												<td class="col-md-1">
-														<a href="profile-user.php">
-														علی علی‌نژاد
-														</a>
-												</td> 
-												<td class="col-md-3">
-														<input type="text" class="form-control" placeholder="">
-												</td> 
-												<td class="col-sm-4 col-md-4" style="display: contents;">
-													<div class="btn-group" style="margin-top: 5px;">
-														<button type="button" class="btn btn-warning">
-																<i class="fa fa-user-md" aria-hidden="true"></i>
-																دعوت‌به‌مطب
-														</button>
-														<button type="button" class="btn btn-success">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																ثبت
-														</button>
-														<button type="button" class="btn btn-danger">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																حذف
-														</button>
-													</div>
-												</td>
-										</tr>
-										<tr>
-												<td class="col-md-1">
-														<h4>1</h4>
-												</td>
-												<td class="col-md-2"><h5><strong>5/5/1371</strong></h5></td>
-												<td class="col-md-1">
-														<a href="profile-user.php">
-														علی علی‌نژاد
-														</a>
-												</td> 
-												<td class="col-md-3">
-														<input type="text" class="form-control" placeholder="">
-												</td> 
-												<td class="col-sm-4 col-md-4" style="display: contents;">
-													<div class="btn-group" style="margin-top: 5px;">
-														<button type="button" class="btn btn-warning">
-																<i class="fa fa-user-md" aria-hidden="true"></i>
-																دعوت‌به‌مطب
-														</button>
-														<button type="button" class="btn btn-success">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																ثبت
-														</button>
-														<button type="button" class="btn btn-danger">
-																<i class="fa fa-times" aria-hidden="true"></i>
-																حذف
-														</button>
-													</div>
-												</td>
-										</tr> 
+
+                  <?php
+                    $conn = Connection() ;
+                    $user_id = $_SESSION['user_id'] ;
+                    $sql = "SELECT * FROM users AS u INNER JOIN reservation AS r ON r.did = {$user_id} WHERE u.id = r.uid";
+                    $result = $conn->query($sql);
+
+                    if ($result->num_rows > 0) {
+                        // output data of each row
+                        $row_ind = 1 ;
+                        while($row = $result->fetch_assoc()) {
+                          $full_name = $row['fname'] .  " " . $row['name'] ;
+                          $today = jdate('Y/m/d', strtotime($row['date_time'])) ;
+                          $html_to_show = "<tr>
+                    												<td class=\"col-md-1\">
+                    														<h4>{$row_ind}</h4>
+                    												</td>
+                    												<td class=\"col-md-2\"><h5><strong>{$today}</strong></h5></td>
+                    												<td class=\"col-md-1\">
+                    														<a href=\"profile-user.php\">
+                    														 <b>{$full_name}</b>
+                    														</a>
+                    												</td>
+                    												<td class=\"col-md-3\">
+                    														<input type=\"text\" class=\"form-control\" placeholder=\"\">
+                    												</td>
+                    												<td class=\"col-sm-4 col-md-4\" style=\"display: contents;\">
+                    													<div class=\"btn-group\" style=\"margin-top: 5px;\">
+                    														<button type=\"button\" class=\"btn btn-warning\">
+                    																<i class=\"fa fa-user-md\" aria-hidden=\"true\"></i>
+                    																دعوت‌به‌مطب
+                    														</button>
+                    														<button type=\"button\" class=\"btn btn-success\">
+                    																<i class=\"fa fa-times\" aria-hidden=\"true\"></i>
+                    																ثبت
+                    														</button>
+                    														<button type=\"button\" class=\"btn btn-danger\">
+                    																<i class=\"fa fa-times\" aria-hidden=\"true\"></i>
+                    																حذف
+                    														</button>
+                    													</div>
+                    												</td>
+                    										</tr>";
+                                echo $html_to_show ;
+                                $row_ind ++ ;
+                        }
+                    }
+                   ?>
+
 								</tbody>
 						</table>
 						<ul class="pagination">
@@ -286,6 +221,6 @@
       </div>
       <!-- section 3 -->
       <!-- section 2  -->
-      
+
       <!-- section 2  -->
       <?php include("pages/footer.php"); ?>

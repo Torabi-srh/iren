@@ -76,11 +76,13 @@ $(document).ready(function() {
             dqavanin: "لطفا قوانین را مطالعه کنید"
         }
     });
-    $("#drubm").click(function() {
+    $("#drubm").click(function(event) {
+        event.preventDefault();
         $.ajax({
             type: "POST",
             url: '/ajax/register.php',
             data: {
+                dfm: 0,
                 email: $("input[name=demail]").val(),
                 username: $("input[name=dusername]").val(),
                 password: $("input[name=dpassword]").val(),
@@ -146,11 +148,13 @@ $(document).ready(function() {
             qavanin: "لطفا قوانین را مطالعه کنید"
         }
     });
-    $("input[name=usubm]").click(function() {
+    $("#usubm").click(function(event) {
+        event.preventDefault();
         $.ajax({
             url: '/ajax/register.php',
             type: "POST",
             data: {
+                fm: 0,
                 isdr: 0,
                 email: $("input[name=email]").val(),
                 username: $("input[name=username]").val(),

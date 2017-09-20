@@ -1,81 +1,7 @@
 <?php
 
 include ("/assets/functions.php");
-//$err = "";
-//if (!empty($_POST['usubm'])) {
-//  $err = usubm();
-//}
-//function usubm() {
-//  $email = "";
-//  $username = "";
-//  $password = "";
-//  $cpassword = "";
-//  $qavanin = "";
-//
-//  if (!empty($_POST['email'])) {
-//    $email = $_POST['email'];
-//  } else {
-//    return '
-//            <div class="alert alert-danger">
-//              <strong>Danger!</strong> Please enter your email address!
-//            </div>
-//           ';
-//  }
-//  if (!empty($_POST['username'])) {
-//    $username = $_POST['username'];
-//  } else {
-//      return '
-//              <div class="alert alert-danger">
-//                <strong>Danger!</strong> Please enter your email address!
-//              </div>
-//             ';
-//  }
-//  if (!empty($_POST['password'])) {
-//    $password = $_POST['password'];
-//  } else {
-//      return '
-//              <div class="alert alert-danger">
-//                <strong>Danger!</strong> Please enter your password!
-//              </div>
-//             ';
-//  }
-//  if (!empty($_POST['cpassword'])) {
-//    $cpassword = $_POST['cpassword'];
-//  } else {
-//      return '
-//              <div class="alert alert-danger">
-//                <strong>Danger!</strong> Please enter your confirm password!
-//              </div>
-//             ';
-//  }
-//  if (empty($_POST['qavanin'])) {
-//      return '
-//              <div class="alert alert-danger">
-//                <strong>Danger!</strong> Please check agreement!
-//              </div>
-//             ';
-//  }
-//  if ($cpassword !== $password) {
-//      return '
-//              <div class="alert alert-danger">
-//                <strong>Warning!</strong> passwords not match!
-//              </div>
-//             ';
-//  } elseif (strlen($password) < 8) {
-//      return '
-//              <div class="alert alert-danger">
-//                <strong>Warning!</strong> password have not more than 8 character!
-//              </div>
-//             ';
-//  }
-//  if (register($username, $password, $email)) {
-//    return '
-//            <div class="alert alert-success">
-//              <strong>Registeration Successful!</strong> Please check your email!
-//            </div>
-//           ';
-//  }
-//}
+
  ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -122,8 +48,8 @@ include ("/assets/functions.php");
                         <label>
                           <input name="dqavanin" id="dqavanin" type="checkbox" style="margin: 19px;" value="agreement"> <a href=""> قوانین </a>
                         </label>
-                      </div>
-                    <input class="btn btn-lg btn-success btn-block" id="drubm" name="drubm" type="submit" value="ثبت نام دکتر">
+                      </div> 
+                    <input class="btn btn-lg btn-success btn-block" id="drubm" name="drubm" type="button" value="ثبت نام دکتر">
                   </fieldset>
                   </form>
                 </div>
@@ -135,7 +61,7 @@ include ("/assets/functions.php");
                     <h3 class="panel-title">ثبت نام کاربر</h3>
                 </div>
                   <div class="panel-body">
-                    <form accept-charset="UTF-8" action="register.php" name="fm" id="fm" method="post" role="form">
+                    <form accept-charset="UTF-8" name="fm" id="fm" role="form">
                             <fieldset>
                         <div class="form-group">
                           <input class="form-control" placeholder="پست الکترونیکی" name="email" id="email" type="text">
@@ -152,7 +78,7 @@ include ("/assets/functions.php");
                       <div class="checkbox">
                             <input name="qavanin" id="qavanin" type="checkbox" style="margin: 19px;" value="agreement"><a href=""> قوانین </a></input>
                         </div>
-                      <input class="btn btn-lg btn-success btn-block" name="usubm" id="usubm" type="submit" value="ثبت نام کاربر">
+                      <input class="btn btn-lg btn-success btn-block" name="usubm" id="usubm" type="button" value="ثبت نام کاربر">
                     </fieldset>
                     </form>
                   </div>

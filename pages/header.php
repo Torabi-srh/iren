@@ -1,4 +1,6 @@
 <?php
+ include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
+  // just to make sure this page has not any errors !
   $GLOBALS['a'] = 1;
   function head($var) {
       if ($var == "doc") {
@@ -13,7 +15,11 @@
         $GLOBALS['a'] = 5;
       } else {
         $GLOBALS['a'] = 0;
-      } 
+      }
+      define('MALE', 'مرد');
+      define('FEMALE', 'زن') ;
+      define('DR', 'دکتر');
+      $info = pull_out_users_data() ;
 ?>
 
 <!DOCTYPE html>
@@ -23,11 +29,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IDK - IDK</title>
-    
+
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/normalize.min.css"> 
+    <link rel="stylesheet" href="css/normalize.min.css">
     <link href='css/fullcalendar.css' rel='stylesheet' />
     <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
   </head>
@@ -70,7 +76,7 @@
                     </li>
                     <li>
                       <a href="resume.php">پرونده<b></b></a>
-                    </li> 
+                    </li>
                 </ul>
             </div>
             <!--/.navbar-collapse-->
@@ -78,7 +84,7 @@
 
     <div class="container">
       <!-- section 1 -->
-<?php if ($GLOBALS['a'] == 1): ?> 
+<?php if ($GLOBALS['a'] == 1): ?>
       <div class="row">
         <div class="col-md-8">
           <div class="panel panel-default">
@@ -86,35 +92,49 @@
               <div class="col-md-5" style="left: 130px;">
                 <form class="form-horizontal">
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">12</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['age']; ?></p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-birthday-cake" aria-hidden="true"></i> سن</label>
                   </div>
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">مرد</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['gender'] == 0 ? FEMALE : MALE ; ?></p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-mars" aria-hidden="true"></i> جنسیت</label>
                   </div>
-                  
+
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">10000 ريال</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">
+                      <?php
+                        $conn = Connection() ;
+                        $id = $info['id'] ;
+                        $sql = "SELECT depose FROM invoice WHERE uid = '$id'" ;
+                        $result = $conn->query($sql);
+                        $sum_depose = 0.0 ;
+                        if ($result->num_rows > 0) {
+                          while($row = $result->fetch_assoc()) {
+                            $sum_depose += $row['depose'] ;
+                          }
+                        }
+                        echo $sum_depose . " " . "ریال" ;
+                      ?>
+                    </p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-money" aria-hidden="true"></i> موجودی</label>
                   </div>
                 </form>
               </div>
               <div class="col-md-7">
                 <form class="form-horizontal pull-right" style="min-width:80%;">
-                   
+
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['fname']; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام</label>
                   </div>
-                  
+
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['name']; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام‌خانوادگی</label>
                   </div>
-                   
+
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">someone@example.com</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['email']; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-envelope-o" aria-hidden="true"></i> پست‌الکترونیک</label>
                   </div>
                 </form>
@@ -126,13 +146,20 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="thumbnail">
-                <img src="assets/images/users/no-image.jpg" class="img-circle" alt="Cinque Terre" width="150" height="150">
+                <img src=<?php echo  $info['picture'] ; ?> class="img-circle" alt="Cinque Terre" width="150" height="150">
                 <div class="caption" style="text-align: center;">
-                  <p>یوزر</p>
-                  <div class="btn-group">
-                    <button type="button" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
-                    <button type="button" class="btn btn-danger"><i class="fa fa-sign-out" aria-hidden="true"></i> خروج</button>
-                  </div>
+                  <p>
+                    <?php
+                      echo $_SESSION['username'] ;
+                    ?>
+                  </p>
+                  <form action="profile-user.php" method="post">
+                    <div class="btn-group">
+                      <button type="submit" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
+                      <button type="submit" class="btn btn-danger" name="exit_btn"><i class="fa fa-sign-out" aria-hidden="true"></i> خروج</button>
+                    </div>
+                  </form>
+
                 </div>
               </div>
             </div>
@@ -140,8 +167,8 @@
         </div>
       </div>
       <!-- section 1  -->
-       
-<?php elseif ($GLOBALS['a'] == 4): ?> 
+
+<?php elseif ($GLOBALS['a'] == 4): ?>
       <div class="row">
         <div class="col-md-8">
           <div class="panel panel-default">
@@ -153,23 +180,23 @@
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-birthday-cake" aria-hidden="true"></i> سن</label>
                   </div>
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">مرد</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">kharrrrr</p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-mars" aria-hidden="true"></i> جنسیت</label>
-                  </div> 
+                  </div>
                 </form>
               </div>
               <div class="col-md-7">
                 <form class="form-horizontal pull-right" style="min-width:80%;">
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">god is here</p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام</label>
                   </div>
-                  
+
                   <div class="form-group">
                     <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام‌خانوادگی</label>
                   </div>
-                   
+
                   <div class="form-group">
                     <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">someone@example.com</p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-envelope-o" aria-hidden="true"></i> پست‌الکترونیک</label>
@@ -183,7 +210,7 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="thumbnail">
-                <img src="assets/images/users/no-image.jpg" class="img-circle" alt="Cinque Terre" width="150" height="150">
+                <img src="assets/images/users/avatar2_large.png" class="img-circle" alt="Cinque Terre" width="150" height="150">
                 <div class="caption" style="text-align: center;">
                   <p>یوزر</p>
                   <div class="btn-group">
@@ -196,9 +223,9 @@
         </div>
       </div>
       <!-- section 1  -->
-      
-      
-<?php elseif ($GLOBALS['a'] == 5): ?> 
+
+
+<?php elseif ($GLOBALS['a'] == 5): ?>
       <div class="row">
         <div class="col-md-8">
           <div class="panel panel-default">
@@ -206,17 +233,17 @@
               <div class="col-md-5" style="left: 130px;">
                 <form class="form-horizontal">
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">12</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">24</p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-birthday-cake" aria-hidden="true"></i> سن</label>
                   </div>
                   <div class="form-group">
                     <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">مرد</p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-mars" aria-hidden="true"></i> جنسیت</label>
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">+989889989</p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-phone" aria-hidden="true"></i> تلفن</label>
-                  </div> 
+                  </div>
                 </form>
               </div>
               <div class="col-md-7">
@@ -225,12 +252,12 @@
                     <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام</label>
                   </div>
-                  
+
                   <div class="form-group">
                     <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام‌خانوادگی</label>
                   </div>
-                   
+
                   <div class="form-group">
                     <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">someone@example.com</p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-envelope-o" aria-hidden="true"></i> پست‌الکترونیک</label>
@@ -244,7 +271,7 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="thumbnail">
-                <img src="assets/images/users/no-image.jpg" class="img-circle" alt="Cinque Terre" width="150" height="150">
+                <img src="assets/images/users/avatar2_large.png" class="img-circle" alt="Cinque Terre" width="150" height="150">
                 <div class="caption" style="text-align: center;">
                   <p>یوزر</p>
                   <div class="btn-group">
@@ -257,7 +284,7 @@
         </div>
       </div>
       <!-- section 1  -->
-<?php elseif ($GLOBALS['a'] == 2): ?> 
+<?php elseif ($GLOBALS['a'] == 2): ?>
       <div class="row">
         <div class="col-md-8">
           <div class="panel panel-default">
@@ -265,16 +292,34 @@
               <div class="col-md-5" style="left: 130px;">
                 <form class="form-horizontal">
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">12</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['age']; ?></p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-birthday-cake" aria-hidden="true"></i> سن</label>
                   </div>
+                  <?php
+                      echo "<div class=\"form-group\">
+                        <div class=\"col-sm-6\" style=\"margin: 0px;padding: 0px;\"><p class=\"form-control\" style=\"border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;\">" ;
+                        echo trim($info['phone']) ;
+                        echo"</p></div>
+                        <label class=\"control-label col-sm-6 input-group-addon\" style=\"min-width: 85px;border-radius: 0px 5px 5px 0px;\"><i class=\"fa fa-mars\" aria-hidden=\"true\"></i> شماره تلفن</label>
+                      </div>" ;
+                  ?>
+
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">مرد</p></div>
-                    <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-mars" aria-hidden="true"></i> جنسیت</label>
-                  </div>
-                  
-                  <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">10000 ريال</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">
+                      <?php
+                        $conn = Connection() ;
+                        $id = $info['id'] ;
+                        $sql = "SELECT depose FROM invoice WHERE uid = '$id'" ;
+                        $result = $conn->query($sql);
+                        $sum_depose = 0.0 ;
+                        if ($result->num_rows > 0) {
+                          while($row = $result->fetch_assoc()) {
+                            $sum_depose += $row['depose'] ;
+                          }
+                        }
+                        echo $sum_depose . " " . "ریال" ;
+                      ?>
+                    </p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-money" aria-hidden="true"></i> موجودی</label>
                   </div>
                 </form>
@@ -282,17 +327,17 @@
               <div class="col-md-7">
                 <form class="form-horizontal pull-right" style="min-width:80%;">
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['fname']; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام</label>
                   </div>
-                  
+
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['name']; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام‌خانوادگی</label>
                   </div>
-                   
+
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">someone@example.com</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['email']; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-envelope-o" aria-hidden="true"></i> پست‌الکترونیک</label>
                   </div>
                 </form>
@@ -304,15 +349,17 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="thumbnail">
-                <img src="assets/images/users/no-image.jpg" class="img-circle" alt="Cinque Terre" width="150" height="150">
+                <img src=<?php echo  $info['picture'] ; ?> class="img-circle" alt="Cinque Terre" width="150" height="150">
                 <div class="caption" style="text-align: center;">
-                  <p>دکتر</p>
-                  <div class="btn-group">
-                    <button type="button" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button> 
-                    <button type="button" class="btn btn-danger"><i class="fa fa-sign-out" aria-hidden="true"></i> خروج</button>
-                  </div>
+                  <h5><?php echo DR . $info['fname'] . " " .  $info['name'];  ?></h5>
+                  <form action="profile-doctor.php" method="post">
+                    <div class="btn-group">
+                      <button type="submit" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
+                      <button type="submit" class="btn btn-danger" name="exit_btn"><i class="fa fa-sign-out" aria-hidden="true"></i> خروج</button>
+                    </div>
+                  </form>
                 </div>
-              </div> 
+              </div>
             </div>
           </div>
         </div>

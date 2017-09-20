@@ -203,4 +203,43 @@ CREATE TABLE IF NOT EXISTS `post_comments` (
       ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  
+ 
+---
+-- Dumping DATA FOR TABLE `type`
+--
+
+CREATE TABLE IF NOT EXISTS `product_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `Tname` varchar(255) NOT NULL,
+  PRIMARY KEY(`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ CREATE TABLE IF NOT EXISTS `product` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product` varchar(255) NOT NULL,
+  `tid` int(3) DEFAULT 1 ,
+  `picture` varchar(255)  DEFAULT "assets/images/product/no-image.jpg",
+  `description` text,
+  `price` float(8) NOT NULL,
+  `starts` float(2) DEFAULT 0.0,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`tid`) REFERENCES product_type(`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+---
+-- Dumping DATA FOR TABLE `reservation`
+--
+
+CREATE TABLE IF NOT EXISTS `reservation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL ,
+  `did` int(11) NOT NULL,
+  `date_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`uid`) REFERENCES users(`id`),
+  FOREIGN KEY (`did`) REFERENCES users(`id`)
+    ON UPDATE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 SET foreign_key_checks=1;

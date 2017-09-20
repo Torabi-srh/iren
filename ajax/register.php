@@ -1,5 +1,6 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
+
 if (isset($_POST['check'])) {
   if (isset($_POST['username'])) { 
     echo (json_encode(true));
@@ -137,10 +138,9 @@ if (isset($_POST["dfm"])) {
   }
 
   $isdr = 1;
-} elseif (isset($_POST["fm"])) {
+} elseif (isset($_POST["fm"])) { 
   if (isset($_POST["email"])) {
-    $email = $_POST['email'];
-  
+    $email = $_POST['email']; 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
       echo false;
     }
@@ -232,14 +232,13 @@ if (isset($_POST["dfm"])) {
       return;
     }
   }
-   
   $isdr = 0;
 } else {
   
 }
 
 if (!empty($passwd) && !empty($username) && !empty($email)) {
-  $reg = 1; //register($username, $passwd, $email, $isdr, $snr);
+  $reg = register($username, $passwd, $email, $isdr, $snr);
   if ($reg) {
     echo '
           <p class="notification is-success">

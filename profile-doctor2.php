@@ -1,4 +1,14 @@
-<?php include("pages/header.php");head("d2"); ?>
+<?php include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
+	include("pages/header.php");head("d2");
+	$log_check = login_check() ;
+  if ($log_check === false) {
+    saferedirect("login.php") ;
+  } else {
+    if($log_check[0] === false) {
+      saferedirect("login.php") ;
+    }
+  }
+   ?>
     <div class="row">
         <div class="panel panel-default">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
