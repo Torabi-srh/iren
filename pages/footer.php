@@ -103,7 +103,7 @@ include("pages/chat.php");
     <script src="js/resume-wizard.js"></script>
     <script src="js/ckeditor/ckeditor.js"></script>
     <script src='js/locale-all.js'></script> 
-
+    <script src="js/blog.js"></script>
     <script>
         var ck = false;
         //$(":not(posteditor):first").click (function () {

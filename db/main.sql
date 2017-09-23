@@ -39,8 +39,8 @@ USE `telepathy_master`;
 CREATE TABLE IF NOT EXISTS users ( 
   id int(11) NOT NULL AUTO_INCREMENT, 
   username varchar(20) NOT NULL , 
-  fname varchar(20) NOT NULL , 
-  name varchar(20) NOT NULL , 
+  fname varchar(20) , 
+  name varchar(20) , 
   password varchar(20) NOT NULL , 
   email varchar(100) NOT NULL, 
   age int(3) , 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS users (
   isdr tinyint(1) NOT NULL DEFAULT 0,
   wizard tinyint(1) NOT NULL DEFAULT 0, 
   drcode varchar(10) NOT NULL, 
-  register_ip varchar(20)  DEFAULT "127.0.0.1", 
+  register_ip varchar(20) DEFAULT "127.0.0.1", 
   PRIMARY KEY (`id`,`username`,`email`) 
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `post_comments` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `uid` int(11) NOT NULL,
     `pid` int(11) NOT NULL,
-    `comment` int(11) NOT NULL,
+    `comment` TEXT NOT NULL,
     `c_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`uid`) REFERENCES users(`id`)

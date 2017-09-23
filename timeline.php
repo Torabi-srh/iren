@@ -1,6 +1,15 @@
 <?php
-
 include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
+
+$log_check = login_check();
+if ($log_check === false) {
+	saferedirect("login.php");
+} else { 
+	if($log_check[0] === false) {
+		redirect("login.php");
+	} 
+}
+
 $mysqli = isset($mysqli) ? $mysqli : Connection();
 include("pages/header.php");head("");
 ?>
@@ -11,16 +20,21 @@ include("pages/header.php");head("");
 								<!--<input name="editor1" id="editor1" placeholder="Click here to edit." />-->
 								<div class="input-group" style="margin-top: 1%;">
 									<span class="input-group-addon">Post</span>
-									<input id="msg" type="text" class="form-control" name="msg" placeholder="titile">
+									<input id="header" type="text" class="form-control" name="header" placeholder="titile">
 								</div>
 								<div class="input-group" style="margin-top: 1%;margin-bottom: 1%;">
 									    <label class="control-label">Select File</label>
-											<input id="input-1" type="file" class="file">
+										<input id="input-1" name="input-1" type="file" class="file">
 								</div>
 								
 								<div class="input-group" name="editor1" id="editor1" style="margin-bottom: 1%;">
 									<span class="input-group-addon">Post</span>
 									<input id="msg" type="text" class="form-control" name="msg" placeholder="Post to your blog">
+								</div>
+								 
+								<div class="input-group" name="editor1" id="editor1" style="margin-bottom: 1%;">
+									<span class="input-group-addon"></span>
+									<input type="submit" class="form-control" name="post" value="Post to your blog">
 								</div>
 						</form>		
 					</div>
@@ -44,14 +58,14 @@ include("pages/header.php");head("");
 				<article>
 					<div class="row">
 					  <div class="col-sm-6 col-md-4">
-						<figure>
+						<div>
 						  <img src="<?php echo "$upicture"; ?>">
-						</figure>
+						</div>
 					  </div>
 						<div class="col-sm-6 col-md-8">
 							<span class="label label-default pull-left no-rad"><i class="glyphicon glyphicon-comment"></i><?php echo "$pcmds"; ?></span>
 							<span class="label label-default pull-left no-rad"><i class="glyphicon glyphicon-heart"></i><?php echo "$plikes"; ?></span>
-							<h4>دکتر <?php echo "$pheader"; ?></h4>
+							<h4><?php echo "$pheader"; ?></h4>
 							<p><?php echo "$txt"; ?></p>
 							<section class="pull-left">
 							  <i class="glyphicon glyphicon-user"></i>دکتر <?php echo "$uusername"; ?>
@@ -70,12 +84,11 @@ include("pages/header.php");head("");
 			  <ul class="pagination">
 				<?php
 					if ($stmt = $mysqli->prepare("SELECT count(id) FROM posts")):
-					$stmt->bind_param('d', $page);
 					$stmt->execute();
 					$stmt->store_result();
 					$stmt->bind_result($cnt);
 					$stmt->fetch();
-					for ($cnti = 1; $cnti <= $cnt; $cnti++):
+					for ($cnti = 1; $cnti <= ceil($cnt / 5); $cnti++):
 				?>
 					<li class="<?php echo ($page == $cnti ? "active" : ""); ?>"><a href="<?php echo "?p=$cnti"; ?>"><?php echo "$cnti"; ?></a></li>
 				<?php
@@ -112,12 +125,12 @@ include("pages/header.php");head("");
         								<div class="tab-post-list">
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
-        											<figure>
+        											<div>
         												<a href="single.html">
         													<img src="assets/images/tmp/placehold.it.png"
         														 alt="Post thumb">
         												</a>
-        											</figure>
+        											</div>
         										</div>
         										<div class="tab-post-title">
         											<h6><a href="single.html">تست</a>
@@ -127,12 +140,12 @@ include("pages/header.php");head("");
         									</div>
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
-        											<figure>
+        											<div>
         												<a href="single.html">
         													<img src="assets/images/tmp/placehold.it.png"
         														 alt="Post thumb">
         												</a>
-        											</figure>
+        											</div>
         										</div>
         										<div class="tab-post-title">
         											<h6><a href="single.html">تست 2</a>
@@ -142,12 +155,12 @@ include("pages/header.php");head("");
         									</div>
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
-        											<figure>
+        											<div>
         												<a href="single.html">
         													<img src="assets/images/tmp/placehold.it.png"
         														 alt="Post thumb">
         												</a>
-        											</figure>
+        											</div>
         										</div>
         										<div class="tab-post-title">
         											<h6><a href="single.html">تست 3</a></h6>
@@ -160,12 +173,12 @@ include("pages/header.php");head("");
         								<div class="tab-post-list">
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
-        											<figure>
+        											<div>
         												<a href="single.html">
         													<img src="assets/images/tmp/placehold.it.png"
         														 alt="Post thumb">
         												</a>
-        											</figure>
+        											</div>
         										</div>
         										<div class="tab-post-title">
         											<h6><a href="single.html">تست 4</a>
@@ -175,12 +188,12 @@ include("pages/header.php");head("");
         									</div>
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
-        											<figure>
+        											<div>
         												<a href="single.html">
         													<img src="assets/images/tmp/placehold.it.png"
         														 alt="Post thumb">
         												</a>
-        											</figure>
+        											</div>
         										</div>
         										<div class="tab-post-title">
         											<h6><a href="single.html">تست</a>
@@ -190,12 +203,12 @@ include("pages/header.php");head("");
         									</div>
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
-        											<figure>
+        											<div>
         												<a href="single.html">
         													<img src="assets/images/tmp/placehold.it.png"
         														 alt="Post thumb">
         												</a>
-        											</figure>
+        											</div>
         										</div>
         										<div class="tab-post-title">
         											<h6><a href="single.html">تست 3</a></h6>

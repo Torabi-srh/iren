@@ -1,16 +1,17 @@
 <?php
-  include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
+  include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
   if(isset($_POST['exit_btn'])) {
     lagout() ;
     saferedirect('login.php');
   }
 ?>
 <?php
-  $log_check = login_check() ;
+  $log_check = login_check();
   if ($log_check === false) {
     redirect("login.php") ;
   } else {
     if($log_check[0] === false) {
+			
       redirect("login.php") ;
     } elseif ($log_check[1] === 0) {
       redirect("profile-user.php") ;
@@ -161,13 +162,17 @@
                   <?php
                     $conn = Connection() ;
                     $user_id = $_SESSION['user_id'] ;
-                    $sql = "SELECT * FROM users AS u INNER JOIN reservation AS r ON r.did = {$user_id} WHERE u.id = r.uid";
-                    $result = $conn->query($sql);
-
-                    if ($result->num_rows > 0) {
-                        // output data of each row
-                        $row_ind = 1 ;
-                        while($row = $result->fetch_assoc()) {
+                    $sql = "SELECT * FROM users AS u INNER JOIN reservation AS r ON r.did = ? WHERE u.id = r.uid";
+										///////////////////////////
+										if ($result = $conn->prepare($sql)) {
+											$result->bind_param('i', $user_id);
+											$r = $result->execute();
+												
+											if ($r) {
+												$row = $result->get_result();												
+												// output data of each row
+                        $row_ind = 1;
+                        while($row = $row->fetch_assoc()) {
                           $full_name = $row['fname'] .  " " . $row['name'] ;
                           $today = jdate('Y/m/d', strtotime($row['date_time'])) ;
                           $html_to_show = "<tr>
@@ -203,7 +208,9 @@
                                 echo $html_to_show ;
                                 $row_ind ++ ;
                         }
-                    }
+											}
+										}
+										////////////////////////////
                    ?>
 
 								</tbody>

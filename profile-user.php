@@ -1,6 +1,5 @@
 <?php
-
-include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
    if(isset($_POST['exit_btn'])) {
      lagout() ;
      saferedirect("login.php") ;
@@ -8,8 +7,7 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
  $log_check = login_check() ;
   if ($log_check === false) {
     saferedirect("login.php") ;
-  } else {
-    // var_dump($_SESSION) ; die() ;
+  } else { 
     if($log_check[0] === false) {
       redirect("login.php") ;
     } elseif ($log_check[1] === 1) {

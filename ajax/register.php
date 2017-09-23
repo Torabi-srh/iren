@@ -18,7 +18,7 @@ $p = false;
 $cp = false;
 $q = false;
 $s = false;
-$snr = '';
+$snr = '0';
 
 if (isset($_POST["dfm"])) {
   if (isset($_POST["snr"])) {
@@ -239,6 +239,7 @@ if (isset($_POST["dfm"])) {
 
 if (!empty($passwd) && !empty($username) && !empty($email)) {
   $reg = register($username, $passwd, $email, $isdr, $snr);
+
   if ($reg) {
     echo '
           <p class="notification is-success">

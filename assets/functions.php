@@ -1,10 +1,9 @@
 <?php
 include_once 'statics.php';
-
 isdebug();
 if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
     http_response_code(400);
-    //include('errors/400.htm'); 
+    //include('errors/400.htm');
     die();
 }
 // include_once 'assets/handler.php';
@@ -88,7 +87,8 @@ function preventHijacking() {
 }
 function checkbrute($user_id) {
     $mysqli = isset($mysqli) ? $mysqli : Connection();
-    $now = date('Y-m-d H:i:s');
+    // change Y-m-d H:i:s to now
+    $now = date('now');
     $valid_attempts = $now - (2 * 60 * 60);
     if ($stmt = $mysqli->prepare("DELETE
                                FROM login_attempts
@@ -111,6 +111,7 @@ function checkbrute($user_id) {
         }
     }
 }
+
 function esc_url($url) {
     if ('' == $url) {
         return $url;
@@ -175,12 +176,13 @@ function login_check() {
                             return false;
                         }
                     }
-                } 
+                }
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['username'] = $username;
                 $_SESSION['login_string'] = $uname;
                 $_SESSION['cookie'] = $uname;
                 setcookie("telepath", $uname, time()+1123200, '/', 'localhost');
+                
                 return array(true, $isdr);
             }
         }
@@ -197,7 +199,7 @@ function login_check() {
         $login_string = $mysqli->real_escape_string($_SESSION['login_string']);
         $username = $mysqli->real_escape_string($_SESSION['username']);
         $user_browser = $_SERVER['HTTP_USER_AGENT'];
-        if ($stmt = $mysqli->prepare("SELECT login_session
+        if ($stmt = $mysqli->prepare("SELECT login_session, isdr
                                       FROM users
                                       WHERE id = ? LIMIT 1")) {
             $stmt->bind_param('i', $user_id);
@@ -205,10 +207,10 @@ function login_check() {
             $stmt->store_result();
 
             if ($stmt->num_rows == 1) {
-                $stmt->bind_result($password);
+                $stmt->bind_result($password, $isdr);
                 $stmt->fetch();
                 if ($password == $login_string) {
-                    return true;
+                    return array(true, $isdr);
                 } else {
                     if (strpos($actual_link, 'login') == false) {
                         $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
@@ -300,18 +302,19 @@ function Login($email, $password, $remember = false, $wiz = false) {
                       $d_day = 2246400;
                     }
                     $cookiehash = SaltMD5($user_id . $IP . $now);
-                    setcookie("telepath", $cookiehash, date('Y-m-d H:i:s')+$d_day, '/', 'localhost');
+                    // change Y-m-d H:i:s -> now
+                    setcookie("telepath", $cookiehash, date('now')+$d_day, '/', 'localhost');
                     $sql = "UPDATE `users` SET `login_session`='$cookiehash' WHERE `id`='$user_id'";
 
                     if ($stmt = $mysqli->prepare($sql)) {
                         $stmt->execute();
                     }
-                    
+
                     $_SESSION['emall'] = encrypt($email);
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['username'] = $username;
                     $_SESSION['login_string'] = $cookiehash;
-                    
+
                     return array(true, $is_dr);
                 } else {
                     if ($stmt = $mysqli->prepare("INSERT INTO login_attempts(user_id, now, user_agent, ip)
@@ -334,7 +337,6 @@ function lagout() {
         sessionStart("Login");
     }
     $mysqli = isset($mysqli) ? $mysqli : Connection();
-
     $sql = "UPDATE `users` SET `login_session`='' WHERE `id`='" . $mysqli->real_escape_string($_SESSION['user_id']) ."'";
     if ($stmt = $mysqli->prepare($sql)) {
         $stmt->execute();
@@ -521,21 +523,23 @@ function SaltMD5($str, $salt = 'kM3@A2RdYuA!MeNmA0@E1IvM$IzsQ2l@B8g0s') {
     $salt = sha1(md5($str)).$salt;
     return crypt($str, $salt);
 }
-function encrypt($pure_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m") {
-    $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
-    $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-    $encrypted_string = mcrypt_encrypt(MCRYPT_BLOWFISH, $encryption_key, utf8_encode($pure_string), MCRYPT_MODE_ECB, $iv);
+function encrypt($pure_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m", $tag = "1234123412341234") {
+    $cipher = "aes-128-gcm";
+    $iv_size = openssl_cipher_iv_length($cipher);
+    $iv = openssl_random_pseudo_bytes($iv_size);
+    $encrypted_string = openssl_encrypt($pure_string, $cipher, $encryption_key, $options=0, $iv, $tag);
     return $encrypted_string;
 }
-function decrypt($encrypted_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m") {
-    $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
-    $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-    $decrypted_string = mcrypt_decrypt(MCRYPT_BLOWFISH, $encryption_key, $encrypted_string, MCRYPT_MODE_ECB, $iv);
-    return $decrypted_string;
+function decrypt($encrypted_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m", $tag = "1234123412341234") {
+    $cipher = "aes-128-gcm";
+    $iv_size = openssl_cipher_iv_length($cipher);
+    $iv = openssl_random_pseudo_bytes($iv_size);
+    $original_plaintext = openssl_decrypt($encrypted_string, $cipher, $encryption_key, $options=0, $iv, $tag);
+    return $original_plaintext;
 }
 function Connection() {
     try {
-        if (islocal()) { 
+        if (islocal()) {
             $conn = new mysqli("127.0.0.1", "root", "123", "telepathy_master");
         } else {
             $conn = new mysqli(mysqlservername(), mysqlserverusername(), mysqlserverpassword(), mysqlserverdbname());//, $mysqlserverport);
@@ -605,7 +609,7 @@ function safeRedirect($url, $exit = true) {
     }
 }
 function redirect($url, $statusCode = 303) {
-    header('Location: ' . $url);
+    header('Location: ' . urlencode($url));
     die();
 }
 function hide_email($email) {
@@ -728,20 +732,58 @@ function is_email($email) {
   return ret ;
 }
 
-/* to get user datas */
-function pull_out_users_data() {
 
-    $conn = Connection() ;
-    $username = $_SESSION['username'] ;
-    $sql = "SELECT * FROM users WHERE username = '$username'" ;
-    $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-      $row = $result->fetch_assoc() ;
-      return $row ;
-    } else {
-      echo "There is not such a row in users table !" ;
-      die() ;
+
+  function is_user_activities_set() {
+    if (!isset($_SESSION['Last_URL']) && !is_session_started()) {
+        sessionStart("Login");
     }
-    $conn->close() ;
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+    $user_id = isset($_SESSION['user_id'])?$_SESSION['user_id']:'-1';
+    $actual_link = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/{$_SERVER['REQUEST_URI']}";
+    $user_ip = GetUserIP();
+    // $now = date('Y-m-d H:i:s');
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+    // echo $user_id . " " . $actual_link . " " . $user_ip . " " . $now . " " . $user_agent . "<br />" ;
+    $user_id = $mysqli->real_escape_string($user_id);
+    $sql = "SELECT ua.user_agent, u.email FROM user_activitys as ua INNER JOIN users as u ON u.id = ? WHERE ua.user_id = ? ORDER BY ua.ua_id desc limit 1" ;
+    if ($result = $mysqli->prepare($sql)) {
+      $result->bind_param('ii', $user_id,$user_id);
+      $result->execute();
+      $result->store_result();
+      $result->bind_result($user_agent, $to);
+      $result->fetch();
+    }
+    if ($user_agent === false) {
+      $subject = "account problem" ;
+      $message = "sombody login with diffrent os in your account !";
+      sendemail($to, $subject, $message);
+    }
+    return ($user_agent == $user_agent ? true : false);
+  }
+/* to get user datas */ 
+  function pull_out_users_data() { 
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
+
+    $username = $_SESSION['username'] ; 
+    $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+    if ($result = $mysqli->prepare($sql)) {
+      $result->bind_param('s', $username);
+      $r = $result->execute();
+        
+      if ($r) {
+        $row = $result->get_result();
+        $_data = $row->fetch_assoc();
+        
+        return $_data;
+      } else { 
+        echo "There is not such a row in users table !" ; 
+        die();
+      } 
+    } else {
+        echo "error";
+    }
+    
+    $mysqli->close() ; 
   }

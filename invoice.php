@@ -1,4 +1,8 @@
-<?php include("pages/header.php");head(""); ?>
+<?php 
+  include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
+  $log_check = login_check();
+  include("pages/header.php");head("");
+?>
       <div class="row">
         <div class="col-*-*">
           <div class="panel panel-default">
@@ -50,17 +54,17 @@
                     <td><a href="#">علی علیزاده</a></td>
                     <td>25/5/1396</td>
                     <td><span class="label label-success">+1000 ريال</span></td>
-                    </tr>
+                </tr>
                 <tr>
                   <td><a href="#">علی علیزاده</a></td>
                   <td>25/5/1396</td>
                   <td><span class="label label-danger">-500 ريال</span></td>
-                  </tr>
+                </tr>
                 <tr>
                   <td><a href="#">علی علیزاده</a></td>
                   <td>25/5/1396</td>
                   <td><span class="label label-danger">-500 ريال</span></td>
-                  </tr>
+                </tr>
               </tbody>
 
             </table>

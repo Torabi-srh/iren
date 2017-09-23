@@ -1,5 +1,5 @@
 <?php
- include_once($_SERVER['DOCUMENT_ROOT'] . "/telephaty/assets/functions.php");
+ include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
   // just to make sure this page has not any errors !
   $GLOBALS['a'] = 1;
   function head($var) {

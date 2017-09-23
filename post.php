@@ -1,49 +1,47 @@
-<?php include("pages/header.php");head(""); ?>
+<?php
+if (empty($_GET['id'])) {
+	redirect("timeline.php");die();
+} else {
+	$pid = $_GET['id'];
+	if (!filter_var($pid, FILTER_VALIDATE_INT) || !is_numeric($pid)) { redirect("timeline.php");die(); }
+}
+include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
+
+$log_check = login_check() ;
+if ($log_check === false) {
+	saferedirect("login.php");
+} else { 
+	if($log_check[0] === false) {
+		redirect("login.php");
+	} 
+}
+
+$mysqli = isset($mysqli) ? $mysqli : Connection();
+$sql = "SELECT p.id, p.views, p.likes, p.header, p.image, txt, p.p_date, u.username, u.picture,(SELECT SUM(pc.id) FROM post_comments AS pc WHERE pc.pid = p.id) FROM posts AS p INNER JOIN users AS u ON u.id = p.publisher WHERE p.id = ? ORDER BY p.p_date";
+if ($stmt = $mysqli->prepare($sql)) {
+	$pid = $mysqli->real_escape_string($pid);
+	$stmt->bind_param('d', $pid);
+	$stmt->execute();
+	$stmt->store_result();
+	$stmt->bind_result($pid, $pviews, $plikes, $pheader, $pimage, $txt, $pp_date, $uusername, $upicture, $pcmds);
+	$stmt->fetch();
+}
+include("pages/header.php");head(""); ?>
       <!-- section 3 -->
 			<div class="well"> 
         <div class="row">
              <div class="col-md-12">
-                 <div class="row hidden-md hidden-lg"><h1 class="text-center" >TITULO LARGO DE UNA INVESTIGACION cualquiera</h1></div>
-                     
-                 <div class="pull-left col-md-4 col-xs-12 thumb-contenido"><img class="center-block img-responsive" src='http://placehold.it/500x500' /></div>
+                 <div class="pull-left col-md-4 col-xs-12 thumb-contenido"><img class="center-block img-responsive" src='<?php echo "$upicture"; ?>' /></div>
                  <div class="">
-                     <h1  class="hidden-xs hidden-sm">تست یک پست</h1>
+                     <h1  class="hidden-xs hidden-sm"><?php echo "$pheader"; ?></h1>
                      <hr>
-                     <small>8 - 06 -1396</small><br>
-                     <small><strong>دکتر فلانی</strong></small>
+                     <small><?php echo "$pp_date"; ?></small><br>
+                     <small><strong>دکتر <?php echo "$uusername"; ?></strong></small>
                      <hr>
-                     <p class="text-justify">بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی.<br><br>
-                 
-                 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی.<br><br>
-                 
-                 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی.<br><br>
-                 
-                 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی. <br>
-                 
-                 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی
-										 بسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببیبسیبسیبسیبسیبسیبببببببببی.</p></div>
+                     <p class="text-justify">
+					<?php echo "$txt"; ?>
+					
+				 </p></div>
              </div>
         </div>
 				
@@ -56,8 +54,8 @@
 								<div class="widget-area no-padding blank">
 										<div class="status-upload">
 											<form>
-												<textarea placeholder="Comment" ></textarea>
-												<button type="submit" class="btn btn-success green pull-left"><i class="fa fa-share"></i> Send</button>
+												<textarea id="comment-text" placeholder="Comment" ></textarea>
+												<button type="submit" id="comment-submit" class="btn btn-success green pull-left"><i class="fa fa-share"></i> Send</button>
 											</form>
 										</div><!-- Status Upload  -->
 								</div><!-- Widget Area -->
@@ -68,52 +66,43 @@
 							<h2 class="page-header">Comments</h2>
 								<section class="comment-list">
 									<!-- First Comment -->
-									<article class="row">
-										<div class="col-md-2 col-sm-2 hidden-xs">
-											<figure class="thumbnail">
-												<img class="img-responsive" src="http://www.keita-gaming.com/assets/profile/default-avatar-c5d8ec086224cb6fc4e395f4ba3018c2.jpg" />
-												<figcaption class="text-center">username</figcaption>
-											</figure>
-										</div>
-										<div class="col-md-10 col-sm-10">
-											<div class="panel panel-default arrow left">
-												<div class="panel-body">
-													<header class="text-left">
-														<div class="comment-user"><i class="fa fa-user"></i> That Guy</div>
-														<time class="comment-date" datetime="16-12-2014 01:05"><i class="fa fa-clock-o"></i> Dec 16, 2014</time>
-													</header>
-													<div class="comment-post">
-														<p>
-															Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-														</p>
-													</div>
-												</div>
-											</div>
-										</div>
-									</article>
-									<article class="row">
-										<div class="col-md-2 col-sm-2 hidden-xs">
-											<figure class="thumbnail">
-												<img class="img-responsive" src="http://www.keita-gaming.com/assets/profile/default-avatar-c5d8ec086224cb6fc4e395f4ba3018c2.jpg" />
-												<figcaption class="text-center">username</figcaption>
-											</figure>
-										</div>
-										<div class="col-md-10 col-sm-10">
-											<div class="panel panel-default arrow left">
-												<div class="panel-body">
-													<header class="text-left">
-														<div class="comment-user"><i class="fa fa-user"></i> That Guy</div>
-														<time class="comment-date" datetime="16-12-2014 01:05"><i class="fa fa-clock-o"></i> Dec 16, 2014</time>
-													</header>
-													<div class="comment-post">
-														<p>
-															Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-														</p>
-													</div>
-												</div>
-											</div>
-										</div>
-									</article>
+									<?php
+								$sql = "SELECT pc.comment, pc.c_date, u.username, u.picture FROM post_comments AS pc INNER JOIN users AS u ON u.id = pc.uid WHERE pc.pid = ?";
+				if ($stmt = $mysqli->prepare($sql)):
+					$stmt->bind_param('d', $page);
+					$stmt->execute();
+					$stmt->store_result();
+					$stmt->bind_result($pccomment, $pcc_date, $uusername, $upicture);
+					while ($stmt->fetch()):
+			?>
+				<article class="row">
+					<div class="col-md-2 col-sm-2 hidden-xs">
+						<figure class="thumbnail">
+							<img class="img-responsive" src="<?php echo "$upicture"; ?>" />
+							<figcaption class="text-center"><?php echo "$uusername"; ?></figcaption>
+						</figure>
+					</div>
+					<div class="col-md-10 col-sm-10">
+						<div class="panel panel-default arrow left">
+							<div class="panel-body">
+								<header class="text-left">
+									<div class="comment-user"><i class="fa fa-user"></i> <?php echo "$uusername"; ?></div>
+									<time class="comment-date" datetime="16-12-2014 01:05"><i class="fa fa-clock-o"></i><?php echo "$pcc_date"; ?></time>
+								</header>
+								<div class="comment-post">
+									<p>
+										<?php echo "$pccomment"; ?>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</article>
+			<?php		
+					endwhile;
+				endif;
+			?>
+									
 									
 								</section>
 						</div>
