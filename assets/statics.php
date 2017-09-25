@@ -22,7 +22,7 @@
   define('DB_HOST', 'localhost');
   define('DB_USER', 'admingjQ8RDG');
   define('DB_PASSWORD', 'D2qxcy-BwSGX');
-  define('DB_NAME', 'php');
+  define('DB_NAME', 'telepathymaster');
   define('DB_PORT', '3306');
   function serverRoot()
   {

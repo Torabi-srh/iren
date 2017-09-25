@@ -19,16 +19,16 @@ SET GLOBAL SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";*/
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `telepathy_master`
+-- Database: `telepathymaster`
 --
 
 -- --------------------------------------------------------
 
 --
--- Database: `telepathy_master`
+-- Database: `telepathymaster`
 --
-CREATE DATABASE IF NOT EXISTS `telepathy_master` DEFAULT CHARACTER SET utf8 ;
-USE `telepathy_master`;
+CREATE DATABASE IF NOT EXISTS `telepathymaster` DEFAULT CHARACTER SET utf8 ;
+USE `telepathymaster`;
 
 -- ----------------------------------------------------------------
 

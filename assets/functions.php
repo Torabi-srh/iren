@@ -576,7 +576,7 @@ function decrypt($encrypted_string, $encryption_key = "emnacrryyapmtdiuosne_tkde
 function Connection() {
     try {
         if (islocal()) {
-            $conn = new mysqli("127.0.0.1", "root", "123", "telepathy_master");
+            $conn = new mysqli("127.0.0.1", "root", "123", "telepathymaster");
         } else {
             $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);//, DB_PORT);
         }
