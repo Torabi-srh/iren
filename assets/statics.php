@@ -18,26 +18,12 @@
           return true;
       }
   }
-  function mysqlserverport()
-  {
-      return "3306";
-  }
-  function mysqlservername()
-  {
-      return "localhost";
-  }
-  function mysqlserverusername()
-  {
-      return "root";
-  }
-  function mysqlserverpassword()
-  {
-      return '123';
-  }
-  function mysqlserverdbname()
-  {
-      return "gd_master";
-  }
+  
+  define('DB_HOST', 'localhost');
+  define('DB_USER', 'admingjQ8RDG');
+  define('DB_PASSWORD', 'D2qxcy-BwSGX');
+  define('DB_NAME', 'php');
+  define('DB_PORT', '3306');
   function serverRoot()
   {
       if (islocal()) {

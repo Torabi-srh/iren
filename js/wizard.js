@@ -1,10 +1,17 @@
+$(document).ready(function() {
+    // Smart Wizard   
+	$('#wizard').smartWizard({
+			onFinish:onFinishCallback	
+	  }); 
+	
+    function onFinishCallback() {
+		$('#wizard').smartWizard('showMessage', 'Finish Clicked');    
+        alert('Finish Clicked');
+    }
 
-    $(document).ready(function(){
-    	// Smart Wizard
-  		$('#wizard').smartWizard();
+	$("#p-b").click(function() {
+		
+	});
 
-      function onFinishCallback(){
-        $('#wizard').smartWizard('showMessage','Finish Clicked');
-        //alert('Finish Clicked');
-      }
-		});
+
+});

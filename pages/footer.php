@@ -98,6 +98,7 @@ include("pages/chat.php");
     <script src="js/chat.js"></script>
     <script src="js/shop.js"></script>
     <script src="js/jdf.js"></script>
+    <script src="js/wizard.js"></script>
     <script src="js/fullcalendar/fullcalendar.js"></script>
     <script src="js/calander.js"></script>
     <script src="js/resume-wizard.js"></script>

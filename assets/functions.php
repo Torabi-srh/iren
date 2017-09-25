@@ -1,6 +1,42 @@
 <?php
 include_once 'statics.php';
 isdebug();
+/* create database */
+if (islocal()) {
+    if (!file_exists("DB_CREAT")) {
+        dbc();
+        $myfile = fopen("DB_CREAT", "w") or die("Unable to open file!");
+        fclose($myfile);
+    }
+}
+function dbc() {
+    $sql = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
+    $mysqli = isset($mysqli) ? $mysqli : Connection(); 
+    if ($stmt = $mysqli->prepare($sql)) {
+        $var1 = DB_NAME;
+        $stmt->bind_param('s', $var1);        
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {            
+            return true;
+        } else {
+            $filename = 'db/main.sql';
+            if (!file_exists($filename)) {
+                return false;
+            }
+            $querys = explode("\n", file_get_contents($filename));
+            foreach ($querys as $q) {
+              $q = trim($q);
+              if (strlen($q)) {
+                if ($stmt = $mysqli->prepare($q)) {
+                    $stmt->execute();
+                }
+              }
+            }
+            return true;
+        }
+    }    
+}
 if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
     http_response_code(400);
     //include('errors/400.htm');
@@ -542,7 +578,7 @@ function Connection() {
         if (islocal()) {
             $conn = new mysqli("127.0.0.1", "root", "123", "telepathy_master");
         } else {
-            $conn = new mysqli(mysqlservername(), mysqlserverusername(), mysqlserverpassword(), mysqlserverdbname());//, $mysqlserverport);
+            $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);//, DB_PORT);
         }
         $conn->set_charset("utf8");
         return $conn;
@@ -766,7 +802,7 @@ function is_email($email) {
   function pull_out_users_data() { 
     $mysqli = isset($mysqli) ? $mysqli : Connection();
 
-    $username = $_SESSION['username'] ; 
+    $username = (!empty($_SESSION['username']) ? $mysqli->real_escape_string($_SESSION['username']) : "guest"); 
     $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
     if ($result = $mysqli->prepare($sql)) {
       $result->bind_param('s', $username);
