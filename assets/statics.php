@@ -20,8 +20,8 @@
   }
   
   define('DB_HOST', 'localhost');
-  define('DB_USER', 'admingjQ8RDG');
-  define('DB_PASSWORD', 'D2qxcy-BwSGX');
+  define('DB_USER', 'admina39raiK');
+  define('DB_PASSWORD', 'FPX9LReUuFrF');
   define('DB_NAME', 'telepathymaster');
   define('DB_PORT', '3306');
   function serverRoot()

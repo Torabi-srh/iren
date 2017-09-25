@@ -4,9 +4,10 @@ isdebug();
 /* create database */
 if (islocal()) {
     if (!file_exists("DB_CREAT")) {
-        dbc();
-        $myfile = fopen("DB_CREAT", "w") or die("Unable to open file!");
-        fclose($myfile);
+        if (dbc()) {
+            $myfile = fopen("DB_CREAT", "w") or die("Unable to open file!");
+            fclose($myfile);
+        }
     }
 }
 function dbc() {
