@@ -153,11 +153,11 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
             echo "Nothing to show !" ;
           }
 
-          $conn->close() ;
+          $conn->close();
         ?>
       </div>
 
-			<div class="row " id="settings-popup" style="display: none; position: fixed;top: 10%;width: 50%;right: 25%;left: 25%;border: 2px;border-style: solid;background-color: whitesmoke;">
+			<div class="row " id="settings-popup" style="display: none; position: fixed;top: 10%;width: 50%;right: 25%;left: 25%;border: 2px;border-style: solid;background-color: whitesmoke;z-index: 99999;z-index: 99999;">
         <div class="col-*-*">
           <div class="panel-body">
 							<a class="btn btn-default" id ="close-editClass" style="float: left;">X</a>
@@ -194,7 +194,7 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
 			</div>
 
 
-			<div class="row" id="smoshaver-popup" style="display: none; position: fixed;top: 10%;width: 50%;right: 25%;left: 25%;border: 2px;border-style: solid;background-color: whitesmoke;">
+			<div class="row" id="smoshaver-popup" style="display: none; position: fixed;top: 10%;width: 50%;right: 25%;left: 25%;border: 2px;border-style: solid;background-color: whitesmoke;z-index: 99999;">
         <div class="col-*-*">
           <div class="panel-body">
 							<a class="btn btn-default" id ="close-smoshaverClass" style="float: left;">X</a>

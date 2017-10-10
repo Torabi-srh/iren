@@ -36,20 +36,22 @@ USE `telepathymaster`;
 -- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS users ( 
-  id int(11) NOT NULL AUTO_INCREMENT, 
-  username varchar(20) NOT NULL , 
-  fname varchar(20) , 
-  name varchar(20) , 
-  password varchar(20) NOT NULL , 
-  email varchar(100) NOT NULL, 
-  age int(3) , 
-  phone char(11), 
-  gender tinyint(2), 
-  login_session varchar(255) , 
-  register_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
-  picture varchar(255) NOT NULL DEFAULT "assets/images/users/no-image.jpg", 
-  verify tinyint(1) NOT NULL DEFAULT 0, 
+CREATE TABLE IF NOT EXISTS users (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  username varchar(20) NOT NULL ,
+  fname varchar(20) ,
+  name varchar(20) ,
+  password varchar(20) NOT NULL ,
+  email varchar(100) NOT NULL,
+  age int(3) ,
+  phone char(11),
+  drphone char(11),
+  gender tinyint(2),
+  bday DATE,
+  login_session varchar(255) ,
+  register_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  picture varchar(255) NOT NULL DEFAULT "assets/images/users/no-image.jpg",
+  verify tinyint(1) NOT NULL DEFAULT 0,
   verify_send datetime NOT NULL,
   verify_send_hash varchar(255) NOT NULL,
   forgot tinyint(1) NOT NULL DEFAULT 0,
@@ -57,11 +59,26 @@ CREATE TABLE IF NOT EXISTS users (
   forgot_send_hash varchar(255),
   isban tinyint(1) NOT NULL DEFAULT 0,
   isdr tinyint(1) NOT NULL DEFAULT 0,
-  wizard tinyint(1) NOT NULL DEFAULT 0, 
-  drcode varchar(10) NOT NULL, 
-  register_ip varchar(20) DEFAULT "127.0.0.1", 
-  PRIMARY KEY (`id`,`username`,`email`) 
+  wizard tinyint(1) NOT NULL DEFAULT 0,
+  drcode varchar(10) NOT NULL,
+  scode varchar(20),
+  ncode varchar(10),
+  iban varchar(30),
+  salary int(11),
+  edu int(4),
+  bio varchar(255),
+  pcode varchar(11),
+  addr varchar(255),
+  city varchar(50),
+  province varchar(50),
+  register_ip varchar(20) DEFAULT "127.0.0.1",
+  PRIMARY KEY (`id`,`username`,`email`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+
+--
+--  INSERT INTO `telepathymaster`.`users` (`id`, `username`, `fname`, `name`, `password`, `email`, `age`, `phone`, `drphone`, `gender`, `bday`, `login_session`, `register_date`, `picture`, `verify`, `verify_send`, `verify_send_hash`, `forgot`, `forgot_send`, `forgot_send_hash`, `isban`, `isdr`, `wizard`, `drcode`, `scode`, `ncode`, `register_ip`, `iban`, `salary`) VALUES ('1', 'bionix', 'ترابی', 'سروش', 'd28Ewmo/nBPJo', 'tspersian@gmail.com', NULL, NULL, NULL, '1', '1111-11-11', 'ccXp3CpnuS/0.', '2017-10-01 11:40:40', 'assets/images/users/no-image.jpg', '1', '2017-10-01 08:10:40', 'dalHISFkVmD5o', '0', NULL, NULL, '0', '0', '0', '12343', '1', '1111111111', '', NULL, NULL);
+--
 
 --
 -- Dumping data for table `ip_table`
@@ -88,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `user_activitys` (
   `actual_link` varchar(100) NOT NULL,
   `user_agent` varchar(150) NOT NULL,
   `ip` varchar(20) NOT NULL,
-  `now` varchar(20) NOT NULL, 
+  `now` varchar(20) NOT NULL,
   PRIMARY KEY (`ua_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -131,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `file_meds` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `fid` int(11) NOT NULL,
     `med_name` nvarchar(20) NOT NULL,
-    `med_dose` int(10) NOT NULL,    
+    `med_dose` int(10) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`fid`) REFERENCES user_file(`id`)
       ON UPDATE CASCADE
@@ -150,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `invoice` (
 CREATE TABLE IF NOT EXISTS `chat` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `c_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`) 
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `chat_users` (
@@ -170,7 +187,7 @@ CREATE TABLE IF NOT EXISTS `msg` (
     `msg` TEXT,
     `msg_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`cuid`) REFERENCES chat_users(`id`)
+    FOREIGN KEY (`cid`) REFERENCES chat_users(`id`)
       ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -181,6 +198,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
     `publisher` int(11) NOT NULL,
     `views` int(11) NOT NULL,
     `likes` int(11) NOT NULL,
+    `dislikes` int(11) NOT NULL,
     `header` varchar(255) NOT NULL,
     `image` varchar(255) NOT NULL,
     `txt` TEXT NOT NULL,
@@ -189,7 +207,20 @@ CREATE TABLE IF NOT EXISTS `posts` (
     FOREIGN KEY (`publisher`) REFERENCES users(`id`)
       ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
+
+CREATE TABLE IF NOT EXISTS `posts_likes` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `uid` int(11) NOT NULL,
+    `pid` int(11) NOT NULL,
+    `lod` int(11) NOT NULL,
+    `lod_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`uid`) REFERENCES users(`id`)
+      ON UPDATE CASCADE,
+    FOREIGN KEY (`pid`) REFERENCES posts(`id`)
+      ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `post_comments` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `uid` int(11) NOT NULL,
@@ -202,9 +233,9 @@ CREATE TABLE IF NOT EXISTS `post_comments` (
     FOREIGN KEY (`pid`) REFERENCES posts(`id`)
       ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
- 
- 
----
+
+
+--
 -- Dumping DATA FOR TABLE `type`
 --
 
@@ -226,7 +257,7 @@ CREATE TABLE IF NOT EXISTS `product_type` (
   FOREIGN KEY (`tid`) REFERENCES product_type(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
----
+--
 -- Dumping DATA FOR TABLE `reservation`
 --
 

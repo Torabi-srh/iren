@@ -31,8 +31,15 @@ function gregorian_to_jalali(gy,gm,gd){
  return [jy,jm,jd];
 }
 
-
-function jalali_to_gregorian(jy,jm,jd){
+function jalali_to_gregorian2(str){
+  var res = str.split("/"); 
+  var jy,jm,jd;
+  jy = res[0];
+  jm = res[1];
+  jd = res[2];
+  return jalali_to_gregorian(jy,jm,jd);
+}
+function jalali_to_gregorian(jy,jm,jd){ 
  if(jy > 979){
   gy=1600;
   jy-=979;

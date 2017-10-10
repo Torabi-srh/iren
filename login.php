@@ -1,32 +1,27 @@
 <?php
-  include_once("assets/functions.php") ;
-
-  
-// lagout() ;echo 1;die();
-
+	include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
   $log_check = login_check() ;
-
   if($log_check[0] === true) {
-
-    if($log_check{1} === 1) {
+    if($log_check[1] === 1) {
       redirect(urlencode("profile-doctor.php")) ;
-    } else {
+    } elseif($log_check[1] === 0){
       redirect(urlencode("profile-user.php")) ;
     }
-  }
-  elseif(isset($_POST['submit'])) {
+  } elseif(isset($_POST['submit'])) {
     $username = $_POST['email'] ;
     $password = $_POST['password'] ;
     $t = !empty($_POST['remember']) ;
-    $login_ret = Login($username, $password, $t);
-
-    if($login_ret[0] === true && $login_ret[1] === 1) {
+		$login_ret = Login($username, $password, $t);
+		echo "$login_ret";
+    if($login_ret[0] === true && $login_ret[1] === 1 && is_user_activities_set()) {
       // dr dashbord !
       $alrt = 1;
+      user_activitys() ;
       redirect(urlencode("profile-doctor.php")) ;
-    } elseif($login_ret[0] === true && $login_ret[1] === 0) {
+    } elseif($login_ret[0] === true && $login_ret[1] === 0 && is_user_activities_set()) {
       // patient dashbord !
       $alrt = 1 ;
+      user_activitys() ;
       redirect(urlencode("profile-user.php")) ;
     }
     else {
@@ -46,7 +41,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>IDK - IDK</title>
+    <title>Login | Telepathy</title>
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
     <link href="css/main.css" rel="stylesheet" type="text/css">
     <style type="text/css">
@@ -103,7 +98,7 @@
     <?php
       if ($alrt == 0) {
         echo "<div class=\"alert alert-danger\" id=23>
-      <strong>مجاز به ورود نیستید</strong>
+      <strong>{$login_ret}</strong>
     </div><br />" ;
       }elseif ($alrt == 1) {
         echo "<div class=\"alert alert-success\" id=24>

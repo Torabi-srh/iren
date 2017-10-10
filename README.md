@@ -10,4 +10,7 @@ IV. ajax invoce
 V. ajax users
 VI. ajax doctor
 VII. ajax login
-VIII. 
+VIII. notifications timeout
+IX. clean inline styles
+X. optimize css
+XI. Split wizard ajax to user / dr file
