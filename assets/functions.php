@@ -1,6 +1,6 @@
 <?php
 include_once 'statics.php';
-isdebug();
+
 /* create database */
 if (islocal()) {
     if (!file_exists("DB_CREAT")) {
@@ -12,13 +12,13 @@ if (islocal()) {
 }
 function dbc() {
     $sql = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
-    $mysqli = isset($mysqli) ? $mysqli : Connection(); 
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
     if ($stmt = $mysqli->prepare($sql)) {
         $var1 = DB_NAME;
-        $stmt->bind_param('s', $var1);        
+        $stmt->bind_param('s', $var1);
         $stmt->execute();
         $stmt->store_result();
-        if ($stmt->num_rows > 0) {            
+        if ($stmt->num_rows > 0) {
             return true;
         } else {
             $filename = 'db/main.sql';
@@ -36,7 +36,7 @@ function dbc() {
             }
             return true;
         }
-    }    
+    }
 }
 if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
     http_response_code(400);
@@ -174,11 +174,28 @@ function esc_url($url) {
         return $url;
     }
 }
-function login_check() {
+function login_check($from = "") {
     $actual_link = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/{$_SERVER['REQUEST_URI']}";
     $mysqli = isset($mysqli) ? $mysqli : Connection();
     if (!isset($_SESSION['user_id']) && !is_session_started()) {
         sessionStart("Login");
+    }
+    if (!empty($_SESSION['user_id'])) {
+        $uid = $mysqli->real_escape_string($_SESSION['user_id']);
+        if ($stmt = $mysqli->prepare("SELECT wizard
+                                  FROM users
+                                  WHERE id = ?
+                                  LIMIT 1")) {
+            $stmt->bind_param('i', $uid);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($wiz);
+            $stmt->fetch();
+            $_SESSION['wizard'] = $wiz;
+        }
+    }
+    if (isset($_SESSION['wizard']) && $_SESSION['wizard'] == 0  && $from != "wizard") {
+        redirect("wizard.php");die();
     }
     if (!isset($_SESSION['cookie']) && empty($_SESSION['user_id'])) {
         if (!isset($_COOKIE['telepath_session'])) {
@@ -219,7 +236,7 @@ function login_check() {
                 $_SESSION['login_string'] = $uname;
                 $_SESSION['cookie'] = $uname;
                 setcookie("telepath", $uname, time()+1123200, '/', 'localhost');
-                
+
                 return array(true, $isdr);
             }
         }
@@ -287,16 +304,15 @@ function Login($email, $password, $remember = false, $wiz = false) {
     $password = SaltMD5($password, $email);
     $HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
     $IP = GetUserIP();
-    if ($stmt = $mysqli->prepare("SELECT id, username, password, verify, isdr
+    if ($stmt = $mysqli->prepare("SELECT id, username, password, verify, isdr, wizard
                                   FROM users
                                   WHERE username = ? or email = ?
                                   LIMIT 1")) {
         $stmt->bind_param('ss', $email, $email);
         $stmt->execute();
         $stmt->store_result();
-        $stmt->bind_result($user_id, $username, $db_password, $verify, $is_dr);
+        $stmt->bind_result($user_id, $username, $db_password, $verify, $is_dr, $wiz);
         $stmt->fetch();
-
         if ($stmt = $mysqli->prepare("SELECT ip FROM ip_table WHERE id='$user_id'")) {
             $stmt->execute();
             $stmt->bind_result($ips_);
@@ -310,7 +326,6 @@ function Login($email, $password, $remember = false, $wiz = false) {
                 }
             }
         }
-
         $user_browser = $_SERVER['HTTP_USER_AGENT'];
         $now = date('Y-m-d H:i:s');
         if ((empty($user_id) || empty($username)) || ($user_id === 0 || $username === 0)) {
@@ -346,12 +361,11 @@ function Login($email, $password, $remember = false, $wiz = false) {
                     if ($stmt = $mysqli->prepare($sql)) {
                         $stmt->execute();
                     }
-
                     $_SESSION['emall'] = encrypt($email);
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['username'] = $username;
                     $_SESSION['login_string'] = $cookiehash;
-
+                    $_SESSION['wizard'] = $wiz;
                     return array(true, $is_dr);
                 } else {
                     if ($stmt = $mysqli->prepare("INSERT INTO login_attempts(user_id, now, user_agent, ip)
@@ -374,7 +388,13 @@ function lagout() {
         sessionStart("Login");
     }
     $mysqli = isset($mysqli) ? $mysqli : Connection();
-    $sql = "UPDATE `users` SET `login_session`='' WHERE `id`='" . $mysqli->real_escape_string($_SESSION['user_id']) ."'";
+    try {
+        $_uid = $mysqli->real_escape_string($_SESSION['user_id']);
+    } catch (Exception $e) {
+        $_uid = 0;
+    }
+
+    $sql = "UPDATE `users` SET `login_session`='' WHERE `id`='" . $_uid ."'";
     if ($stmt = $mysqli->prepare($sql)) {
         $stmt->execute();
     }
@@ -450,6 +470,7 @@ function register($username, $password, $email, $isdr = 0, $drcode = '') {
         try {
           $emailstruct = "سلام :$username <br>".
                          "http://site.com".serverRoot2()."/verify?email=$email&username=$username&confirm=".$verify_send_hash;
+                         echo
           sendemail($email, "Registeration", $emailstruct);
         } catch (Exception $e) {
             return false;
@@ -487,7 +508,7 @@ function Image_Upload($uFile) {
     $error       = false;
     $ds          = DIRECTORY_SEPARATOR;
     $storeFolder = usersuploadpath2();
-    $maxsize    = 2097152;
+    $maxsize    = 216791;
     $mysqli = isset($mysqli) ? $mysqli : Connection();
 
     if (!empty($uFile) && $uFile['file']['tmp_name']) {
@@ -509,14 +530,14 @@ function Image_Upload($uFile) {
 
             $allowedTypes = array(IMAGETYPE_PNG);
             $error = !in_array($detectedType, $allowedTypes);
-            $pngz = $error;
-
+            $pngz = $error; 
             $allowedTypes = array(IMAGETYPE_JPEG);
+
             $error = !in_array($detectedType, $allowedTypes);
       // end of check
       if (!$error || !$pngz) {
           if (($uFile['file']['size'] >= $maxsize) || ($uFile["file"]["size"] == 0)) {
-              return '<div class="alert alert-danger">File too large. File must be less than 2 megabytes</div>';
+              return 'فایل باید کمتر از 200 KB باشد';
           } else {
               if ($stmt = $mysqli->prepare("SELECT picture
                                           FROM users
@@ -538,7 +559,7 @@ function Image_Upload($uFile) {
                       $stmt->bind_param('ss', $username_, $email_);
                       $stmt->execute();
                       if ($picture == "assets/images/users/no-image.jpg") {
-                          #das
+                          // return 1;
                       } else {
                           unlink(dirname(__FILE__) . $ds."/$picture");
                       }
@@ -547,13 +568,13 @@ function Image_Upload($uFile) {
               }
           }
       } else {
-          return '<div class="alert alert-danger">This format of image is not supported</div>';
+          return 'فرمت فایل نادرست است';
       }
         } else {
-            return '<div class="alert alert-danger">Empty File</div>';
+            return 'فایل خالی است';
         }
     } else {
-        return '<div class="alert alert-danger">Fatal error</div>';
+        return '<a href=\".\">صفحه خود را دوباره بارگذاری کنید.</a>';
     }
 }
 function SaltMD5($str, $salt = 'kM3@A2RdYuA!MeNmA0@E1IvM$IzsQ2l@B8g0s') {
@@ -564,14 +585,14 @@ function encrypt($pure_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a
     $cipher = "aes-128-gcm";
     $iv_size = openssl_cipher_iv_length($cipher);
     $iv = openssl_random_pseudo_bytes($iv_size);
-    $encrypted_string = openssl_encrypt($pure_string, $cipher, $encryption_key, $options=0, $iv, $tag);
+    $encrypted_string = openssl_encrypt($pure_string, $cipher, $encryption_key, $options=0, $iv);
     return $encrypted_string;
 }
 function decrypt($encrypted_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m", $tag = "1234123412341234") {
     $cipher = "aes-128-gcm";
     $iv_size = openssl_cipher_iv_length($cipher);
     $iv = openssl_random_pseudo_bytes($iv_size);
-    $original_plaintext = openssl_decrypt($encrypted_string, $cipher, $encryption_key, $options=0, $iv, $tag);
+    $original_plaintext = openssl_decrypt($encrypted_string, $cipher, $encryption_key, $options=0, $iv);
     return $original_plaintext;
 }
 function Connection() {
@@ -799,28 +820,41 @@ function is_email($email) {
     }
     return ($user_agent == $user_agent ? true : false);
   }
-/* to get user datas */ 
-  function pull_out_users_data() { 
+/* to get user datas */
+  function pull_out_users_data() {
     $mysqli = isset($mysqli) ? $mysqli : Connection();
 
-    $username = (!empty($_SESSION['username']) ? $mysqli->real_escape_string($_SESSION['username']) : "guest"); 
+    $username = (!empty($_SESSION['username']) ? $mysqli->real_escape_string($_SESSION['username']) : "guest");
     $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
     if ($result = $mysqli->prepare($sql)) {
       $result->bind_param('s', $username);
       $r = $result->execute();
-        
+
       if ($r) {
         $row = $result->get_result();
         $_data = $row->fetch_assoc();
-        
+
         return $_data;
-      } else { 
-        echo "There is not such a row in users table !" ; 
+      } else {
+        echo "There is not such a row in users table !" ;
         die();
-      } 
+      }
     } else {
         echo "error";
     }
-    
-    $mysqli->close() ; 
+
+    $mysqli->close() ;
   }
+/* to validate national id */
+function isValidIranianNationalCode($input) {
+    if (!preg_match("/^\d{10}$/", $input)) {
+        return false;
+    }
+
+    $check = (int) $input[9];
+    $sum = array_sum(array_map(function ($x) use ($input) {
+        return ((int) $input[$x]) * (10 - $x);
+    }, range(0, 8))) % 11;
+
+    return ($sum < 2 && $check == $sum) || ($sum >= 2 && $check + $sum == 11);
+}

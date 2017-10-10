@@ -106,17 +106,17 @@ if (isset($_POST["dfm"])) {
       echo '
             <p class="notification is-danger">
               <button id="delete" class="delete"></button>
-                500.13 لطفا با ادمین سایت تماس بگیرید !
+                500.123 لطفا با ادمین سایت تماس بگیرید !
             </p>
            '; 
       return;
     }
   }
-  if ($cpasswd === $passwd) {   
+  if ($cpasswd !== $passwd) { 
     echo '
           <p class="notification is-danger">
             <button id="delete" class="delete"></button>
-              500.13 لطفا با ادمین سایت تdasdaماس بگیرید !
+              500.133 لطفا با ادمین سایت تdasdaماس بگیرید !
           </p>
          '; 
     return; 
@@ -130,7 +130,7 @@ if (isset($_POST["dfm"])) {
       echo '
             <p class="notification is-danger">
               <button id="delete" class="delete"></button>
-                500.13 لطفا با ادمین سایت تماس بگیرید !
+                500.143 لطفا با ادمین سایت تماس بگیرید !
             </p>
            '; 
       return;
@@ -196,7 +196,7 @@ if (isset($_POST["dfm"])) {
       echo '
             <p class="notification is-danger">
               <button id="delete" class="delete"></button>
-                500.13 لطفا با ادمین سایت تماس بگیرید !
+                500.153 لطفا با ادمین سایت تماس بگیرید !
             </p>
            '; 
       return;
@@ -211,7 +211,7 @@ if (isset($_POST["dfm"])) {
       echo '
             <p class="notification is-danger">
               <button id="delete" class="delete"></button>
-                500.13 لطفا با ادمین سایت تماس بگیرید !
+                500.163 لطفا با ادمین سایت تماس بگیرید !
             </p>
            '; 
       return;
@@ -226,7 +226,7 @@ if (isset($_POST["dfm"])) {
       echo '
             <p class="notification is-danger">
               <button id="delete" class="delete"></button>
-                500.13 لطفا با ادمین سایت تماس بگیرید !
+                500.173 لطفا با ادمین سایت تماس بگیرید !
             </p>
            '; 
       return;
@@ -252,7 +252,7 @@ if (!empty($passwd) && !empty($username) && !empty($email)) {
     echo '
           <p class="notification is-danger">
             <button id="delete" class="delete"></button>
-              500.13 لطفا با ادمین سایت تماس بگیرید !
+              500.113 لطفا با ادمین سایت تماس بگیرید !
           </p>
          ';
     return;

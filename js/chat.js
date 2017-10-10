@@ -1,3 +1,9 @@
+$(document).ready(function(){
+          $('[data-toggle="chat-tooltip"]').tooltip();
+          $('[data-toggle="help-tooltip"]').tooltip();
+          $('[data-toggle="apps-tooltip"]').tooltip();
+      });
+
 $(function() {
     $('[rel=popover]').popover({
         html: true,

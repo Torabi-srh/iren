@@ -1,41 +1,119 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
 
-$log_check = login_check();
+
+$mysqli = isset($mysqli) ? $mysqli : Connection();
+
+$log_check = login_check() ;
 if ($log_check === false) {
-	saferedirect("login.php");
+	redirect("login.php");die();
 } else { 
 	if($log_check[0] === false) {
-		redirect("login.php");
+		redirect("login.php");die();
 	} 
 }
 
-$mysqli = isset($mysqli) ? $mysqli : Connection();
+if (empty($_SESSION['user_id'])) {
+	redirect("login.php");die();
+} else {
+	$uid = $mysqli->real_escape_string($_SESSION['user_id']); 
+}
+
+$er = "";
+if (isset($_POST['submit-post'])) {
+	$msg = "";
+	$input1 = "";
+	$header = "";
+	if (!empty($_POST['msg'])) {
+		$msg = $mysqli->real_escape_string($_POST['msg']);
+	} else {
+		$er = "لطفا متن پست خود را وارد کنید";	
+	}
+	if (!empty($_POST['p-header'])) {
+		$header = $mysqli->real_escape_string($_POST['p-header']);
+	} else {
+		$er = "لطفا تیتر پست را وارد کنید";
+	}
+	
+	$image = "";
+	if (!empty($_FILES['input-1'])) {
+		$image = new Bulletproof\Image($_FILES);
+		
+		// Pass a custom name, or leave it if you want it to be auto-generated
+		// $image->setName($name);
+		
+		// define the min/max image upload size (size in bytes) 
+		$image->setSize(0, 1000000); 
+		
+		// define allowed mime types to upload
+		$image->setMime(array('jpeg', 'png', 'jpg'));  
+		
+		// set the max width/height limit of images to upload (limit in pixels)
+		//$image->setDimension($width, $height); 
+		
+		// pass name (and optional chmod) to create folder for storage
+		$image->setLocation(UPLOAD_POST, $optionalPermission = "");  
+	} else {
+		$er = "لطفا عکس پست را انتخاب کنید";
+	}
+	if (empty($er)) {
+		
+		if($image["input-1"]) {
+			$upload = $image->upload(); 
+			
+			if($upload) {
+				var_dump($upload);die();
+				//echo $upload->getFullPath(); 
+			}else{
+				$er = $image["error"]; 
+			}
+		}
+		
+		$im_g = $image->getFullPath();
+		$zero = 0;
+		
+		if ($stmt = $mysqli->prepare("INSERT INTO posts(publisher, views, likes, header, image, txt) VALUES(?, ?, ?, ?, ?, ?)")) {
+			$stmt->bind_param('iiisss', $uid, $zero, $zero, $header, $im_g, $msg);
+			$stmt->execute();
+			$er = "پست با موفقیت فرستاده شد";
+		}
+	}
+}
+
 include("pages/header.php");head("");
 ?>
+<?php if (isset($_POST['submit-post'])): ?>
+  <div id="could_pass">
+    <?php 
+        echo "<div class=\"alert alert-info\" id=23>
+      <strong>{$er}</strong>
+    </div><br />" ; 
+    ?>
+  </div>
+  <?php endif; ?>
+  
 			<div class="row">
 				<div class="panel panel-default">
 					<div class="col-lg-8 col-md-8 col-sm-9 col-xs-12">
-						<form id="posteditor">
-								<!--<input name="editor1" id="editor1" placeholder="Click here to edit." />-->
-								<div class="input-group" style="margin-top: 1%;">
-									<span class="input-group-addon">Post</span>
-									<input id="header" type="text" class="form-control" name="header" placeholder="titile">
-								</div>
-								<div class="input-group" style="margin-top: 1%;margin-bottom: 1%;">
-									    <label class="control-label">Select File</label>
-										<input id="input-1" name="input-1" type="file" class="file">
-								</div>
-								
-								<div class="input-group" name="editor1" id="editor1" style="margin-bottom: 1%;">
-									<span class="input-group-addon">Post</span>
-									<input id="msg" type="text" class="form-control" name="msg" placeholder="Post to your blog">
-								</div>
-								 
-								<div class="input-group" name="editor1" id="editor1" style="margin-bottom: 1%;">
-									<span class="input-group-addon"></span>
-									<input type="submit" class="form-control" name="post" value="Post to your blog">
-								</div>
+						<form id="posteditor" action="" method="post" enctype="multipart/form-data">
+							<!--<input name="editor1" id="editor1" placeholder="Click here to edit." />-->
+							<input type="hidden" id="msg" name="msg" value="">
+							<div class="input-group" style="margin-top: 1%;">
+								<span class="input-group-addon">Post</span>
+								<input id="header" type="text" class="form-control" name="p-header" placeholder="titile">
+							</div>
+							<div class="input-group" style="margin-top: 1%;margin-bottom: 1%;">
+									<label class="control-label">Select File</label>
+									<input id="input-1" name="input-1" type="file" class="file">
+							</div>
+							
+							<div class="input-group" name="editor1" id="editor1" style="margin-bottom: 1%;">
+								<span class="input-group-addon">Post</span>
+								<input id="msgpost" type="text" class="form-control" name="msgpost" placeholder="Post to your blog">
+							</div>
+							 
+							<input type="submit" class="form-control" name="submit-post" onclick="document.getElementById('msg').value = editor.getData();" value="Post to your blog">
+							
 						</form>		
 					</div>
 				</div>
@@ -59,7 +137,7 @@ include("pages/header.php");head("");
 					<div class="row">
 					  <div class="col-sm-6 col-md-4">
 						<div>
-						  <img src="<?php echo "$upicture"; ?>">
+						  <img src="<?php echo "$pimage"; ?>">
 						</div>
 					  </div>
 						<div class="col-sm-6 col-md-8">
@@ -106,148 +184,109 @@ include("pages/header.php");head("");
         					<!-- Nav tabs -->
         						<ul class="nav nav-tabs" role="tablist">
         							<li role="presentation" class="active">
-        								<a href="#home" aria-controls="home" role="tab"
+        								<a href="#top" aria-controls="top" role="tab"
         								   data-toggle="tab">پربازدید</a>
         							</li>
         							<li role="presentation">
-        								<a href="#profile" aria-controls="profile" role="tab"
-        								   data-toggle="tab">جدیدترین</a>
+        								<a href="#new" aria-controls="new" role="tab"
+        								   data-toggle="tab">بیشترین لایک شده</a>
         							</li>
         							<li role="presentation">
-        								<a href="#messages" aria-controls="messages" role="tab"
+        								<a href="#comment" aria-controls="comment" role="tab"
         								   data-toggle="tab">نظرات</a>
         							</li>
         						</ul>
 
         						<!-- Tab panes -->
         						<div class="tab-content">
-        							<div role="tabpanel" class="tab-pane active" id="home">
+        							<div role="tabpanel" class="tab-pane active" id="top">
         								<div class="tab-post-list">
+											<?php   
+												$sql = "SELECT p.id, p.header, p.image, LEFT(txt, 40), p.p_date FROM posts AS p ORDER BY p.views LIMIT 3";
+												if ($stmt = $mysqli->prepare($sql)):
+													$stmt->execute();
+													$stmt->store_result();
+													$stmt->bind_result($pid, $pheader, $pimage, $txt, $pp_date);
+													while ($stmt->fetch()):
+											?>
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
         											<div>
-        												<a href="single.html">
-        													<img src="assets/images/tmp/placehold.it.png"
+        												<a href="post.php?id=<?php echo "$pid"; ?>">
+        													<img src="<?php echo "$pimage"; ?>"
         														 alt="Post thumb">
         												</a>
         											</div>
         										</div>
+												
         										<div class="tab-post-title">
-        											<h6><a href="single.html">تست</a>
+        											<h6><a href="post.php?id=<?php echo "$pid"; ?>"><?php echo "$pheader"; ?></a>
         											</h6>
-        											<span>1396/5/23</span>
+													<p><?php echo "$txt"; ?></p>
+        											<span><?php echo "$pp_date"; ?></span>
         										</div>
         									</div>
-        									<div class="tab-post-list-wrap clearfix">
-        										<div class="tab-post-thumb pull-left">
-        											<div>
-        												<a href="single.html">
-        													<img src="assets/images/tmp/placehold.it.png"
-        														 alt="Post thumb">
-        												</a>
-        											</div>
-        										</div>
-        										<div class="tab-post-title">
-        											<h6><a href="single.html">تست 2</a>
-        											</h6>
-        											<span>1396/5/23</span>
-        										</div>
-        									</div>
-        									<div class="tab-post-list-wrap clearfix">
-        										<div class="tab-post-thumb pull-left">
-        											<div>
-        												<a href="single.html">
-        													<img src="assets/images/tmp/placehold.it.png"
-        														 alt="Post thumb">
-        												</a>
-        											</div>
-        										</div>
-        										<div class="tab-post-title">
-        											<h6><a href="single.html">تست 3</a></h6>
-        											<span>1396/5/23</span>
-        										</div>
-        									</div>
+											<?php endwhile;endif; ?>
         								</div>
         							</div>
-        							<div role="tabpanel" class="tab-pane" id="profile">
+        							<div role="tabpanel" class="tab-pane" id="new">
         								<div class="tab-post-list">
+        									<?php   
+												$sql = "SELECT p.id, p.header, p.image, LEFT(txt, 40), p.p_date FROM posts AS p ORDER BY p.likes LIMIT 3";
+												if ($stmt = $mysqli->prepare($sql)):
+													$stmt->execute();
+													$stmt->store_result();
+													$stmt->bind_result($pid, $pheader, $pimage, $txt, $pp_date);
+													while ($stmt->fetch()):
+											?>
         									<div class="tab-post-list-wrap clearfix">
         										<div class="tab-post-thumb pull-left">
         											<div>
-        												<a href="single.html">
-        													<img src="assets/images/tmp/placehold.it.png"
+        												<a href="post.php?id=<?php echo "$pid"; ?>">
+        													<img src="<?php echo "$pimage"; ?>"
         														 alt="Post thumb">
         												</a>
         											</div>
         										</div>
+												
         										<div class="tab-post-title">
-        											<h6><a href="single.html">تست 4</a>
+        											<h6><a href="post.php?id=<?php echo "$pid"; ?>"><?php echo "$pheader"; ?></a>
         											</h6>
-        											<span>1396/5/23</span>
+													<p><?php echo "$txt"; ?></p>
+        											<span><?php echo "$pp_date"; ?></span>
         										</div>
         									</div>
-        									<div class="tab-post-list-wrap clearfix">
-        										<div class="tab-post-thumb pull-left">
-        											<div>
-        												<a href="single.html">
-        													<img src="assets/images/tmp/placehold.it.png"
-        														 alt="Post thumb">
-        												</a>
-        											</div>
-        										</div>
-        										<div class="tab-post-title">
-        											<h6><a href="single.html">تست</a>
-        											</h6>
-        											<span>1396/5/23</span>
-        										</div>
-        									</div>
-        									<div class="tab-post-list-wrap clearfix">
-        										<div class="tab-post-thumb pull-left">
-        											<div>
-        												<a href="single.html">
-        													<img src="assets/images/tmp/placehold.it.png"
-        														 alt="Post thumb">
-        												</a>
-        											</div>
-        										</div>
-        										<div class="tab-post-title">
-        											<h6><a href="single.html">تست 3</a></h6>
-        											<span>1396/5/23</span>
-        										</div>
-        									</div>
+											<?php endwhile;endif; ?>
         								</div>
         							</div>
-        							<div role="tabpanel" class="tab-pane" id="messages">
+        							<div role="tabpanel" class="tab-pane" id="comment">
         								<div class="tab-post-list">
-        									<ul>
-        										<li class="tab-post-list-wrap">
-        											<a href="#">ناشناس</a>
-        											<span>در</span>
-        											<a href="#">تست</a>
-        											<small>
-        												<abbr title="30-04-2015">2 روزپیش</abbr>
-        											</small>
-        											<p>یک نظر...</p>
-        										</li>
-        										<li class="tab-post-list-wrap">
-        											<a href="#">بیمار 1</a>
-        											<span>در</span>
-        											<a href="#">تست 2</a>
-        											<small>
-        												<abbr title="30-04-2015">12 ماه‌پیش</abbr>
-        											</small>
-        											<p>نظر</p>
-        										</li>
-        										<li class="tab-post-list-wrap">
-        											<a href="#">بیمار 1</a>
-        											<span>در</span>
-        											<a href="#">تست 2</a>
-        											<small>
-        												<abbr title="30-04-2015">12 ماه‌پیش</abbr>
-        											</small>
-        											<p>نظر</p>
-        										</li>
-        									</ul>
+        									<?php   
+												$sql = "SELECT p.id, p.header, p.image, LEFT(txt, 40), p.p_date, IFNULL(COUNT(pc.id), 1) AS counte FROM posts AS p LEFT JOIN post_comments AS pc ON pc.pid = p.id GROUP BY p.id ORDER BY counte LIMIT 3";
+												if ($stmt = $mysqli->prepare($sql)):
+													$stmt->execute();
+													$stmt->store_result();
+													$stmt->bind_result($pid, $pheader, $pimage, $txt, $pp_date, $__cnt__);
+													while ($stmt->fetch()):
+											?>
+        									<div class="tab-post-list-wrap clearfix">
+        										<div class="tab-post-thumb pull-left">
+        											<div>
+        												<a href="post.php?id=<?php echo "$pid"; ?>">
+        													<img src="<?php echo "$pimage"; ?>"
+        														 alt="Post thumb">
+        												</a>
+        											</div>
+        										</div>
+												
+        										<div class="tab-post-title">
+        											<h6><a href="post.php?id=<?php echo "$pid"; ?>"><?php echo "$pheader"; ?></a>
+        											</h6>
+													<p><?php echo "$txt"; ?></p>
+        											<span><?php echo "$pp_date"; ?></span>
+        										</div>
+        									</div>
+											<?php endwhile;endif; ?>
         								</div>
         							</div>
         						</div>

@@ -94,6 +94,11 @@ include("pages/chat.php");
     <script src='js/fullcalendar/lib/moment-jalaali.js'></script> 
     <script src="js/jquery.min.js"></script>
     <script src="js/jquery-ui.js"></script>
+    <!--<script src="js/vendor/jquery.ui.widget.js"></script>-->
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <!--<script src="js/jquery.iframe-transport.js"></script>-->
+    <!-- The basic File Upload plugin -->
+    <!--<script src="js/jquery.fileupload.js"></script>    -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/shop.js"></script>
@@ -101,32 +106,15 @@ include("pages/chat.php");
     <script src="js/wizard.js"></script>
     <script src="js/fullcalendar/fullcalendar.js"></script>
     <script src="js/calander.js"></script>
-    <script src="js/resume-wizard.js"></script>
+    <!--<script src="js/resume-wizard.js"></script>-->
     <script src="js/ckeditor/ckeditor.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
     <script src='js/locale-all.js'></script> 
     <script src="js/blog.js"></script>
-    <script>
-        var ck = false;
-        //$(":not(posteditor):first").click (function () {
-        //  if (ck) {
-        //    CKEDITOR.instances.editor1.destroy();
-        //    ck = false;
-        //  }
-        //});
-        
-        $("#editor1").click (function () {
-          CKEDITOR.replace( 'editor1' );
-          ck = true;
-        }); 
-        //
-    </script>
-    <script>
-      $(document).ready(function(){
-          $('[data-toggle="chat-tooltip"]').tooltip();
-          $('[data-toggle="help-tooltip"]').tooltip();
-          $('[data-toggle="apps-tooltip"]').tooltip();
-      });
-    </script>
+    <script src="js/persian-date.min.js"></script>
+    <script src="js/persian-datepicker.min.js"></script>
+    <script src="js/timeline.js"></script>
      
   </body>
 </html>
+

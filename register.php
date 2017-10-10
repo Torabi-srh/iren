@@ -1,6 +1,6 @@
 <?php
 
-include ("/assets/functions.php");
+include ($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
 
  ?>
 <!DOCTYPE html>
@@ -18,8 +18,7 @@ include ("/assets/functions.php");
   <body dir="rtl">
     <div class="container">
       <div class="row vertical-offset-100">
-            <div class="row" id="er"> 
-              <?php echo $err; ?>
+            <div class="row" id="er">
             </div>
             <div class="col-xs-6 form-group">
               <div class="panel panel-default">
@@ -48,7 +47,7 @@ include ("/assets/functions.php");
                         <label>
                           <input name="dqavanin" id="dqavanin" type="checkbox" style="margin: 19px;" value="agreement"> <a href=""> قوانین </a>
                         </label>
-                      </div> 
+                      </div>
                     <input class="btn btn-lg btn-success btn-block" id="drubm" name="drubm" type="button" value="ثبت نام دکتر">
                   </fieldset>
                   </form>

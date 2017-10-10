@@ -16,10 +16,8 @@
       } else {
         $GLOBALS['a'] = 0;
       }
-      define('MALE', 'مرد');
-      define('FEMALE', 'زن') ;
-      define('DR', 'دکتر');
-      $info = pull_out_users_data() ;
+
+      $info = pull_out_users_data();
 ?>
 
 <!DOCTYPE html>
@@ -29,13 +27,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IDK - IDK</title>
-
+ 
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/normalize.min.css">
+    <link rel="stylesheet" href="css/wizard.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
     <link href='css/fullcalendar.css' rel='stylesheet' />
     <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
+    <link href='css/persian-datepicker.min.css' rel='stylesheet'/>
+    <script src="js/init.js"></script>
+    
   </head>
   <body dir="rtl" style="background: url('assets/images/bg/bg.png') no-repeat center center fixed;-webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;">
       <nav class="navbar navbar-inverse" role="navigation">
@@ -96,7 +99,7 @@
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-birthday-cake" aria-hidden="true"></i> سن</label>
                   </div>
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo $info['gender'] == 0 ? FEMALE : MALE ; ?></p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo ($info['gender'] == 0 ? FEMALE : ($info['gender'] == 1 ? MALE : BLUE)) ; ?></p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-mars" aria-hidden="true"></i> جنسیت</label>
                   </div>
 
@@ -155,7 +158,7 @@
                   </p>
                   <form action="profile-user.php" method="post">
                     <div class="btn-group">
-                      <button type="submit" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
+                      <button type="button" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
                       <button type="submit" class="btn btn-danger" name="exit_btn"><i class="fa fa-sign-out" aria-hidden="true"></i> خروج</button>
                     </div>
                   </form>
@@ -354,7 +357,7 @@
                   <h5><?php echo DR . $info['fname'] . " " .  $info['name'];  ?></h5>
                   <form action="profile-doctor.php" method="post">
                     <div class="btn-group">
-                      <button type="submit" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
+                      <button type="button" id="editClass" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> ویرایش</button>
                       <button type="submit" class="btn btn-danger" name="exit_btn"><i class="fa fa-sign-out" aria-hidden="true"></i> خروج</button>
                     </div>
                   </form>
