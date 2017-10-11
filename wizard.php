@@ -34,12 +34,12 @@ if (isset($_SESSION['wizard']) && $_SESSION['wizard'] == 1) {
 }
 
 
-$sql = "SELECT username, fname, name, email, age, phone, gender, register_date, picture, drcode, register_ip, drphone, scode, ncode, bday, iban, salary, edu, bio, province, city, addr, pcode FROM users WHERE id = ?";
+$sql = "SELECT username, fname, name, email, age, phone, gender, register_date, picture, drcode, register_ip, drphone, scode, ncode, bday, iban, salary, edu, bio, province, city, addr, pcode, drphone FROM users WHERE id = ?";
 if ($stmt = $mysqli->prepare($sql)) {
 	$stmt->bind_param('i', $uid);
 	$stmt->execute();
 	$stmt->store_result();
-	$stmt->bind_result($username, $fname, $name, $email, $age, $phone, $gender, $register_date, $picture, $drcode, $register_ip, $drphone, $scode, $ncode, $bday, $s2f1mal, $s2f2mal, $s3f1u, $s3f2, $province, $city, $addr, $pcode);
+	$stmt->bind_result($username, $fname, $name, $email, $age, $phone, $gender, $register_date, $picture, $drcode, $register_ip, $drphone, $scode, $ncode, $bday, $s2f1mal, $s2f2mal, $s3f1u, $s3f2, $province, $city, $addr, $pcode, $drphone);
 	$stmt->fetch();
 }
 
@@ -126,13 +126,13 @@ include("pages/header.php");head(""); ?>
                            <div class="form-group">
                                <div class="col-md-7">
                                    <label>
-                                       <input type="radio" class="s1gen" name="s1gen" id="s1gen_m" value="1" <?php echo ($gender == 1 ? "checked" : ""); ?>>مرد
+                                       <input type="radio" class="s1gen" name="s1gen" id="s1gen_m" value="1" <?php echo ($gender === 1 ? "checked" : ""); ?>>مرد
 								   </label>
                                    <label>
-                                       <input type="radio" class="s1gen" name="s1gen" id="s1gen_f" value="0" <?php echo ($gender == 0 ? "checked" : ""); ?>>زن
+                                       <input type="radio" class="s1gen" name="s1gen" id="s1gen_f" value="0" <?php echo ($gender === 0 ? "checked" : ""); ?>>زن
 								   </label>
                                    <label>
-                                       <input type="radio" class="s1gen" name="s1gen" id="s1gen_o" value="2" <?php echo ($gender == 2 ? "checked" : ""); ?>>دیگر
+                                       <input type="radio" class="s1gen" name="s1gen" id="s1gen_o" value="2" <?php echo ($gender === 2 ? "checked" : ""); ?>>دیگر
 								   </label>
                                </div>
                                <label class="control-label col-md-2 col-xs-12">جنسیت</label>
@@ -216,48 +216,47 @@ include("pages/header.php");head(""); ?>
                               <?php if($isdr): ?>
                               <div class="form-group">
                                 <label for="comment">شماره‌نظام‌روانشناسی</label>
-                                <input type="text" class="form-control" rows="5" id="drcode" name="drcode"></input>
+                                <input type="text" class="form-control" rows="5" id="drcode" name="drcode" value="<?php echo "$drcode" ?>"></input>
                               </div>
                               <div class="form-group">
                                 <label for="comment">تخصص‌ها</label>
                               <div class="row" id="p-">
-                                    <label for="p-1" class="btn btn-default child">استرس <input type="checkbox" id="p-1" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-2" class="btn btn-default child">وسواس <input type="checkbox" id="p-2" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-3" class="btn btn-default child">روابط بین فردی <input type="checkbox" id="p-3" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-4" class="btn btn-default child">رابطه <input type="checkbox" id="p-4" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-5" class="btn btn-default child">اختلالات اضطرابی <input type="checkbox" id="p-5" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-6" class="btn btn-default child">اختلالات شخصیت <input type="checkbox" id="p-6" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-7" class="btn btn-default child">افسردگی <input type="checkbox" id="p-7" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-8" class="btn btn-default child">خانواده <input type="checkbox" id="p-8" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-9" class="btn btn-default child">کنکور / مشاوره‌درسی <input type="checkbox" id="p-9" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-10" class="btn btn-default child">مسائل جنسی <input type="checkbox" id="p-10" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
-                                    <label for="p-11" class="btn btn-default child">کنترل خشم <input type="checkbox" id="p-11" class="badgebox takhasos" name="takhasos"><span class="badge">&check;</span></label>
+                                    <label for="p-1" class="btn btn-default child">استرس <input type="checkbox" id="p-1" class="badgebox takhasos" name="takhasos" value="استرس"><span class="badge">&check;</span></label>
+                                    <label for="p-2" class="btn btn-default child">وسواس <input type="checkbox" id="p-2" class="badgebox takhasos" name="takhasos" value="وسواس"><span class="badge">&check;</span></label>
+                                    <label for="p-3" class="btn btn-default child">روابط بین فردی <input type="checkbox" id="p-3" class="badgebox takhasos" name="takhasos" value="روابط بین فرد"><span class="badge">&check;</span></label>
+                                    <label for="p-4" class="btn btn-default child">رابطه <input type="checkbox" id="p-4" class="badgebox takhasos" name="takhasos" value="رابطه"><span class="badge">&check;</span></label>
+                                    <label for="p-5" class="btn btn-default child">اختلالات اضطرابی <input type="checkbox" id="p-5" class="badgebox takhasos" name="takhasos" value="اختلالات اضطراب"><span class="badge">&check;</span></label>
+                                    <label for="p-6" class="btn btn-default child">اختلالات شخصیت <input type="checkbox" id="p-6" class="badgebox takhasos" name="takhasos" value="اختلالات شخصی"><span class="badge">&check;</span></label>
+                                    <label for="p-7" class="btn btn-default child">افسردگی <input type="checkbox" id="p-7" class="badgebox takhasos" name="takhasos" value="افسردگی"><span class="badge">&check;</span></label>
+                                    <label for="p-8" class="btn btn-default child">خانواده <input type="checkbox" id="p-8" class="badgebox takhasos" name="takhasos" value="خانواده"><span class="badge">&check;</span></label>
+                                    <label for="p-9" class="btn btn-default child">کنکور / مشاوره‌درسی <input type="checkbox" id="p-9" class="badgebox takhasos" name="takhasos" value="کنکور / مشاوره‌درس"><span class="badge">&check;</span></label>
+                                    <label for="p-10" class="btn btn-default child">مسائل جنسی <input type="checkbox" id="p-10" class="badgebox takhasos" name="takhasos" value="مسائل جنسی"><span class="badge">&check;</span></label>
+                                    <label for="p-11" class="btn btn-default child">کنترل خشم <input type="checkbox" id="p-11" class="badgebox takhasos" name="takhasos" value="کنترل خشم"><span class="badge">&check;</span></label>
                               </div>
                               <div class="row">
                                     <div class="col-md-5" style="display: inline-flex;float: right;margin-top: 10px;">
-                                           <input class="form-control" id="p-n" placeholder="تخصص" required="" type="text">
+                                           <input class="form-control" id="p-n" placeholder="تخصص" type="text">
 							 <button type="button" class="btn btn-success" style="margin-right: 10px;" id="p-b">
 								<i class="fa fa-plus" aria-hidden="true"></i>
                                            </button>
                                     </div>
                               </div>
                               </div>
-
                               <div class="form-group">
                                 <label for="comment">رویکردها</label>
                                     <div class="row" id="m-">
-                                          <label for="m-1" class="btn btn-default child">درمان شناختی رفتاری <input type="checkbox" id="m-1" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-2" class="btn btn-default child">درمان روان کاوی <input type="checkbox" id="m-2" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-3" class="btn btn-default child">درمان روان پوشی <input type="checkbox" id="m-3" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-4" class="btn btn-default child">درمان ترنس پرسنال <input type="checkbox" id="m-4" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-5" class="btn btn-default child">درمان اگزیستانسیالیست <input type="checkbox" id="m-5" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-6" class="btn btn-default child">درمان زوج <input type="checkbox" id="m-6" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-7" class="btn btn-default child">درمان گروهی <input type="checkbox" id="m-7" class="badgebox roykard"><span class="badge">&check;</span></label>
-                                          <label for="m-8" class="btn btn-default child">درمان معنایی <input type="checkbox" id="m-8" class="badgebox roykard"><span class="badge">&check;</span></label>
+                                          <label for="m-1" class="btn btn-default child">درمان شناختی رفتاری <input type="checkbox" id="m-1" class="badgebox roykard" name="roykard" value="درمان شناختی رفتاری"><span class="badge">&check;</span></label>
+                                          <label for="m-2" class="btn btn-default child">درمان روان کاوی <input type="checkbox" id="m-2" class="badgebox roykard" name="roykard" value="درمان روان کاوی"><span class="badge">&check;</span></label>
+                                          <label for="m-3" class="btn btn-default child">درمان روان پوشی <input type="checkbox" id="m-3" class="badgebox roykard" name="roykard" value="درمان روان پوشی"><span class="badge">&check;</span></label>
+                                          <label for="m-4" class="btn btn-default child">درمان ترنس پرسنال <input type="checkbox" id="m-4" class="badgebox roykard" name="roykard" value="درمان ترنس پرسنال"><span class="badge">&check;</span></label>
+                                          <label for="m-5" class="btn btn-default child">درمان اگزیستانسیالیست <input type="checkbox" id="m-5" class="badgebox roykard" name="roykard" value="درمان اگزیستانسیالیست"><span class="badge">&check;</span></label>
+                                          <label for="m-6" class="btn btn-default child">درمان زوج <input type="checkbox" id="m-6" class="badgebox roykard" name="roykard" value="درمان زوج"><span class="badge">&check;</span></label>
+                                          <label for="m-7" class="btn btn-default child">درمان گروهی <input type="checkbox" id="m-7" class="badgebox roykard" name="roykard" value="درمان گروهی"><span class="badge">&check;</span></label>
+                                          <label for="m-8" class="btn btn-default child">درمان معنایی <input type="checkbox" id="m-8" class="badgebox roykard" name="roykard" value="درمان معنایی"><span class="badge">&check;</span></label>
                                     </div>
                                     <div class="row">
                                           <div class="col-md-5" style="display: inline-flex;float: right;margin-top: 10px;">
-                                                <input class="form-control" id="m-n" placeholder="رویکرد" required="" type="text">
+                                                <input class="form-control" id="m-n" placeholder="رویکرد" type="text">
   <button type="button" class="btn btn-success" style="margin-right: 10px;" id="m-b" >
                                           <i class="fa fa-plus" aria-hidden="true"></i>
                                           </button>
@@ -299,12 +298,6 @@ include("pages/header.php");head(""); ?>
 														<img id="outputimg" src="<?php echo "$picture"; ?>" />
 													  </span>
                             </div>
-
-
-
-
-
-
                             <div class="form-group">
                                <label for="">شماره همراه:</label>
                                <input class="form-control" placeholder="09350000000" value="<?php echo "$phone"; ?>" id="s4phone" name="s4phone" required="" type="text">
@@ -338,7 +331,7 @@ include("pages/header.php");head(""); ?>
                               <?php if ($isdr): ?>
                             <div class="form-group">
                                <label for="">شماره مطب:</label>
-                               <input class="form-control" placeholder="05130000000" required="" type="text" id="s4drphone" name="s4drphone">
+                               <input class="form-control" placeholder="05130000000" required="" type="text" id="s4drphone" name="s4drphone" value="<?php echo "$drphone"; ?>">
                             </div>
 				    <?php endif; ?>
 </form>

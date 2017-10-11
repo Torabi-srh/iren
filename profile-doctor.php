@@ -11,7 +11,7 @@
     redirect("login.php") ;
   } else {
     if($log_check[0] === false) {
-			
+
       redirect("login.php") ;
     } elseif ($log_check[1] === 0) {
       redirect("profile-user.php") ;
@@ -139,7 +139,7 @@
 						<div class="row" style="margin-top: 25px;margin-bottom: 25px;">
               <form action="profile-doctor.php" method="post">
                 <div class="pull-left" style="display: flex;width: 100%;">
-									<input class="form-control" name="send_mail" placeholder="پست‌الکترونیکی / شماره تلفن" required="" style="width: 100%;margin-left: 10px;" type="text">
+									<input class="form-control" name="send_mail" placeholder="پست‌الکترونیکی / شماره تلفن" style="width: 100%;margin-left: 10px;" type="text">
 									<button type="submit" class="btn btn-success" style="margin-left: 36px;">
 											<i class="fa fa-heart" aria-hidden="true"></i>
 											دعوت به سایت
@@ -167,9 +167,9 @@
 										if ($result = $conn->prepare($sql)) {
 											$result->bind_param('i', $user_id);
 											$r = $result->execute();
-												
+
 											if ($r) {
-												$row = $result->get_result();												
+												$row = $result->get_result();
 												// output data of each row
                         $row_ind = 1;
                         while($row = $row->fetch_assoc()) {

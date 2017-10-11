@@ -511,8 +511,8 @@ function Image_Upload($uFile) {
     $maxsize    = 216791;
     $mysqli = isset($mysqli) ? $mysqli : Connection();
 
-    if (!empty($uFile) && $uFile['file']['tmp_name']) {
-        $tempFile = $uFile['file']['tmp_name'];
+    if (!empty($uFile) && $uFile['tmp_name']) {
+        $tempFile = $uFile['tmp_name'];
         if (isset($_SESSION['user_id'])) {
             $next_id = $_SESSION['user_id'];
             $email_ = decrypt($_SESSION['emall']);
@@ -523,20 +523,20 @@ function Image_Upload($uFile) {
     }
 
     if (!$error) {
-        $fileName = time().'_'.SaltMD5($uFile['file']['name']).'.jpg';
+        $fileName = time().'_'.SaltMD5($uFile['name']).'.jpg';
 
         if (!empty($tempFile)) {
             $detectedType = exif_imagetype($tempFile);
 
             $allowedTypes = array(IMAGETYPE_PNG);
             $error = !in_array($detectedType, $allowedTypes);
-            $pngz = $error; 
+            $pngz = $error;
             $allowedTypes = array(IMAGETYPE_JPEG);
 
             $error = !in_array($detectedType, $allowedTypes);
       // end of check
-      if (!$error || !$pngz) {
-          if (($uFile['file']['size'] >= $maxsize) || ($uFile["file"]["size"] == 0)) {
+      if (!$error || !$pngz) { 
+          if (($uFile['size'] >= $maxsize) || ($uFile["size"] == 0)) {
               return 'فایل باید کمتر از 200 KB باشد';
           } else {
               if ($stmt = $mysqli->prepare("SELECT picture
@@ -607,6 +607,11 @@ function Connection() {
     } catch (Exception $e) {
         $globals["errors"] .= 'Caught exception: '.  $e->getMessage(). PHP_EOL;
     }
+}
+function FixPersianNumber($number) {
+    $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
+    $num = range(0, 9);
+    return str_replace($persian, $num, $number);
 }
 function FixPersianString($text) {
     if (is_null($text)) {

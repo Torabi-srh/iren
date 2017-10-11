@@ -2,16 +2,16 @@
 include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
 
 if (isset($_POST['check'])) {
-  if (isset($_POST['username'])) { 
+  if (isset($_POST['username'])) {
     echo (json_encode(true));
     die();
   } else {
     echo (json_encode(false));
     die();
   }
-}  
+}
 $mysqli = isset($mysqli) ? $mysqli : Connection();
-   
+
 $e = false;
 $u = false;
 $p = false;
@@ -32,7 +32,7 @@ if (isset($_POST["dfm"])) {
   }
   if (isset($_POST["email"])) {
     $email = $_POST['email'];
-  
+
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
       echo false;
     }
@@ -60,7 +60,7 @@ if (isset($_POST["dfm"])) {
   }
   if (isset($_POST["username"])) {
     $username = $_POST['username'];
-  
+
     if ($stmt = $mysqli->prepare("SELECT id
                            FROM users
                            WHERE username = ?")) {
@@ -93,7 +93,7 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.13 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
       return;
     }
   }
@@ -108,18 +108,18 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.123 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
       return;
     }
   }
-  if ($cpasswd !== $passwd) { 
+  if ($cpasswd !== $passwd) {
     echo '
           <p class="notification is-danger">
             <button id="delete" class="delete"></button>
               500.133 لطفا با ادمین سایت تdasdaماس بگیرید !
           </p>
-         '; 
-    return; 
+         ';
+    return;
   }
   if (isset($_POST["qavanin"])) {
     $qavanin = $_POST['qavanin'];
@@ -132,15 +132,15 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.143 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
       return;
     }
   }
 
   $isdr = 1;
-} elseif (isset($_POST["fm"])) { 
+} elseif (isset($_POST["fm"])) {
   if (isset($_POST["email"])) {
-    $email = $_POST['email']; 
+    $email = $_POST['email'];
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
       echo false;
     }
@@ -161,12 +161,12 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.11 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
     }
   }
   if (isset($_POST["username"])) {
     $username = $_POST['username'];
-  
+
     if ($stmt = $mysqli->prepare("SELECT id
                            FROM users
                            WHERE username = ?")) {
@@ -184,7 +184,7 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.12 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
     }
   }
   if (isset($_POST["password"])) {
@@ -198,7 +198,7 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.153 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
       return;
     }
   }
@@ -213,7 +213,7 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.163 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
       return;
     }
   }
@@ -228,13 +228,19 @@ if (isset($_POST["dfm"])) {
               <button id="delete" class="delete"></button>
                 500.173 لطفا با ادمین سایت تماس بگیرید !
             </p>
-           '; 
+           ';
       return;
     }
   }
   $isdr = 0;
 } else {
-  
+  echo '
+          <p class="notification is-success">
+            <button id="delete" class="delete"></button>
+<a href=\".\">صفحه خود را دوباره بارگذاری کنید.</a>
+          </p>
+         ';
+    return;
 }
 
 if (!empty($passwd) && !empty($username) && !empty($email)) {
@@ -246,7 +252,7 @@ if (!empty($passwd) && !empty($username) && !empty($email)) {
             <button id="delete" class="delete"></button>
               ثبت نام انجام شد. لطفا ایمیل خود را بررسی کنید.
           </p>
-         '; 
+         ';
     return;
   } else {
     echo '
@@ -257,5 +263,5 @@ if (!empty($passwd) && !empty($username) && !empty($email)) {
          ';
     return;
   }
-}  
+}
  ?>
