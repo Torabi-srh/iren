@@ -75,7 +75,23 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (`id`,`username`,`email`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `takhasos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`uid`) REFERENCES users(`id`)
+      ON UPDATE CASCADE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `roykard` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`uid`) REFERENCES users(`id`)
+      ON UPDATE CASCADE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 --
 --  INSERT INTO `telepathymaster`.`users` (`id`, `username`, `fname`, `name`, `password`, `email`, `age`, `phone`, `drphone`, `gender`, `bday`, `login_session`, `register_date`, `picture`, `verify`, `verify_send`, `verify_send_hash`, `forgot`, `forgot_send`, `forgot_send_hash`, `isban`, `isdr`, `wizard`, `drcode`, `scode`, `ncode`, `register_ip`, `iban`, `salary`) VALUES ('1', 'bionix', 'ترابی', 'سروش', 'd28Ewmo/nBPJo', 'tspersian@gmail.com', NULL, NULL, NULL, '1', '1111-11-11', 'ccXp3CpnuS/0.', '2017-10-01 11:40:40', 'assets/images/users/no-image.jpg', '1', '2017-10-01 08:10:40', 'dalHISFkVmD5o', '0', NULL, NULL, '0', '0', '0', '12343', '1', '1111111111', '', NULL, NULL);
 --
