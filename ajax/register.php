@@ -239,8 +239,9 @@ if (isset($_POST["dfm"])) {
             <button id="delete" class="delete"></button>
 <a href=\".\">صفحه خود را دوباره بارگذاری کنید.</a>
           </p>
+
          ';
-    return;
+         return;
 }
 
 if (!empty($passwd) && !empty($username) && !empty($email)) {

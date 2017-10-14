@@ -1,5 +1,6 @@
 <?php
 include_once 'statics.php';
+ob_start();
 
 /* create database */
 if (islocal()) {
@@ -55,7 +56,7 @@ function is_session_started() {
     }
     return false;
 }
-function sessionStart($name, $limit = 7200, $path = '/', $domain = 'localhost', $secure = null) {
+function sessionStart($name, $limit = 7200, $path = '/', $domain = 'telepathy.000webhostapp.com', $secure = null) {
     if (isset($_SESSION['user_id'])) {
         if ($_SESSION['user_id'] == 0 || $_SESSION['user_id'] == "0" || empty($_SESSION['user_id'])) {
             lagout();
@@ -235,7 +236,7 @@ function login_check($from = "") {
                 $_SESSION['username'] = $username;
                 $_SESSION['login_string'] = $uname;
                 $_SESSION['cookie'] = $uname;
-                setcookie("telepath", $uname, time()+1123200, '/', 'localhost');
+                setcookie("telepath", $uname, time()+1123200, '/', 'telepathy.000webhostapp.com');
 
                 return array(true, $isdr);
             }
@@ -355,7 +356,7 @@ function Login($email, $password, $remember = false, $wiz = false) {
                     }
                     $cookiehash = SaltMD5($user_id . $IP . $now);
                     // change Y-m-d H:i:s -> now
-                    setcookie("telepath", $cookiehash, date('now')+$d_day, '/', 'localhost');
+                    setcookie("telepath", $cookiehash, date('now')+$d_day, '/', 'telepathy.000webhostapp.com');
                     $sql = "UPDATE `users` SET `login_session`='$cookiehash' WHERE `id`='$user_id'";
 
                     if ($stmt = $mysqli->prepare($sql)) {
@@ -384,6 +385,7 @@ function Login($email, $password, $remember = false, $wiz = false) {
 }
 // logout
 function lagout() {
+  $_uid = NULL;
     if (!isset($_SESSION['user_id']) && !is_session_started()) {
         sessionStart("Login");
     }
@@ -441,9 +443,9 @@ function user_activitys() {
 function sendemail($to, $subject, $message) {
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= 'From: <noreplay@cyberdream.ir>' . "\r\n";
+    $headers .= 'From: <noreplay@telepathy.ir>' . "\r\n";
   //$headers .= 'Cc: tspersian@gmail.com' . "\r\n";
-  mail($to, $subject, $message, $headers, '-fnoreplay@cyberdream.ir');
+  mail($to, $subject, $message, $headers, '-fnoreplay@telepathy.ir');
 }
 function register($username, $password, $email, $isdr = 0, $drcode = '') {
     $mysqli = isset($mysqli) ? $mysqli : Connection();
@@ -469,7 +471,7 @@ function register($username, $password, $email, $isdr = 0, $drcode = '') {
         $stmt->execute();
         try {
           $emailstruct = "سلام :$username <br>".
-                         "http://site.com".serverRoot2()."/verify?email=$email&username=$username&confirm=".$verify_send_hash;
+                         "https://telepathy.000webhostapp.com/verify.php?email=$email&username=$username&confirm=".$verify_send_hash;
                          echo
           sendemail($email, "Registeration", $emailstruct);
         } catch (Exception $e) {
@@ -500,19 +502,20 @@ function renewverify($username, $email) {
             }
         }
     }
-    $emailstruct = "Golden dice user:$username thank you for register we wish you bests luck<br>".
-                   "http://gd.com/".serverRoot2()."/verify?email=$email&username=$username&confirm=".$verify_send_hash;
+    $emailstruct = "user:$username thank you for register<br>".
+                   "https://telepathy.000webhostapp.com/verify.php
+                   ?email=$email&username=$username&confirm=".$verify_send_hash;
     sendemail($email, "Registeration", $emailstruct);
 }
 function Image_Upload($uFile) {
     $error       = false;
     $ds          = DIRECTORY_SEPARATOR;
-    $storeFolder = usersuploadpath2();
+    $storeFolder = UPLOAD_PROFILE_PIC;
     $maxsize    = 216791;
     $mysqli = isset($mysqli) ? $mysqli : Connection();
 
     if (!empty($uFile) && $uFile['tmp_name']) {
-        $tempFile = $uFile['tmp_name'];
+        $tempFile = $uFile['tmp_name'][0];
         if (isset($_SESSION['user_id'])) {
             $next_id = $_SESSION['user_id'];
             $email_ = decrypt($_SESSION['emall']);
@@ -523,8 +526,7 @@ function Image_Upload($uFile) {
     }
 
     if (!$error) {
-        $fileName = time().'_'.SaltMD5($uFile['name']).'.jpg';
-
+        $fileName = time().'_'.SaltMD5($uFile['name'][0]).'.jpg';
         if (!empty($tempFile)) {
             $detectedType = exif_imagetype($tempFile);
 
@@ -535,8 +537,8 @@ function Image_Upload($uFile) {
 
             $error = !in_array($detectedType, $allowedTypes);
       // end of check
-      if (!$error || !$pngz) { 
-          if (($uFile['size'] >= $maxsize) || ($uFile["size"] == 0)) {
+      if (!$error || !$pngz) {
+          if (($uFile['size'][0] >= $maxsize) || ($uFile["size"][0] == 0)) {
               return 'فایل باید کمتر از 200 KB باشد';
           } else {
               if ($stmt = $mysqli->prepare("SELECT picture
@@ -548,22 +550,22 @@ function Image_Upload($uFile) {
                   $stmt->bind_result($picture);
                   $stmt->fetch();
               }
-              $targetPath = dirname(__FILE__) . $ds. $storeFolder . $ds;
+              $targetPath = $storeFolder . $ds;
 
               $targetFile =  $targetPath. $fileName;
 
               if (move_uploaded_file($tempFile, $targetFile)) {
                   if ($stmt = $mysqli->prepare("UPDATE users
-                                            SET picture='assets/images/users/$fileName'
+                                            SET picture='$targetFile'
                                             WHERE username = ? or email = ?")) {
                       $stmt->bind_param('ss', $username_, $email_);
                       $stmt->execute();
                       if ($picture == "assets/images/users/no-image.jpg") {
                           // return 1;
                       } else {
-                          unlink(dirname(__FILE__) . $ds."/$picture");
+                          unlink($picture);
                       }
-                      return -1;
+                      return false;
                   }
               }
           }
@@ -578,8 +580,8 @@ function Image_Upload($uFile) {
     }
 }
 function SaltMD5($str, $salt = 'kM3@A2RdYuA!MeNmA0@E1IvM$IzsQ2l@B8g0s') {
-    $salt = sha1(md5($str)).$salt;
-    return crypt($str, $salt);
+    $salt = sha1(md5("$str")).$salt;
+    return crypt("$str", $salt);
 }
 function encrypt($pure_string, $encryption_key = "emnacrryyapmtdiuosne_tkdeayr1a3m", $tag = "1234123412341234") {
     $cipher = "aes-128-gcm";
@@ -862,4 +864,11 @@ function isValidIranianNationalCode($input) {
     }, range(0, 8))) % 11;
 
     return ($sum < 2 && $check == $sum) || ($sum >= 2 && $check + $sum == 11);
+}
+function TextToDB($input) {
+  $mysqli = isset($mysqli) ? $mysqli : Connection();
+  $input = $mysqli->real_escape_string($input);
+  $input = strip_tags($input);
+  $input = trim($input);
+  return $input;
 }

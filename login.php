@@ -12,7 +12,6 @@
     $password = $_POST['password'] ;
     $t = !empty($_POST['remember']) ;
 		$login_ret = Login($username, $password, $t);
-		echo "$login_ret";
     if($login_ret[0] === true && $login_ret[1] === 1 && is_user_activities_set()) {
       // dr dashbord !
       $alrt = 1;
@@ -99,7 +98,7 @@
       if ($alrt == 0) {
         echo "<div class=\"alert alert-danger\" id=23>
       <strong>{$login_ret}</strong>
-    </div><br />" ;
+    </div><br />";
       }elseif ($alrt == 1) {
         echo "<div class=\"alert alert-success\" id=24>
       <strong>Success!</strong>

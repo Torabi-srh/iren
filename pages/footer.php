@@ -103,7 +103,7 @@ include("pages/chat.php");
     <script src="js/chat.js"></script>
     <script src="js/shop.js"></script>
     <script src="js/jdf.js"></script>
-    <?php if ($isdr): ?>
+    <?php if (!$isdr): ?>
     <script src="js/wizard-us.js"></script>
   <?php else: ?>
   <script src="js/wizard-dr.js"></script>

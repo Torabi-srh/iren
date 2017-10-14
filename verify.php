@@ -1,5 +1,5 @@
 <?php
-  include_once 'functions.php';
+include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
   $mysqli = isset($mysqli) ? $mysqli : Connection();
 
   if (login_check() == true) {
@@ -22,6 +22,7 @@
         $stmt->fetch();
         if ($verify == 1) {
           echo "Account is activated.";
+          saferedirect("index.php");
           die();
         }
         if (strtotime(date('Y-m-d H:i:s')) < strtotime($verify_send) + 7200) {
@@ -32,7 +33,7 @@
                 $stmt->bind_param('ss', $username, $email);
                 $stmt->execute();
 
-                $FormError = Login2($email);
+                // $FormError = Login($email);
                 if ($FormError === true) {
                   echo 'Account is now activated click here to <a href="login.php">login</a>';
                 } else {

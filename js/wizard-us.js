@@ -226,25 +226,16 @@ $('#step4-form').validate({
 $('#s4btn').on('click', function (e) {
     e.preventDefault();
     if ($("#step4-form").valid()) {
-        $("html, body").animate({ scrollTop: 0 }, "slow");
-        var fd = new FormData();
-        var dataf = $('#step4-form').serializeArray();
-        var file_data = $('#fileupload').prop('files')[0];
-        fd.append('file', file_data);
-        dataf.push({name: 'token', value: ""});
-        dataf.push({name: 'w', value: "4"});
-        $.each(dataf,function(key,input){
-            fd.append(input.name,input.value);
-        });
+        $("html, body").animate({ scrollTop: 0 }, "slow"); 
+        var fd = new FormData($("#step4-form").get(0));
         $.ajax({
             type: "POST",
-            cache: false,
-            contentType: false,
-            processData: false,
             data: fd,
+            processData: false,
+            contentType: false,
             url: '/ajax/wizard.php',
             success: function(result) {
-              result = JSON.parse(result);
+                result = JSON.parse(result);
                 if (result.a === "success") {
                     var $active = $('.wizard .nav-tabs li.active');
                     $active.next().removeClass('disabled');

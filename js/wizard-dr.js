@@ -241,19 +241,9 @@ $('#s4btn').on('click', function (e) {
     e.preventDefault();
     if ($("#step4-form").valid()) {
         $("html, body").animate({ scrollTop: 0 }, "slow");
-        var fd = new FormData();
-        var dataf = $('#step4-form').serializeArray();
-        var file_data = $('#fileupload').prop('files')[0];
-        fd.append('file', file_data);
-
-        dataf.push({name: 'token', value: ""});
-        dataf.push({name: 'w', value: "4"});
-        $.each(dataf,function(key,input){
-            fd.append(input.name,input.value);
-        });
+        var fd = new FormData($("#step4-form").get(0));
         $.ajax({
-            type: "POST",
-            cache: false,
+            type: "POST", 
             contentType: false,
             processData: false,
             data: fd,

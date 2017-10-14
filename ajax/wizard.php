@@ -2,16 +2,20 @@
 include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
 
 function test() {
+	$log_check = login_check("wizard") ;
 	$myObj = new StdClass;
 	$myObj->a = "danger";
-	$myObj->b = ":";
-	foreach ($_POST as $key => $value) {
+	//$_FILES["file"] = $_POST["file"];
+	//var_dump($_FILES["file"]);
+	$imger = Image_Upload($_FILES["fileupload"]);
+	$myObj->b = "---{$imger}<br/>";
+	foreach ($_FILES as $key => $value) {
 		$myObj->b .= "$key => $value<br/>";
   }
 	$error500 = json_encode($myObj, JSON_UNESCAPED_UNICODE);
 	echo $error500;die();
 }
-// test();
+//test();
 $myObj = new StdClass;
 $myObj->a = "danger";
 $myObj->b = "<a href=\".\">صفحه خود را دوباره بارگذاری کنید.</a>";
@@ -35,7 +39,7 @@ function is_ajax() {
 if (empty($_SESSION['user_id'])) {
 	echo $error500;die();
 } else {
-	$uid = $mysqli->real_escape_string($_SESSION['user_id']);
+	$uid = TextToDB($_SESSION['user_id']);
 }
 $isdr = $log_check[1];
 if (isset($_SESSION['wizard']) && $_SESSION['wizard'] == 1) {
@@ -62,42 +66,42 @@ if (isset($_POST["token"])) {
 		$w = $_POST['w'];
 		if ($w == "1") {
 			if (!empty($_POST["s1fname"])) {
-        $fname = $mysqli->real_escape_string($_POST["s1fname"]);
+        $fname = TextToDB($_POST["s1fname"]);
 			} else {
 				$myObj->b = "لطفا نام‌خانوادگی خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 				echo $r;die();
 			}
 			if (!empty($_POST["s1name"])) {
-					$name = $mysqli->real_escape_string($_POST["s1name"]);
+					$name = TextToDB($_POST["s1name"]);
 			} else {
 				$myObj->b = "لطفا نام خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 				echo $r;die();
 			}
 			if (!empty($_POST["s1bday"])) {
-					$bday = $mysqli->real_escape_string($_POST["s1bday"]);
+					$bday = TextToDB($_POST["s1bday"]);
 			} else {
 				$myObj->b = "لطفا تاریخ‌تولد خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 				echo $r;die();
 			}
 			if (!empty($_POST["s1cid"])) {
-					$cid = $mysqli->real_escape_string($_POST["s1cid"]);
+					$cid = TextToDB($_POST["s1cid"]);
 			} else {
 				$myObj->b = "لطفا شماره‌شناسنامه خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 				echo $r;die();
 			}
 			if (!empty($_POST["s1nid"])) {
-					$nid = $mysqli->real_escape_string($_POST["s1nid"]);
+					$nid = TextToDB($_POST["s1nid"]);
 			} else {
 				$myObj->b = "لطفا کدملی خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 				echo $r;die();
 			}
 			if (!empty($_POST["s1gen"])) {
-					$gen = $mysqli->real_escape_string($_POST["s1gen"]);
+					$gen = TextToDB($_POST["s1gen"]);
 			} else {
 				$myObj->b = "لطفا جنسیت خود را مشخص کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -117,7 +121,7 @@ if (isset($_POST["token"])) {
 			} else { echo $error500;die(); }
 		} elseif ($w == "2") {
 			if (!empty($_POST["s2f1mal"])) {
-        $s2f1mal = $mysqli->real_escape_string($_POST["s2f1mal"]);
+        $s2f1mal = TextToDB($_POST["s2f1mal"]);
 			} elseif ($isdr) {
 				$myObj->b = "لطفا شماره شبا خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -128,7 +132,7 @@ if (isset($_POST["token"])) {
 				echo $r;die();
 			}
 			if (isset($_POST["s2f2mal"])) {
-        $s2f2mal = $mysqli->real_escape_string($_POST["s2f2mal"]);
+        $s2f2mal = TextToDB($_POST["s2f2mal"]);
 			} elseif ($isdr) {
 				$myObj->b = "لطفا هزینه یکساعت مشاوره خود را وارد کنید.";
 				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -155,14 +159,14 @@ if (isset($_POST["token"])) {
       $s3f1u = NULL;
 			if (!$isdr) {
 				if (isset($_POST["s3f1u"])) {
-					$s3f1u = $mysqli->real_escape_string($_POST["s3f1u"]);
+					$s3f1u = TextToDB($_POST["s3f1u"]);
 				} else {
 					$myObj->b = "لطفا تحصیلات خود را وارد کنید.";
 					$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 					echo $r;die();
 				}
 				if (isset($_POST["s3f2"])) {
-					$s3f2 = $mysqli->real_escape_string($_POST["s3f2"]);
+					$s3f2 = TextToDB($_POST["s3f2"]);
 				} else {
 					//$myObj->b = "لطفا تحصیلات خود را وارد کنید.";
 					//$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -186,7 +190,7 @@ if (isset($_POST["token"])) {
 					// echo $r;die();
 				}
         if (isset($_POST["drcode"])) {
-					$drcode = $mysqli->real_escape_string($_POST["drcode"]);
+					$drcode = TextToDB($_POST["drcode"]);
 				} else {
 					$myObj->b = "لطفا شماره‌نظام‌روانشناسی خود را وارد کنید.";
 					$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -194,7 +198,7 @@ if (isset($_POST["token"])) {
 				}
 
 				if (isset($_POST["s3f2"])) {
-					$s3f2 = $mysqli->real_escape_string($_POST["s3f2"]);
+					$s3f2 = TextToDB($_POST["s3f2"]);
 				} else {
 					//$myObj->b = "لطفا تحصیلات خود را وارد کنید.";
 					//$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -251,8 +255,8 @@ if (isset($_POST["token"])) {
       $s4addr = "";
       $s4post = "";
 			$s4drphone = "";
-      if (isset($_FILES["file"])) {
-        if ($imger = Image_Upload($_FILES["file"])) {
+      if (isset($_FILES["fileupload"])) {
+        if ($imger = Image_Upload($_FILES["fileupload"])) {
           $myObj->b = $imger;
           $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
           echo $r;die();
@@ -263,35 +267,35 @@ if (isset($_POST["token"])) {
         echo $r;die();
       }
       if (isset($_POST["s4phone"])) {
-        $s4phone = $mysqli->real_escape_string($_POST["s4phone"]);
+        $s4phone = TextToDB($_POST["s4phone"]);
       } else {
         $myObj->b = "لطفا شماره خود را وارد کنید";
         $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
         echo $r;die();
       }
       if (isset($_POST["s4province"])) {
-        $s4province = $mysqli->real_escape_string($_POST["s4province"]);
+        $s4province = TextToDB($_POST["s4province"]);
       } else {
         $myObj->b = "لطفا استان خود را وارد کنید";
         $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
         echo $r;die();
       }
       if (isset($_POST["s4city"])) {
-        $s4city = $mysqli->real_escape_string($_POST["s4city"]);
+        $s4city = TextToDB($_POST["s4city"]);
       } else {
         $myObj->b = "لطفا شهر خود را وارد کنید";
         $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
         echo $r;die();
       }
       if (isset($_POST["s4addr"])) {
-        $s4addr = $mysqli->real_escape_string($_POST["s4addr"]);
+        $s4addr = TextToDB($_POST["s4addr"]);
       } else {
         $myObj->b = "لطفا آدرس خود را وارد کنید";
         $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
         echo $r;die();
       }
       if (isset($_POST["s4post"])) {
-        $s4post = $mysqli->real_escape_string($_POST["s4post"]);
+        $s4post = TextToDB($_POST["s4post"]);
       } else {
         $myObj->b = "لطفا کدپستی خود را وارد کنید";
         $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
@@ -301,7 +305,7 @@ if (isset($_POST["token"])) {
 				$sql = "UPDATE users SET phone = ?, province = ?, city = ?, addr = ?, pcode = ? WHERE id = ?";
 			} else {
 	      if (isset($_POST["s4drphone"])) {
-	        $s4drphone = $mysqli->real_escape_string($_POST["s4drphone"]);
+	        $s4drphone = TextToDB($_POST["s4drphone"]);
 	      } else {
 	        $myObj->b = "لطفا شماره مطب خود را وارد کنید";
 	        $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
