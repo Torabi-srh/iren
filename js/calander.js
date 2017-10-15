@@ -18,7 +18,7 @@
 			//$("html").css('cursor', 'auto');
 		});
 		/* initialize the external events
-		-----------------------------------------------------------------*/ 
+		-----------------------------------------------------------------*/
 		$('#external-events .fc-event').each(function() {
 			// store data so the calendar knows to render an event upon drop
 			$(this).data('event', {
@@ -34,9 +34,41 @@
 			});
 
 		});
-		
-		$("#clear-events").click(function() { 
+
+		$("#clear-events").click(function() {
 			$('#calendar').fullCalendar( 'removeEvents');
+		});
+		$("#reg-events").click(function() {
+			var eventsFromCalendar = $('#calendar').fullCalendar('clientEvents');
+			seen = [];
+			json = JSON.stringify(eventsFromCalendar, function(key, val) {
+						   if (typeof val == "object") {
+						        if (seen.indexOf(val) >= 0)
+						            return
+						        seen.push(val);
+						    }
+						    return val;
+						});
+			// var _data = JSON.stringify(eventsFromCalendar);
+			console.log(eventsFromCalendar);
+			$.ajax({
+					type: 'POST',
+					data: { eventsJson: json },
+					dataType: "json",
+					url: '/ajax/calender.php',
+					success: function(result) {
+						console.log(result);
+									var $elm = $("<div class=\"alert alert-"+ result.a +"\"><strong>"+ result.b +"</strong></div><br />");
+									$("#could_pass").html($elm);
+									setTimeout(function() {
+															$elm.remove();
+													}, 5000);
+					} ,
+			      error: function (xhr, ajaxOptions, thrownError) {
+			        alert(xhr.status);
+			        alert(thrownError);
+			      }
+			});
 		});
 		/* initialize the calendar
 		-----------------------------------------------------------------*/
@@ -55,31 +87,31 @@
 			eventLimit: true, // allow "more" link when too many events
             isJalaali : true,
             locale: 'fa',
-			minTime: '07:00:00',     
+			minTime: '07:00:00',
             firstDay: 1,
-			droppable: true, // this allows things to be dropped onto the calendar 
+			droppable: true, // this allows things to be dropped onto the calendar
 			eventAfterRender: function(event){
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
 					event._id = idi;
-					idi = idi+1; 
+					idi = idi+1;
 				}
 			},
-			drop: function(date, allDay) {  
-				var event = $(this).data('event'); 
+			drop: function(date, allDay) {
+				var event = $(this).data('event');
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
 					event._id = idi;
-					idi = idi+1; 
-				} 
+					idi = idi+1;
+				}
 			},
 			eventAfterRender: function(event){
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
 					event._id = idi;
-					idi = idi+1; 
+					idi = idi+1;
 				}
-			}, 
+			},
 			selectable: true,
 			selectHelper: false,
 			select: function(start, end) {
@@ -90,26 +122,26 @@
 						id: idi,
 						title: title,
 						start: start,
-						end: end, 
-						backgroundColor: ((selected_hand == 'green') ? "#65bd77" : "#fea223"),      
+						end: end,
+						backgroundColor: ((selected_hand == 'green') ? "#65bd77" : "#fea223"),
 					};
 					idi = idi+1;
 					$('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
 				}
 				$('#calendar').fullCalendar('unselect');
-			}, 
-			eventDragStop: function(event,jsEvent) { 
+			},
+			eventDragStop: function(event,jsEvent) {
 				var trashEl = jQuery('#calendarTrash');
-				var ofs = trashEl.offset(); 
+				var ofs = trashEl.offset();
 				var x1 = ofs.left;
 				var x2 = ofs.left + trashEl.outerWidth(true);
 				var y1 = ofs.top;
 				var y2 = ofs.top + trashEl.outerHeight(true);
-				
+
 				if (jsEvent.pageX >= x1 && jsEvent.pageX<= x2 &&
 					jsEvent.pageY >= y1 && jsEvent.pageY <= y2) {
 					$('#calendar').fullCalendar('removeEvents', event.id);
 				}
 			}
-		}); 
+		});
 	});

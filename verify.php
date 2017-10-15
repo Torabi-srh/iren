@@ -9,9 +9,9 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
     die();
   }
   if (isset($_GET['confirm'])) {
-    $confirm = $mysqli->real_escape_string($_GET['confirm']);
-    $email = $mysqli->real_escape_string($_GET['email']);
-    $username = $mysqli->real_escape_string($_GET['username']);
+    $confirm = TextToDB($_GET['confirm']);
+    $email = TextToDB($_GET['email']);
+    $username = TextToDB($_GET['username']);
     if ($stmt = $mysqli->prepare("SELECT verify_send,verify_send_hash,verify
                                   FROM users WHERE username = ? or email = ?
                                   LIMIT 1")) {

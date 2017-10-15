@@ -7,16 +7,16 @@ $mysqli = isset($mysqli) ? $mysqli : Connection();
 $log_check = login_check() ;
 if ($log_check === false) {
 	redirect("login.php");die();
-} else { 
+} else {
 	if($log_check[0] === false) {
 		redirect("login.php");die();
-	} 
+	}
 }
 
 if (empty($_SESSION['user_id'])) {
 	redirect("login.php");die();
 } else {
-	$uid = $mysqli->real_escape_string($_SESSION['user_id']); 
+	$uid = TextToDB($_SESSION['user_id']);
 }
 
 $er = "";
@@ -27,51 +27,51 @@ if (isset($_POST['submit-post'])) {
 	if (!empty($_POST['msg'])) {
 		$msg = $mysqli->real_escape_string($_POST['msg']);
 	} else {
-		$er = "لطفا متن پست خود را وارد کنید";	
+		$er = "لطفا متن پست خود را وارد کنید";
 	}
 	if (!empty($_POST['p-header'])) {
-		$header = $mysqli->real_escape_string($_POST['p-header']);
+		$header = TextToDB($_POST['p-header']);
 	} else {
 		$er = "لطفا تیتر پست را وارد کنید";
 	}
-	
+
 	$image = "";
 	if (!empty($_FILES['input-1'])) {
 		$image = new Bulletproof\Image($_FILES);
-		
+
 		// Pass a custom name, or leave it if you want it to be auto-generated
 		// $image->setName($name);
-		
-		// define the min/max image upload size (size in bytes) 
-		$image->setSize(0, 1000000); 
-		
+
+		// define the min/max image upload size (size in bytes)
+		$image->setSize(0, 1000000);
+
 		// define allowed mime types to upload
-		$image->setMime(array('jpeg', 'png', 'jpg'));  
-		
+		$image->setMime(array('jpeg', 'png', 'jpg'));
+
 		// set the max width/height limit of images to upload (limit in pixels)
-		//$image->setDimension($width, $height); 
-		
+		//$image->setDimension($width, $height);
+
 		// pass name (and optional chmod) to create folder for storage
-		$image->setLocation(UPLOAD_POST, $optionalPermission = "");  
+		$image->setLocation(UPLOAD_POST, $optionalPermission = "");
 	} else {
 		$er = "لطفا عکس پست را انتخاب کنید";
 	}
 	if (empty($er)) {
-		
+
 		if($image["input-1"]) {
-			$upload = $image->upload(); 
-			
+			$upload = $image->upload();
+
 			if($upload) {
 				var_dump($upload);die();
-				//echo $upload->getFullPath(); 
+				//echo $upload->getFullPath();
 			}else{
-				$er = $image["error"]; 
+				$er = $image["error"];
 			}
 		}
-		
+
 		$im_g = $image->getFullPath();
 		$zero = 0;
-		
+
 		if ($stmt = $mysqli->prepare("INSERT INTO posts(publisher, views, likes, header, image, txt) VALUES(?, ?, ?, ?, ?, ?)")) {
 			$stmt->bind_param('iiisss', $uid, $zero, $zero, $header, $im_g, $msg);
 			$stmt->execute();
@@ -84,14 +84,14 @@ include("pages/header.php");head("");
 ?>
 <?php if (isset($_POST['submit-post'])): ?>
   <div id="could_pass">
-    <?php 
+    <?php
         echo "<div class=\"alert alert-info\" id=23>
       <strong>{$er}</strong>
-    </div><br />" ; 
+    </div><br />" ;
     ?>
   </div>
   <?php endif; ?>
-  
+
 			<div class="row">
 				<div class="panel panel-default">
 					<div class="col-lg-8 col-md-8 col-sm-9 col-xs-12">
@@ -106,15 +106,15 @@ include("pages/header.php");head("");
 									<label class="control-label">Select File</label>
 									<input id="input-1" name="input-1" type="file" class="file">
 							</div>
-							
+
 							<div class="input-group" name="editor1" id="editor1" style="margin-bottom: 1%;">
 								<span class="input-group-addon">Post</span>
 								<input id="msgpost" type="text" class="form-control" name="msgpost" placeholder="Post to your blog">
 							</div>
-							 
+
 							<input type="submit" class="form-control" name="submit-post" onclick="document.getElementById('msg').value = editor.getData();" value="Post to your blog">
-							
-						</form>		
+
+						</form>
 					</div>
 				</div>
 			</div>
@@ -154,11 +154,11 @@ include("pages/header.php");head("");
 						</div>
 					</div>
 				  </article>
-			<?php		
+			<?php
 					endwhile;
 				endif;
 			?>
-	 
+
 			  <ul class="pagination">
 				<?php
 					if ($stmt = $mysqli->prepare("SELECT count(id) FROM posts")):
@@ -172,7 +172,7 @@ include("pages/header.php");head("");
 				<?php
 					endfor;
 					endif;
-				?> 
+				?>
 			  </ul>
 			</div>
         <!-- right side -->
@@ -201,7 +201,7 @@ include("pages/header.php");head("");
         						<div class="tab-content">
         							<div role="tabpanel" class="tab-pane active" id="top">
         								<div class="tab-post-list">
-											<?php   
+											<?php
 												$sql = "SELECT p.id, p.header, p.image, LEFT(txt, 40), p.p_date FROM posts AS p ORDER BY p.views LIMIT 3";
 												if ($stmt = $mysqli->prepare($sql)):
 													$stmt->execute();
@@ -218,7 +218,7 @@ include("pages/header.php");head("");
         												</a>
         											</div>
         										</div>
-												
+
         										<div class="tab-post-title">
         											<h6><a href="post.php?id=<?php echo "$pid"; ?>"><?php echo "$pheader"; ?></a>
         											</h6>
@@ -231,7 +231,7 @@ include("pages/header.php");head("");
         							</div>
         							<div role="tabpanel" class="tab-pane" id="new">
         								<div class="tab-post-list">
-        									<?php   
+        									<?php
 												$sql = "SELECT p.id, p.header, p.image, LEFT(txt, 40), p.p_date FROM posts AS p ORDER BY p.likes LIMIT 3";
 												if ($stmt = $mysqli->prepare($sql)):
 													$stmt->execute();
@@ -248,7 +248,7 @@ include("pages/header.php");head("");
         												</a>
         											</div>
         										</div>
-												
+
         										<div class="tab-post-title">
         											<h6><a href="post.php?id=<?php echo "$pid"; ?>"><?php echo "$pheader"; ?></a>
         											</h6>
@@ -261,7 +261,7 @@ include("pages/header.php");head("");
         							</div>
         							<div role="tabpanel" class="tab-pane" id="comment">
         								<div class="tab-post-list">
-        									<?php   
+        									<?php
 												$sql = "SELECT p.id, p.header, p.image, LEFT(txt, 40), p.p_date, IFNULL(COUNT(pc.id), 1) AS counte FROM posts AS p LEFT JOIN post_comments AS pc ON pc.pid = p.id GROUP BY p.id ORDER BY counte LIMIT 3";
 												if ($stmt = $mysqli->prepare($sql)):
 													$stmt->execute();
@@ -278,7 +278,7 @@ include("pages/header.php");head("");
         												</a>
         											</div>
         										</div>
-												
+
         										<div class="tab-post-title">
         											<h6><a href="post.php?id=<?php echo "$pid"; ?>"><?php echo "$pheader"; ?></a>
         											</h6>

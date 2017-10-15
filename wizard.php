@@ -15,7 +15,7 @@ if ($log_check === false) {
 if (empty($_SESSION['user_id'])) {
 	redirect("login.php");die();
 } else {
-	$uid = $mysqli->real_escape_string($_SESSION['user_id']);
+	$uid = TextToDB($_SESSION['user_id']);
 }
 $isdr = $log_check[1];
 

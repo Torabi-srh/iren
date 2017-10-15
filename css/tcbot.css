@@ -1,0 +1,30 @@
+.tcbot-body {
+  /*padding: 50px;*/
+  min-width: 282px; 
+  background-color: #ccc;
+  font-family: sans-serif;
+}
+
+.mood-list {
+  list-style: none;
+  padding: 0;
+}
+.mood-item {
+  display: inline-block;
+  padding: 20px;
+  margin-right: 10px;
+  border-radius: 4px;
+  box-shadow: #999 0 2px 12px;
+  background: #fff;
+  &:hover {
+    background: #efefef;
+    cursor: pointer;
+  }
+  &:active {
+    background: #999;
+  }
+}
+.box {
+  background: #ececec;
+  padding: .5em;
+}

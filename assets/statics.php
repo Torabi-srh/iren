@@ -5,6 +5,7 @@
 
   include 'jdf.php';
   include 'bulletproof-3.0.2/bulletproof.php';
+  require 'utils.php';
 
 //  database
   define('DB_HOST', 'localhost');
@@ -20,7 +21,8 @@
 //  upload path
   define('UPLOAD_POST', '/assets/images/posts/');
   define('UPLOAD_PROFILE_PIC', '/assets/images/users/');
-
+//  site
+  define('DOMAIN', ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false);
 //site specific configuration declartion
   define( 'BASE_PATH', 'http://cyberdream.ir/authorized.php');
 

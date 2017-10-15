@@ -1,9 +1,9 @@
 <?php
 include_once 'statics.php';
-ob_start();
-
+isdebug();
 /* create database */
-if (islocal()) {
+if (!islocal()) {
+    ob_start();
     if (!file_exists("DB_CREAT")) {
         if (dbc()) {
             $myfile = fopen("DB_CREAT", "w") or die("Unable to open file!");
@@ -20,10 +20,12 @@ function dbc() {
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
+            $mysqli->close();
             return true;
         } else {
             $filename = 'db/main.sql';
             if (!file_exists($filename)) {
+                $mysqli->close();
                 return false;
             }
             $querys = explode("\n", file_get_contents($filename));
@@ -35,6 +37,7 @@ function dbc() {
                 }
               }
             }
+            $mysqli->close();
             return true;
         }
     }
@@ -56,7 +59,7 @@ function is_session_started() {
     }
     return false;
 }
-function sessionStart($name, $limit = 7200, $path = '/', $domain = 'telepathy.000webhostapp.com', $secure = null) {
+function sessionStart($name, $limit = 7200, $path = '/', $domain = DOMAIN, $secure = null) {
     if (isset($_SESSION['user_id'])) {
         if ($_SESSION['user_id'] == 0 || $_SESSION['user_id'] == "0" || empty($_SESSION['user_id'])) {
             lagout();
@@ -142,6 +145,7 @@ function checkbrute($user_id) {
         $stmt->bind_param('i', $user_id);
         $stmt->execute();
         $stmt->store_result();
+        $mysqli->close();
         if ($stmt->num_rows > 10) {
             return true;
         } else {
@@ -182,7 +186,7 @@ function login_check($from = "") {
         sessionStart("Login");
     }
     if (!empty($_SESSION['user_id'])) {
-        $uid = $mysqli->real_escape_string($_SESSION['user_id']);
+        $uid = TextToDB($_SESSION['user_id']);
         if ($stmt = $mysqli->prepare("SELECT wizard
                                   FROM users
                                   WHERE id = ?
@@ -196,18 +200,20 @@ function login_check($from = "") {
         }
     }
     if (isset($_SESSION['wizard']) && $_SESSION['wizard'] == 0  && $from != "wizard") {
+        $mysqli->close();
         redirect("wizard.php");die();
     }
     if (!isset($_SESSION['cookie']) && empty($_SESSION['user_id'])) {
-        if (!isset($_COOKIE['telepath_session'])) {
+        if (!isset($_COOKIE['telepath'])) {
             if (strpos($actual_link, 'login') == false) {
                 $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
             }
+            $mysqli->close();
             return false;
         }
-        $uname = $_COOKIE['telepath_session'];
+        $uname = $_COOKIE['telepath'];
         if (!empty($uname)) {
-            $uname = $mysqli->real_escape_string($uname);
+            $uname = TextToDB($uname);
             $sql = "SELECT id, username, password, verify, isdr FROM `users` WHERE `login_session`=?";
             if ($stmt = $mysqli->prepare($sql)) {
                 $stmt->bind_param('s', $uname);
@@ -216,6 +222,7 @@ function login_check($from = "") {
                 $stmt->bind_result($user_id, $username, $db_password, $verify, $isdr);
                 $stmt->fetch();
                 if ($verify == 0) {
+                    $mysqli->close();
                     return false;
                 }
 
@@ -228,6 +235,7 @@ function login_check($from = "") {
                 if ($stmt->num_rows > 0) {
                     while ($stmt->fetch()) {
                         if ($ipz !== $ips_) {
+                            $mysqli->close();
                             return false;
                         }
                     }
@@ -236,8 +244,7 @@ function login_check($from = "") {
                 $_SESSION['username'] = $username;
                 $_SESSION['login_string'] = $uname;
                 $_SESSION['cookie'] = $uname;
-                setcookie("telepath", $uname, time()+1123200, '/', 'telepathy.000webhostapp.com');
-
+                setcookie("telepath", $uname, time()+1123200, '/', DOMAIN);
                 return array(true, $isdr);
             }
         }
@@ -248,11 +255,12 @@ function login_check($from = "") {
             if (strpos($actual_link, 'login') == false) {
                 $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
             }
+            $mysqli->close();
             return false;
         }
-        $user_id = $mysqli->real_escape_string($_SESSION['user_id']);
-        $login_string = $mysqli->real_escape_string($_SESSION['login_string']);
-        $username = $mysqli->real_escape_string($_SESSION['username']);
+        $user_id = TextToDB($_SESSION['user_id']);
+        $login_string = TextToDB($_SESSION['login_string']);
+        $username = TextToDB($_SESSION['username']);
         $user_browser = $_SERVER['HTTP_USER_AGENT'];
         if ($stmt = $mysqli->prepare("SELECT login_session, isdr
                                       FROM users
@@ -265,43 +273,45 @@ function login_check($from = "") {
                 $stmt->bind_result($password, $isdr);
                 $stmt->fetch();
                 if ($password == $login_string) {
+                    $mysqli->close();
                     return array(true, $isdr);
                 } else {
                     if (strpos($actual_link, 'login') == false) {
                         $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
                     }
+                    $mysqli->close();
                     return false;
                 }
             } else {
                 if (strpos($actual_link, 'login') == false) {
                     $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
-
                 }
+                $mysqli->close();
                 return false;
             }
         } else {
             if (strpos($actual_link, 'login') == false) {
                 $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
-
             }
+            $mysqli->close();
             return false;
         }
     } else {
         if (strpos($actual_link, 'login') == false) {
             $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
-
         }
+        $mysqli->close();
         return false;
     }
     if (strpos($actual_link, 'login') == false) {
         $_SESSION['Last_URL'] = $_SERVER['REQUEST_URI'];
-
     }
+    $mysqli->close();
     return false;
 }
 function Login($email, $password, $remember = false, $wiz = false) {
     $mysqli = isset($mysqli) ? $mysqli : Connection();
-    $email = $mysqli->real_escape_string($email);
+    $email = TextToDB($email);
     $password = SaltMD5($password, $email);
     $HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
     $IP = GetUserIP();
@@ -323,6 +333,7 @@ function Login($email, $password, $remember = false, $wiz = false) {
         if ($stmt->num_rows > 0) {
             while ($stmt->fetch()) {
                 if ($ipz !== $ips_) {
+                    $mysqli->close();
                     return "شما با IP غیر مجاز وارد شده اید";
                 }
             }
@@ -330,16 +341,19 @@ function Login($email, $password, $remember = false, $wiz = false) {
         $user_browser = $_SERVER['HTTP_USER_AGENT'];
         $now = date('Y-m-d H:i:s');
         if ((empty($user_id) || empty($username)) || ($user_id === 0 || $username === 0)) {
+            $mysqli->close();
             return "نام کاربری غیر معتبر است";
         }
         if ($wiz == false) {
           if ( isset($verify) && $verify === 0) {
+            $mysqli->close();
               return 'حساب خود را فعال کنید';
           }
         }
         if (isset($db_password) && strlen($db_password) > 0) {
             if (checkbrute($user_id, $mysqli) == true) {
-                return 'چرا اینقدر تند و سریع لطفا چند دقیقه صبر کنید';
+              $mysqli->close();
+                return 'خطایی پیش آمده لطفا مجددا تلاش کنید';
             } else {
                 if ($db_password == $password) {
                     $user_id = preg_replace("/[^0-9]+/", "", $user_id);
@@ -350,15 +364,15 @@ function Login($email, $password, $remember = false, $wiz = false) {
                     if (!isset($_SESSION['user_id']) && !is_session_started()) {
                         sessionStart("Login");
                     }
-                    $d_day = 100800;
+                    $d_day = strtotime( '+1 days' ) ;
                     if (isset($remember) && $remember!==false) {
-                      $d_day = 2246400;
+                      $d_day = strtotime( '+7 days' ) ;
                     }
                     $cookiehash = SaltMD5($user_id . $IP . $now);
                     // change Y-m-d H:i:s -> now
-                    setcookie("telepath", $cookiehash, date('now')+$d_day, '/', 'telepathy.000webhostapp.com');
-                    $sql = "UPDATE `users` SET `login_session`='$cookiehash' WHERE `id`='$user_id'";
 
+                    setcookie("telepath", $cookiehash, $d_day, '/', DOMAIN);
+                    $sql = "UPDATE `users` SET `login_session`='$cookiehash' WHERE `id`='$user_id'";
                     if ($stmt = $mysqli->prepare($sql)) {
                         $stmt->execute();
                     }
@@ -367,6 +381,7 @@ function Login($email, $password, $remember = false, $wiz = false) {
                     $_SESSION['username'] = $username;
                     $_SESSION['login_string'] = $cookiehash;
                     $_SESSION['wizard'] = $wiz;
+                    $mysqli->close();
                     return array(true, $is_dr);
                 } else {
                     if ($stmt = $mysqli->prepare("INSERT INTO login_attempts(user_id, now, user_agent, ip)
@@ -374,14 +389,15 @@ function Login($email, $password, $remember = false, $wiz = false) {
                         $stmt->execute();
                     }
                     $mysqli->close();
+                    $mysqli->close();
                     return 'نام کاربری یا گذرواژه اشتباه است';
                 }
             }
         } else {
+          $mysqli->close();
             return 'خطا در ورود به حساب کاربری لطفا چند دقیقه دیگر دوباره تلاش کنید';
         }
-    }
-    else return "could not get mysql query !" ;
+    } else { $mysqli->close();return "could not get mysql query !" ;}
 }
 // logout
 function lagout() {
@@ -391,7 +407,7 @@ function lagout() {
     }
     $mysqli = isset($mysqli) ? $mysqli : Connection();
     try {
-        $_uid = $mysqli->real_escape_string($_SESSION['user_id']);
+        $_uid = TextToDB($_SESSION['user_id']);
     } catch (Exception $e) {
         $_uid = 0;
     }
@@ -449,20 +465,21 @@ function sendemail($to, $subject, $message) {
 }
 function register($username, $password, $email, $isdr = 0, $drcode = '') {
     $mysqli = isset($mysqli) ? $mysqli : Connection();
-    $username = $mysqli->real_escape_string($username);
+    $username = TextToDB($username);
     try {
       $password = SaltMD5($password, $email);
     } catch (Exception $e) {
       return false;
     }
-    $email = $mysqli->real_escape_string($email);
-    $IP = $mysqli->real_escape_string(GetUserIP());
+    $email = TextToDB($email);
+    $IP = TextToDB(GetUserIP());
     $now = date('Y-m-d H:i:s');
     $verify_send_hash = SaltMD5($username.$email.$now);
     $sql = "SELECT * FROM `users` WHERE username = '$username' OR email = '$email'";
     $res = mysqli_query($mysqli, $sql);
   	$count = mysqli_num_rows($res);
   	if($count == 1){
+      $mysqli->close();
       return false ;
     }
     if ($stmt = $mysqli->prepare("INSERT INTO users(username, password, email,
@@ -471,14 +488,17 @@ function register($username, $password, $email, $isdr = 0, $drcode = '') {
         $stmt->execute();
         try {
           $emailstruct = "سلام :$username <br>".
-                         "https://telepathy.000webhostapp.com/verify.php?email=$email&username=$username&confirm=".$verify_send_hash;
+                         DOMAIN."/verify.php?email=$email&username=$username&confirm=".$verify_send_hash;
                          echo
           sendemail($email, "Registeration", $emailstruct);
         } catch (Exception $e) {
+          $mysqli->close();
             return false;
         }
+        $mysqli->close();
         return true;
     } else {
+      $mysqli->close();
       return false;
     }
 }
@@ -503,9 +523,9 @@ function renewverify($username, $email) {
         }
     }
     $emailstruct = "user:$username thank you for register<br>".
-                   "https://telepathy.000webhostapp.com/verify.php
-                   ?email=$email&username=$username&confirm=".$verify_send_hash;
+                   DOMAIN."/verify.php?email=$email&username=$username&confirm=".$verify_send_hash;
     sendemail($email, "Registeration", $emailstruct);
+    $mysqli->close();
 }
 function Image_Upload($uFile) {
     $error       = false;
@@ -565,17 +585,21 @@ function Image_Upload($uFile) {
                       } else {
                           unlink($picture);
                       }
+                      $mysqli->close();
                       return false;
                   }
               }
           }
       } else {
+        $mysqli->close();
           return 'فرمت فایل نادرست است';
       }
         } else {
+          $mysqli->close();
             return 'فایل خالی است';
         }
     } else {
+      $mysqli->close();
         return '<a href=\".\">صفحه خود را دوباره بارگذاری کنید.</a>';
     }
 }
@@ -811,7 +835,7 @@ function is_email($email) {
     // $now = date('Y-m-d H:i:s');
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
     // echo $user_id . " " . $actual_link . " " . $user_ip . " " . $now . " " . $user_agent . "<br />" ;
-    $user_id = $mysqli->real_escape_string($user_id);
+    $user_id = TextToDB($user_id);
     $sql = "SELECT ua.user_agent, u.email FROM user_activitys as ua INNER JOIN users as u ON u.id = ? WHERE ua.user_id = ? ORDER BY ua.ua_id desc limit 1" ;
     if ($result = $mysqli->prepare($sql)) {
       $result->bind_param('ii', $user_id,$user_id);
@@ -825,13 +849,14 @@ function is_email($email) {
       $message = "sombody login with diffrent os in your account !";
       sendemail($to, $subject, $message);
     }
+    $mysqli->close();
     return ($user_agent == $user_agent ? true : false);
   }
 /* to get user datas */
   function pull_out_users_data() {
     $mysqli = isset($mysqli) ? $mysqli : Connection();
 
-    $username = (!empty($_SESSION['username']) ? $mysqli->real_escape_string($_SESSION['username']) : "guest");
+    $username = (!empty($_SESSION['username']) ? TextToDB($_SESSION['username']) : "guest");
     $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
     if ($result = $mysqli->prepare($sql)) {
       $result->bind_param('s', $username);
@@ -840,9 +865,10 @@ function is_email($email) {
       if ($r) {
         $row = $result->get_result();
         $_data = $row->fetch_assoc();
-
+        $mysqli->close();
         return $_data;
       } else {
+        $mysqli->close();
         echo "There is not such a row in users table !" ;
         die();
       }
@@ -870,5 +896,6 @@ function TextToDB($input) {
   $input = $mysqli->real_escape_string($input);
   $input = strip_tags($input);
   $input = trim($input);
+  $mysqli->close();
   return $input;
 }
