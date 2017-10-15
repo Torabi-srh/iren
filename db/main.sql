@@ -122,7 +122,9 @@ CREATE TABLE IF NOT EXISTS `user_activitys` (
   `user_agent` varchar(150) NOT NULL,
   `ip` varchar(20) NOT NULL,
   `now` varchar(20) NOT NULL,
-  PRIMARY KEY (`ua_id`)
+  PRIMARY KEY (`ua_id`),
+  FOREIGN KEY (`user_id`) REFERENCES users(`id`)
+      ON UPDATE CASCADE
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
@@ -135,7 +137,9 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
   `now` varchar(30) NOT NULL,
   `user_agent` varchar(150) NOT NULL,
   `ip` varchar(20) NOT NULL,
-  PRIMARY KEY (`la_id`)
+  PRIMARY KEY (`la_id`),
+  FOREIGN KEY (`user_id`) REFERENCES users(`id`)
+      ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `user_file` (

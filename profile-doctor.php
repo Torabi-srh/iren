@@ -4,8 +4,6 @@
     lagout() ;
     saferedirect('login.php');
   }
-?>
-<?php
   $log_check = login_check();
   if ($log_check === false) {
     redirect("login.php") ;

@@ -27,18 +27,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IDK - IDK</title>
- 
+
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/normalize.min.css">
     <link rel="stylesheet" href="css/wizard.css">
     <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/tcbot.css">
     <link href='css/fullcalendar.css' rel='stylesheet' />
     <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
     <link href='css/persian-datepicker.min.css' rel='stylesheet'/>
     <script src="js/init.js"></script>
-    
+
   </head>
   <body dir="rtl" style="background: url('assets/images/bg/bg.png') no-repeat center center fixed;-webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;">
       <nav class="navbar navbar-inverse" role="navigation">

@@ -15,7 +15,7 @@ if ($log_check === false) {
 if (empty($_SESSION['user_id'])) {
 	redirect("login.php");die();
 } else {
-	$uid = $mysqli->real_escape_string($_SESSION['user_id']);
+	$uid = TextToDB($_SESSION['user_id']);
 }
 $isdr = $log_check[1];
 
@@ -287,6 +287,8 @@ include("pages/header.php");head(""); ?>
                         </div>
                         <div class="tab-pane" role="tabpanel" id="step4">
 													<form id="step4-form">
+														<input id="w" name="w" value="4" type="hidden">
+														<input id="token" name="token" value="" type="hidden">
                             <h3>اطلاعات تماس</h3>
                             <div class="form-group">
                                <label for="">عکس:</label>

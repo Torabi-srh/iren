@@ -7,15 +7,13 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
  $log_check = login_check() ;
   if ($log_check === false) {
     saferedirect("login.php") ;
-  } else { 
+  } else {
     if($log_check[0] === false) {
       redirect("login.php") ;
     } elseif ($log_check[1] === 1) {
       redirect("profile-doctor.php") ;
     }
-		
-		include("pages/header.php");head("norm"); 
-	
+		include("pages/header.php");head("norm");
   }?>
       <!-- section 3 -->
       <div class="row">
@@ -119,8 +117,7 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
         </div>
         <div class="col-md-9">
           <div class="panel panel-default">
-          <div class="panel-body" style="padding-bottom: 282px; background-image: url(http://placehold.it/250x250/f773dfdf/00000000/?text=clever%20bot); ">
-
+          <div class="panel-body tcbot-body">
           </div>
           </div>
         </div>

@@ -1,5 +1,8 @@
 <?php
 	include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
+	//echo Login("tspersian@gmail.com", "e833xsbf", 1);
+	//var_dump($_COOKIE);
+	//die();
   $log_check = login_check() ;
   if($log_check[0] === true) {
     if($log_check[1] === 1) {
@@ -12,7 +15,7 @@
     $password = $_POST['password'] ;
     $t = !empty($_POST['remember']) ;
 		$login_ret = Login($username, $password, $t);
-		echo "$login_ret";
+		//var_dump($login_ret);die();
     if($login_ret[0] === true && $login_ret[1] === 1 && is_user_activities_set()) {
       // dr dashbord !
       $alrt = 1;
@@ -99,7 +102,7 @@
       if ($alrt == 0) {
         echo "<div class=\"alert alert-danger\" id=23>
       <strong>{$login_ret}</strong>
-    </div><br />" ;
+    </div><br />";
       }elseif ($alrt == 1) {
         echo "<div class=\"alert alert-success\" id=24>
       <strong>Success!</strong>
