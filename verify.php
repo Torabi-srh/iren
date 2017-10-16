@@ -1,7 +1,7 @@
 <?php
 include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
   $mysqli = isset($mysqli) ? $mysqli : Connection();
-
+  $FormError = true;
   if (login_check() == true) {
     header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
     include('pages-error-404-2.html');

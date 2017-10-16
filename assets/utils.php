@@ -45,15 +45,16 @@ class Event {
 	// $rangeStart and $rangeEnd are assumed to be dates in UTC with 00:00:00 time.
 	public function isWithinDayRange($rangeStart, $rangeEnd) {
 		// Normalize our event's dates for comparison with the all-day range.
-		$eventStart = stripTime($this->start);
+		$eventStart = ($this->start);
 		if (isset($this->end)) {
-			$eventEnd = stripTime($this->end); // normalize
+			$eventEnd = ($this->end); // normalize
 		}
 		else {
 			$eventEnd = $eventStart; // consider this a zero-duration event
 		}
 		// Check if the two whole-day ranges intersect.
-		return $eventStart < $rangeEnd && $eventEnd >= $rangeStart;
+		// return ($eventStart <= $rangeEnd && $eventEnd >= $rangeStart);
+		return ($eventStart <= $rangeStart && $eventEnd >= $rangeEnd);
 	}
 	// Converts this Event object back to a plain data array, to be used for generating JSON
 	public function toArray() {
@@ -79,6 +80,8 @@ class Event {
 //----------------------------------------------------------------------------------------------
 // Parses a string into a DateTime object, optionally forced into the given timezone.
 function parseDateTime($string, $timezone=null) {
+	$string = str_replace("T", " ", $string);
+	$string = _FixPersianNumber($string);
 	$date = new DateTime(
 		$string,
 		$timezone ? $timezone : new DateTimeZone('UTC')
@@ -95,4 +98,9 @@ function parseDateTime($string, $timezone=null) {
 // but in UTC.
 function stripTime($datetime) {
 	return new DateTime($datetime->format('Y-m-d'));
+}
+function _FixPersianNumber($number) {
+    $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
+    $num = range(0, 9);
+    return str_replace($persian, $num, $number);
 }

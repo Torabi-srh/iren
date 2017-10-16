@@ -288,9 +288,29 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `date_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`uid`) REFERENCES users(`id`),
+    ON UPDATE CASCADE
   FOREIGN KEY (`did`) REFERENCES users(`id`)
     ON UPDATE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- calender
+CREATE TABLE IF NOT EXISTS `calender` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL ,
+  `title` varchar(20) NOT NULL,
+  `allDay` int(1) NOT NULL,
+  `start` DateTime NOT NULL,
+  `end` DateTime NOT NULL,
+  `properties` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`uid`) REFERENCES users(`id`),
+    ON UPDATE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+
 
 
 SET foreign_key_checks=1;
