@@ -54,7 +54,6 @@
 			$.ajax({
 					type: 'POST',
 					data: { eventsJson: json },
-					dataType: "json",
 					url: '/ajax/calender.php',
 					success: function(result) {
 						console.log(result);
@@ -90,7 +89,7 @@
 			minTime: '07:00:00',
             firstDay: 1,
 			droppable: true, // this allows things to be dropped onto the calendar
-			eventAfterRender: function(event){
+			eventAfterRender: function(event) {
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
 					event._id = idi;
