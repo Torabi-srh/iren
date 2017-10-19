@@ -301,16 +301,11 @@ CREATE TABLE IF NOT EXISTS `calender` (
   `allDay` int(1) NOT NULL,
   `start` DateTime NOT NULL,
   `end` DateTime NOT NULL,
-  `properties` varchar(255) NOT NULL,
+  `properties` json NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`uid`) REFERENCES users(`id`),
+  FOREIGN KEY (`uid`) REFERENCES users(`id`)
     ON UPDATE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-
-
 
 
 SET foreign_key_checks=1;

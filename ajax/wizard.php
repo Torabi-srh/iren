@@ -32,10 +32,7 @@ if ($log_check === false) {
 		echo $error500;die();
 	}
 }
-//Function to check if the request is an AJAX request
-function is_ajax() {
-  return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-}
+
 if (empty($_SESSION['user_id'])) {
 	echo $error500;die();
 } else {

@@ -41,32 +41,29 @@
 		$("#reg-events").click(function() {
 			var eventsFromCalendar = $('#calendar').fullCalendar('clientEvents');
 			seen = [];
-			json = JSON.stringify(eventsFromCalendar, function(key, val) {
-						   if (typeof val == "object") {
-						        if (seen.indexOf(val) >= 0)
-						            return
-						        seen.push(val);
-						    }
-						    return val;
-						});
-			// var _data = JSON.stringify(eventsFromCalendar);
-			console.log(eventsFromCalendar);
+
+			var replacer = function(key, value) {
+			  if (value != null && typeof value == "object") {
+			    if (seen.indexOf(value) >= 0) {
+			      return;
+			    }
+			    seen.push(value);
+			  }
+			  return value;
+			};
+			json = JSON.stringify(eventsFromCalendar, replacer);
 			$.ajax({
 					type: 'POST',
 					data: { eventsJson: json },
 					url: '/ajax/calender.php',
-					success: function(result) {
-						console.log(result);
+					//dataType: 'json',
+					success: function(result) {console.log(result);
 									var $elm = $("<div class=\"alert alert-"+ result.a +"\"><strong>"+ result.b +"</strong></div><br />");
 									$("#could_pass").html($elm);
 									setTimeout(function() {
 															$elm.remove();
 													}, 5000);
-					} ,
-			      error: function (xhr, ajaxOptions, thrownError) {
-			        alert(xhr.status);
-			        alert(thrownError);
-			      }
+					}
 			});
 		});
 		/* initialize the calendar
@@ -83,6 +80,9 @@
 			weekNumbers: false ,
 			navLinks: true, // can click day/week names to navigate views
 			editable: true,
+			eventSources: [{
+            url: '/ajax/getCalender.php', // use the `url` property
+        }],
 			eventLimit: true, // allow "more" link when too many events
             isJalaali : true,
             locale: 'fa',
@@ -92,6 +92,7 @@
 			eventAfterRender: function(event) {
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
+					event.title += idi;
 					event._id = idi;
 					idi = idi+1;
 				}
@@ -100,6 +101,7 @@
 				var event = $(this).data('event');
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
+					event.title += idi;
 					event._id = idi;
 					idi = idi+1;
 				}
@@ -107,6 +109,7 @@
 			eventAfterRender: function(event){
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
+					event.title += idi;
 					event._id = idi;
 					idi = idi+1;
 				}
@@ -119,7 +122,7 @@
 				if (title) {
 					eventData = {
 						id: idi,
-						title: title,
+						title: title+idi,
 						start: start,
 						end: end,
 						backgroundColor: ((selected_hand == 'green') ? "#65bd77" : "#fea223"),

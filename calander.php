@@ -6,7 +6,6 @@ if ($log_check === false) {
   redirect("login.php") ;
 } else {
   if($log_check[0] === false) {
-
     redirect("login.php") ;
   } elseif ($log_check[1] === 0) {
     redirect("profile-user.php") ;
