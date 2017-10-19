@@ -489,7 +489,7 @@ function register($username, $password, $email, $isdr = 0, $drcode = '') {
         try {
           $emailstruct = "سلام :$username <br>".
                          DOMAIN."/verify.php?email=$email&username=$username&confirm=".$verify_send_hash;
-                         echo
+                         //echo ?
           sendemail($email, "Registeration", $emailstruct);
         } catch (Exception $e) {
           $mysqli->close();
@@ -898,4 +898,286 @@ function TextToDB($input) {
   $input = trim($input);
   $mysqli->close();
   return $input;
+}
+function is_ajax() {
+  return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+}
+function CleanFullCalendarEvents($events_) {
+  foreach ($events_ as $ik => $insider) {
+    if (empty($insider) || $insider == '') continue;
+    foreach ($events_ as $ok => $outsider) {
+      if (empty($outsider) || $outsider == '') continue;
+      if($outsider === $insider) continue;
+      if ($insider->isWithinDayRange($outsider->start, $outsider->end)) {
+        if ($outsider->start === $insider->start) {
+          if ($outsider->end === $insider->end) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {{   }}
+                // echo "{{   }}".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              } else {
+                // |{   }|
+                // echo "|{   }|".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              }
+            } else {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {|   |}
+                // echo "{|   |}".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // ||   ||
+                // echo "||   ||".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              }
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {{   }  }
+                // echo "{{   }  }".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // |{   }   |
+                // echo "|{   }   |".PHP_EOL;
+                $outsider->start = $insider->end;
+                continue;
+              }
+            } else {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {|   |   }
+                // echo "{|   |   }".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // ||   |   |
+                // echo "||   |   |".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              }
+            }
+          }
+        } else {
+          if ($outsider->end === $insider->end) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {   {   }}
+                // echo "{   {   }}".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // |   {   }|
+                // echo "|   {   }|".PHP_EOL;
+                $outsider->end = $insider->start;
+                continue;
+              }
+            } else {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {   |   |}
+                // echo "{   |   |}".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // |   |   ||
+                // echo "|   |   ||".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              }
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {   {     }    }
+                // echo "{   {     }    }".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // |   {     }    |
+                // echo "|   {     }    |".PHP_EOL;
+                $events__ = new Event($outsider);
+                $events__->start = $insider->end;
+                $outsider->end = $insider->start;
+                $events_[] = $events__;
+                continue;
+              }
+            } else {
+              if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+                // {   |     |    }
+                // echo "{   |     |    }".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // |   |     |    |
+                // echo "|   |     |    |".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              }
+            }
+          }
+        }
+      } else {
+        // NOT INSIDE
+        if ($insider->start == $outsider->start && $insider->end !== $outsider->end) {
+          if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // {[   }   ]
+              if ($insider->end > $outsider->end) {
+                // {[   ]   }
+                // echo "{[   ]   }".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              } else {
+                // {[   }   ]
+                // echo "{[   }   ]".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              }
+            } else {
+              // |{   |   }
+              if ($insider->end > $outsider->end) {
+                // echo "|{   }   |".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              } else {
+                // echo "|{   |   }".PHP_EOL;
+                $outsider->start = $insider->end;
+                continue;
+              }
+            }
+          } else {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // {|     }    |
+              if ($insider->end > $outsider->end) {
+                // echo "{|     }    |".PHP_EOL;
+                $insider->start = $outsider->end;
+                continue;
+              } else {
+                // echo "{|     |    }".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              }
+            } else {
+              // |/     |    /
+              if ($insider->end > $outsider->end) {
+                // echo "|/     |    /".$outsider.PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              } elseif ($insider->end == $outsider->end) {
+                // echo "|/     /|".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // echo "|/     /    |".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              }
+            }
+          }
+        } elseif ($insider->start !== $outsider->start && $insider->end == $outsider->end) {
+          if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // {  [   }]
+              if ($insider->start > $outsider->start) {
+                // echo "{  [   }]".PHP_EOL;
+                unset($events_[$ik]);
+                break;
+              } else {
+                // echo "{  [   }]".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              }
+            } else {
+              // |    {   |}
+              if ($insider->start > $outsider->start) {
+                // echo "|    {   |}".PHP_EOL;
+                $outsider->end = $insider->start;
+                continue;
+              } else {
+                // echo "|    {   |}".PHP_EOL;
+                unset($events_[$ok]);
+                continue;
+              }
+            }
+          } else {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // {    |     }|
+              // echo "{    |     }|".PHP_EOL;
+              if ($insider->start > $outsider->start) {
+                unset($events_[$ik]);
+                break;
+              } else {
+                $insider->end = $outsider->start;
+                continue;
+              }
+            } else {
+              // |    /     |/
+              // echo "|    /     |/".PHP_EOL;
+              if ($insider->start > $outsider->start) {
+                unset($events_[$ik]);
+                break;
+              } else {
+                unset($events_[$ok]);
+                continue;
+              }
+            }
+          }
+        } elseif ($insider->start == $outsider->end) {
+          if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // {}[]
+              // echo "{}[]".PHP_EOL;
+              $insider->start = $outsider->start;
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // ||{}
+              // echo "||{}".PHP_EOL;
+              continue;
+            }
+          } else {
+            // echo "{}||".PHP_EOL;
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // {}||
+            } else {
+              // ||//
+              $insider->start = $outsider->start;
+              unset($events_[$ok]);
+              continue;
+            }
+          }
+        } elseif ($insider->end == $outsider->start) {
+          if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // []{}
+              // echo "[]{}".PHP_EOL;
+              $insider->start = $outsider->start;
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // echo "{}||".PHP_EOL;
+              // {}||
+            }
+          } else {
+            if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+              // ||{}
+              // echo "||{}".PHP_EOL;
+            } else {
+              // //||
+              // echo "//||".PHP_EOL;
+              $insider->start = $outsider->end;
+              unset($events_[$ok]);
+              continue;
+            }
+          }
+        }
+      }
+    }
+  }
+  return $events_;
 }

@@ -45,9 +45,9 @@ class Event {
 	// $rangeStart and $rangeEnd are assumed to be dates in UTC with 00:00:00 time.
 	public function isWithinDayRange($rangeStart, $rangeEnd) {
 		// Normalize our event's dates for comparison with the all-day range.
-		$eventStart = ($this->start);
+		$eventStart = ($this->start->format('Y-m-d H:i:s'));
 		if (isset($this->end)) {
-			$eventEnd = ($this->end); // normalize
+			$eventEnd = ($this->end->format('Y-m-d H:i:s')); // normalize
 		}
 		else {
 			$eventEnd = $eventStart; // consider this a zero-duration event
