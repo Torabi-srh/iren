@@ -92,10 +92,6 @@ include("pages/chat.php");
 
     <!-- <script src="js/ReactJs/react-dom.min.js"></script>
     <script src="js/ReactJs/react.min.js"></script> -->
-    <script src="js/fullcalendar/lib/moment.min.js"></script>
-    <script src='js/fullcalendar/lib/moment-jalaali.js'></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/jquery-ui.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/shop.js"></script>
@@ -115,6 +111,5 @@ include("pages/chat.php");
     <script src="js/persian-date.min.js"></script>
     <script src="js/persian-datepicker.min.js"></script>
     <script src="js/timeline.js"></script>
-
   </body>
 </html>

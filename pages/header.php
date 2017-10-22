@@ -38,8 +38,13 @@
     <link href='css/fullcalendar.css' rel='stylesheet' />
     <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
     <link href='css/persian-datepicker.min.css' rel='stylesheet'/>
+    <script src="js/fullcalendar/lib/moment.min.js"></script>
+    <script src='js/fullcalendar/lib/moment-jalaali.js'></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/extras/loadingoverlay_progress/loadingoverlay_progress.min.js"></script>
     <script src="js/init.js"></script>
-
   </head>
   <body dir="rtl" style="background: url('assets/images/bg/bg.png') no-repeat center center fixed;-webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;">
       <nav class="navbar navbar-inverse" role="navigation">

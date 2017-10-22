@@ -1,5 +1,4 @@
 <?php
-
  include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
  $mysqli = isset($mysqli) ? $mysqli : Connection();
 
@@ -33,6 +32,23 @@ if (!is_ajax()) {
   echo $error500;die();
 }
 
+if (isset($_POST['rm'])) {
+  $eventid = TextToDB($_POST['eventid']);
+  $eventtitle = TextToDB($_POST['eventtitle']);
+  $eventstart = TextToDB($_POST['eventstart']);
+  $eventend = TextToDB($_POST['eventend']);
+  $sql = "delete e1 from `calender` e1 WHERE `uid` = ? AND `title` = ?";
+  if ($stmt = $mysqli->prepare($sql)) {
+    $stmt->bind_param('is', $uid, $eventtitle);
+    $stmt->execute();
+  } else {echo $error500;die();}
+  $myObj->a = "success";
+  $myObj->b = "با موفقیت انجام شد.";
+  $sc = json_encode($myObj, JSON_UNESCAPED_UNICODE);
+  echo $sc;
+  die();
+}
+
 $events_ = array();
 $_events = array();
 
@@ -48,6 +64,7 @@ foreach ($_events as $val) {
   }
   $events_[] = new Event($val);
 }
+
 $title = "";
 $allDay = ""; // a boolean
 $start = ""; // a DateTime
@@ -56,17 +73,43 @@ $properties = array(); // an array of other misc properties
 // sabtshode => {}
 // reserve => ||
 // cleaning events
-//
 $events_ = CleanFullCalendarEvents($events_);
+$end = parseDateTime(TextToDB($_POST['end']))->format('Y-m-d H:i:s');
+$start =  parseDateTime(TextToDB($_POST['start']))->format('Y-m-d H:i:s');
+
 foreach ($events_ as $eve) {
-  if (empty($eve) || !isset($eve)) continue;
-  $sql = "INSERT INTO `calender` (`uid` ,`title` ,`allDay` ,`start` ,`end` ,`properties`) VALUES (?, ?, ?, ?, ?, ?);";
   $eve->start = $eve->start->format('Y-m-d H:i:s');
   $eve->end = $eve->end->format('Y-m-d H:i:s');
   $eve->allDay = ($eve->allDay ? 1: 0);
   $eve->properties = json_encode($eve->properties, JSON_UNESCAPED_UNICODE);
+  if (empty($eve) || !isset($eve)) continue;
+  $sql = "SELECT `id` FROM `calender` WHERE `uid` = ? AND `start` = ? AND `end` = ?;";
+  if ($stmt = $mysqli->prepare($sql)) {
+    $stmt->bind_param('iss', $uid, $eve->start, $eve->end);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {continue;}
+  } else {echo $error500;die();}
+
+  $up = false;
+  $sql = "SELECT `id` FROM `calender` WHERE `uid` = ? AND `title` = ? AND `start` > ? AND `end` < ?";
+  if ($stmt = $mysqli->prepare($sql)) {
+    $stmt->bind_param('iss', $uid, $eve->title, $start, $end);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) $up = true;
+  } else {echo $error500;die();}
+  if ($up) {
+    $sql = "UPDATE `calender` SET `uid` = ?, `title` = ? ,`allDay` = ? ,`start` = ? ,`end` = ? ,`properties` = ? WHERE `uid` = ? AND `title` = ? AND `start` > ? AND `end` < ?;";
+  } else {
+    $sql = "INSERT INTO `calender` (`uid` ,`title` ,`allDay` ,`start` ,`end` ,`properties`) VALUES (?, ?, ?, ?, ?, ?);";
+  }
 	if ($stmt = $mysqli->prepare($sql)) {
-		$stmt->bind_param('issisisss', $uid, $eve->start, $eve->end, $uid, $eve->title, $eve->allDay, $eve->start, $eve->end, $eve->properties);
+    if ($up) {
+  		$stmt->bind_param('isisssiss', $uid, $eve->title, $eve->allDay, $eve->start, $eve->end, $eve->properties, $uid, $eve->title, $start, $end);
+    } else {
+  		$stmt->bind_param('isisss', $uid, $eve->title, $eve->allDay, $eve->start, $eve->end, $eve->properties);
+    }
 		$stmt->execute();
 	} else {echo $error500;die();}
   $sql = "delete e1 from `calender` e1, `calender` e2 where e1.id > e2.id and e1.`start` = e2.`start` and e1.`end` = e2.`end`;";
