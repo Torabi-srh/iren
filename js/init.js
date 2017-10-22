@@ -34,3 +34,9 @@ function validateDate(strDate) {
   });
   return !t;
 }
+$(document).ajaxStart(function(){
+    $.LoadingOverlay("show");
+});
+$(document).ajaxStop(function(){
+    $.LoadingOverlay("hide");
+});

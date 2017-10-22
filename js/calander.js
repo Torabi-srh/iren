@@ -1,4 +1,13 @@
 	$(document).ready(function() {
+		var replacer = function(key, value) {
+			if (value != null && typeof value == "object") {
+				if (seen.indexOf(value) >= 0) {
+					return;
+				}
+				seen.push(value);
+			}
+			return value;
+		};
 		var selected_hand = "green";
 		$('#green-dot').click(function() {
 			selected_hand = "green";
@@ -34,37 +43,37 @@
 			});
 
 		});
-
-		$("#clear-events").click(function() {
-			$('#calendar').fullCalendar( 'removeEvents');
-		});
-		$("#reg-events").click(function() {
+		function SendCalData() {
+			var dtv = $('#calendar').fullCalendar('getView');
 			var eventsFromCalendar = $('#calendar').fullCalendar('clientEvents');
 			seen = [];
-
-			var replacer = function(key, value) {
-			  if (value != null && typeof value == "object") {
-			    if (seen.indexOf(value) >= 0) {
-			      return;
-			    }
-			    seen.push(value);
-			  }
-			  return value;
-			};
 			json = JSON.stringify(eventsFromCalendar, replacer);
 			$.ajax({
 					type: 'POST',
-					data: { eventsJson: json },
+					data: {
+						token: "",
+						end: moment(dtv.end._d).format(),
+						start: moment(dtv.start._d).format(),
+						eventsJson: json },
 					url: '/ajax/calender.php',
 					//dataType: 'json',
-					success: function(result) {console.log(result);
+					success: function(result) {
+						console.log(result);
+									//result = JSON.parse(result);
 									var $elm = $("<div class=\"alert alert-"+ result.a +"\"><strong>"+ result.b +"</strong></div><br />");
 									$("#could_pass").html($elm);
 									setTimeout(function() {
 															$elm.remove();
 													}, 5000);
+									$('#calendar').fullCalendar( 'refresh' );
 					}
 			});
+		}
+		$("#clear-events").click(function() {
+			$('#calendar').fullCalendar( 'removeEvents');
+		});
+		$("#reg-events").click(function() {
+			SendCalData();
 		});
 		/* initialize the calendar
 		-----------------------------------------------------------------*/
@@ -95,6 +104,9 @@
 					event.title += idi;
 					event._id = idi;
 					idi = idi+1;
+					SendCalData();
+				} else {
+					idi = (event.id+1>idi ? event.id+1 : idi);
 				}
 			},
 			drop: function(date, allDay) {
@@ -104,14 +116,7 @@
 					event.title += idi;
 					event._id = idi;
 					idi = idi+1;
-				}
-			},
-			eventAfterRender: function(event){
-				if (event.id == 'undefined' || event.id == null || event.id == '') {
-					event.id = idi;
-					event.title += idi;
-					event._id = idi;
-					idi = idi+1;
+					SendCalData();
 				}
 			},
 			selectable: true,
@@ -129,6 +134,7 @@
 					};
 					idi = idi+1;
 					$('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+					SendCalData();
 				}
 				$('#calendar').fullCalendar('unselect');
 			},
@@ -142,7 +148,29 @@
 
 				if (jsEvent.pageX >= x1 && jsEvent.pageX<= x2 &&
 					jsEvent.pageY >= y1 && jsEvent.pageY <= y2) {
+
+					$.ajax({
+							type: 'POST',
+							data: {
+								rm: '',
+								eventid: event.id,
+								eventtitle: event.title,
+								eventstart: event.start._i,
+								eventend: event.end._i
+							},
+							url: '/ajax/calender.php',
+							dataType: 'json',
+							success: function(result) {
+											var $elm = $("<div class=\"alert alert-"+ result.a +"\"><strong>"+ result.b +"</strong></div><br />");
+											$("#could_pass").html($elm);
+											setTimeout(function() {
+																	$elm.remove();
+															}, 5000);
+							}
+					});
+
 					$('#calendar').fullCalendar('removeEvents', event.id);
+				} else {
 				}
 			}
 		});

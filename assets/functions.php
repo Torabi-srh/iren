@@ -834,7 +834,6 @@ function is_email($email) {
     $user_ip = GetUserIP();
     // $now = date('Y-m-d H:i:s');
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
-    // echo $user_id . " " . $actual_link . " " . $user_ip . " " . $now . " " . $user_agent . "<br />" ;
     $user_id = TextToDB($user_id);
     $sql = "SELECT ua.user_agent, u.email FROM user_activitys as ua INNER JOIN users as u ON u.id = ? WHERE ua.user_id = ? ORDER BY ua.ua_id desc limit 1" ;
     if ($result = $mysqli->prepare($sql)) {
@@ -902,7 +901,287 @@ function TextToDB($input) {
 function is_ajax() {
   return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 }
+
 function CleanFullCalendarEvents($events_) {
+  foreach ($events_ as $ik => $insider) {
+    if (empty($insider) || $insider == '' || !is_object($insider)) continue;
+    foreach ($events_ as $ok => $outsider) {
+      if (empty($outsider) || $outsider == '' || !is_object($outsider)) continue;
+      if (empty($insider) || $insider == '' || !is_object($insider)) continue 2;
+      if($outsider === $insider) continue;
+      if ($outsider->start === $insider->start) {
+        if ($outsider->end === $insider->end) {
+          // oi io
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // {{ }}
+              // echo "{{ }}".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // {[ ]}
+              // echo "{[ ]}".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // [{ }]
+              // echo "[{ }]".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // [[ ]]
+              // echo "[[ ]]".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            }
+          }
+        } elseif ($outsider->end > $insider->end) {
+          // oi i o
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // {{ } }
+              // echo "{{ } }".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            } else {
+              // {[ ] }
+              // echo "{[ ] }".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // [{ } ]
+              // echo "[{ } ]".PHP_EOL;die();
+              $events_[$ok]->start = $events_[$ik]->end;
+              continue;
+            } else {
+              // [[ ] ]
+              // echo "[[ ] ]".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          }
+        } elseif ($outsider->end < $insider->end) {
+          // oi o i
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // {{ } }
+              // echo "{{ } }*".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // {[ } ]
+              // echo "{[ } ]".PHP_EOL;die();
+              $events_[$ik]->start = $events_[$ok]->end;
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // [{ ] }
+              // echo "[{ ] }".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // [[ ] ]
+              // echo "[[ ] ]*".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            }
+          }
+        } else {
+          // error
+        }
+      } elseif ($outsider->start > $insider->start) {
+        if ($outsider->end === $insider->end) {
+          // i o io
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { { }}
+              // echo "{ { }}".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // [ { ]}
+              // echo "[ { ]}".PHP_EOL;die();
+              $events_[$ik]->end = $events_[$ok]->start;
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { [ }]
+              // echo "{ [ }]".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // [ [ ]]
+              // echo "[ [ ]]".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            }
+          }
+        } elseif ($outsider->end > $insider->end) {
+          // i o i o
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { { } }
+              // echo "{ { } }".PHP_EOL;die();
+              $events_[$ik]->end = $events_[$ok]->end;
+              unset($events_[$ok]);
+              continue 2;
+            } else {
+              // [ { ] }
+              // echo "[ { ] }".PHP_EOL;die();
+              $events_[$ik]->end = $events_[$ok]->start;
+              continue;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { [ } ]
+              // echo "{ [ } ]".PHP_EOL;die();
+              $events_[$ok]->start = $events_[$ik]->end;
+              continue;
+            } else {
+              // [ [ ] ]
+              // echo "[ [ ] ]*".PHP_EOL;die();
+              $events_[$ok]->start = $events_[$ik]->start;
+              unset($events_[$ik]);
+              continue 2;
+            }
+          }
+        } elseif ($outsider->end < $insider->end) {
+          // i o o i
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { { } }
+              // echo "{ { } }".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // [ { } ]
+              // echo "[ { } ]".PHP_EOL;die();
+              $events__ = $insider;
+              $events__->start = $outsider->end;
+              $events_[] = $events__;
+              $events_[$ik]->end = $events_[$ok]->start;
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { [ ] }
+              // echo "{ [ ] }".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            } else {
+              // [ [ ] ]
+              // echo "[ [ ] ]".PHP_EOL;die();
+              unset($events_[$ok]);
+              continue;
+            }
+          }
+        } else {
+          // error
+        }
+      } elseif ($outsider->start < $insider->start) {
+        if ($outsider->end === $insider->end) {
+          // o i io
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { { }}
+              // echo "{ { }}".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            } else {
+              // { [ ]}
+              // echo "{ [ ]}".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // [ { }]
+              // echo "[ { }]".PHP_EOL;die();
+              $events_[$ok]->end = $events_[$ik]->start;
+              continue;
+            } else {
+              // [ [ ]]
+              // echo "[ [ ]]".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          }
+        } elseif ($outsider->end > $insider->end) {
+          // o i i o
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { { } }
+              // echo "{ { } }**".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            } else {
+              // { [ ] }
+              // echo "{ [ ] }".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // [ { } ]
+              // echo "[ { } ]".PHP_EOL;die();
+              $events__ = $outsider;
+              $events__->start = $insider->end;
+              $events_[] = $events__;
+              $events_[$ok]->end = $events_[$ik]->start;
+              continue;
+            } else {
+              // [ [ ] ]
+              // echo "[ [ ] ]".PHP_EOL;die();
+              unset($events_[$ik]);
+              continue 2;
+            }
+          }
+        } elseif ($outsider->end < $insider->end) {
+          // o i o i
+          if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // { { } }
+              // echo "{ { } }***".PHP_EOL;die();
+              $events_[$ok]->end = $events_[$ik]->end;
+              unset($events_[$ik]);
+              continue 2;
+            } else {
+              // { [ } ]
+              // echo "{ [ } ]".PHP_EOL;die();
+              $events_[$ik]->start = $events_[$ok]->end;
+              continue 2;
+            }
+          } else {
+            if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
+              // [ { ] }
+              // echo "[ { } ]".PHP_EOL;die();
+              $events_[$ok]->end = $events_[$ik]->start;
+              continue;
+            } else {
+              // [ [ ] ]
+              // echo "[ [ ] ]**$ok|$ik".PHP_EOL;die();
+              $events_[$ok]->end = $events_[$ik]->end;
+              unset($events_[$ik]);
+              continue 2;
+            }
+          }
+        } else {
+          // error
+        }
+      } else {
+        // error
+      }
+    }
+  }
+}
+
+function CleanFullCalendarEvents2($events_) {
   foreach ($events_ as $ik => $insider) {
     if (empty($insider) || $insider == '') continue;
     foreach ($events_ as $ok => $outsider) {
@@ -914,24 +1193,24 @@ function CleanFullCalendarEvents($events_) {
             if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {{   }}
-                // echo "{{   }}".PHP_EOL;
+                // echo "{{   }}".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               } else {
                 // |{   }|
-                // echo "|{   }|".PHP_EOL;
+                // echo "|{   }|".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               }
             } else {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {|   |}
-                // echo "{|   |}".PHP_EOL;
+                // echo "{|   |}".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // ||   ||
-                // echo "||   ||".PHP_EOL;
+                // echo "||   ||".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               }
@@ -940,24 +1219,24 @@ function CleanFullCalendarEvents($events_) {
             if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {{   }  }
-                // echo "{{   }  }".PHP_EOL;
+                // echo "{{   }  }".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // |{   }   |
-                // echo "|{   }   |".PHP_EOL;
+                // echo "|{   }   |".PHP_EOL;die();
                 $outsider->start = $insider->end;
                 continue;
               }
             } else {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {|   |   }
-                // echo "{|   |   }".PHP_EOL;
+                // echo "{|   |   }".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // ||   |   |
-                // echo "||   |   |".PHP_EOL;
+                // echo "||   |   |".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               }
@@ -968,24 +1247,24 @@ function CleanFullCalendarEvents($events_) {
             if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {   {   }}
-                // echo "{   {   }}".PHP_EOL;
+                // echo "{   {   }}".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // |   {   }|
-                // echo "|   {   }|".PHP_EOL;
+                // echo "|   {   }|".PHP_EOL;die();
                 $outsider->end = $insider->start;
                 continue;
               }
             } else {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {   |   |}
-                // echo "{   |   |}".PHP_EOL;
+                // echo "{   |   |}".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // |   |   ||
-                // echo "|   |   ||".PHP_EOL;
+                // echo "|   |   ||".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               }
@@ -994,13 +1273,13 @@ function CleanFullCalendarEvents($events_) {
             if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
                 // {   {     }    }
-                // echo "{   {     }    }".PHP_EOL;
+                // echo "{   {     }    }".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // |   {     }    |
-                // echo "|   {     }    |".PHP_EOL;
-                $events__ = new Event($outsider);
+                // echo "|   {     }    |".PHP_EOL;die();
+                $events__ = ($outsider);
                 $events__->start = $insider->end;
                 $outsider->end = $insider->start;
                 $events_[] = $events__;
@@ -1008,13 +1287,13 @@ function CleanFullCalendarEvents($events_) {
               }
             } else {
               if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
-                // {   |     |    }
-                // echo "{   |     |    }".PHP_EOL;
+                // {   |     |    } <-- work
+                // echo "{   |     |    }".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
                 // |   |     |    |
-                // echo "|   |     |    |".PHP_EOL;
+                // echo "|   |     |    |".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               }
@@ -1029,23 +1308,23 @@ function CleanFullCalendarEvents($events_) {
               // {[   }   ]
               if ($insider->end > $outsider->end) {
                 // {[   ]   }
-                // echo "{[   ]   }".PHP_EOL;
+                // echo "{[   ]   }".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               } else {
                 // {[   }   ]
-                // echo "{[   }   ]".PHP_EOL;
+                // echo "{[   }   ]".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               }
             } else {
               // |{   |   }
               if ($insider->end > $outsider->end) {
-                // echo "|{   }   |".PHP_EOL;
+                // echo "|{   }   |".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               } else {
-                // echo "|{   |   }".PHP_EOL;
+                // echo "|{   |   }".PHP_EOL;die();
                 $outsider->start = $insider->end;
                 continue;
               }
@@ -1054,26 +1333,26 @@ function CleanFullCalendarEvents($events_) {
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
               // {|     }    |
               if ($insider->end > $outsider->end) {
-                // echo "{|     }    |".PHP_EOL;
+                // echo "{|     }    |".PHP_EOL;die();
                 $insider->start = $outsider->end;
                 continue;
               } else {
-                // echo "{|     |    }".PHP_EOL;
+                // echo "{|     |    }".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               }
             } else {
               // |/     |    /
               if ($insider->end > $outsider->end) {
-                // echo "|/     |    /".$outsider.PHP_EOL;
+                // echo "|/     |    /".$outsider.PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               } elseif ($insider->end == $outsider->end) {
-                // echo "|/     /|".PHP_EOL;
+                // echo "|/     /|".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
-                // echo "|/     /    |".PHP_EOL;
+                // echo "|/     /    |".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               }
@@ -1084,44 +1363,48 @@ function CleanFullCalendarEvents($events_) {
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
               // {  [   }]
               if ($insider->start > $outsider->start) {
-                // echo "{  [   }]".PHP_EOL;
+                // echo "{  [   }]".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
-                // echo "{  [   }]".PHP_EOL;
+                // echo "{  [   }]".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               }
             } else {
               // |    {   |}
               if ($insider->start > $outsider->start) {
-                // echo "|    {   |}".PHP_EOL;
+                // echo "|    {   |}".PHP_EOL;die();
                 $outsider->end = $insider->start;
                 continue;
               } else {
-                // echo "|    {   |}".PHP_EOL;
+                // echo "|    {   |}".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               }
             }
           } else {
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
-              // {    |     }|
-              // echo "{    |     }|".PHP_EOL;
               if ($insider->start > $outsider->start) {
+                // {    |     }|
+                // echo "{    |     }|".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
+                // {    |     }|
+                // echo "{    |     |}".PHP_EOL;die();
                 $insider->end = $outsider->start;
                 continue;
               }
             } else {
-              // |    /     |/
-              // echo "|    /     |/".PHP_EOL;
               if ($insider->start > $outsider->start) {
+                // |    /     |/
+                // echo "|    /     |/".PHP_EOL;die();
                 unset($events_[$ik]);
                 break;
               } else {
+                // |    /     |/
+                // echo "|    /     /|".PHP_EOL;die();
                 unset($events_[$ok]);
                 continue;
               }
@@ -1131,21 +1414,22 @@ function CleanFullCalendarEvents($events_) {
           if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
               // {}[]
-              // echo "{}[]".PHP_EOL;
+              // echo "{}[]".PHP_EOL;die();
               $insider->start = $outsider->start;
               unset($events_[$ok]);
               continue;
             } else {
               // ||{}
-              // echo "||{}".PHP_EOL;
+              // echo "||{}".PHP_EOL;die();
               continue;
             }
           } else {
-            // echo "{}||".PHP_EOL;
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
               // {}||
+              // echo "{}||".PHP_EOL;die();
             } else {
               // ||//
+              // echo "||//".PHP_EOL;die();
               $insider->start = $outsider->start;
               unset($events_[$ok]);
               continue;
@@ -1155,21 +1439,21 @@ function CleanFullCalendarEvents($events_) {
           if (strpos($insider->title, 'ساعت ثبت شده' ) !== false) {
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
               // []{}
-              // echo "[]{}".PHP_EOL;
+              // echo "[]{}".PHP_EOL;die();
               $insider->start = $outsider->start;
               unset($events_[$ok]);
               continue;
             } else {
-              // echo "{}||".PHP_EOL;
+              // echo "{}||".PHP_EOL;die();
               // {}||
             }
           } else {
             if (strpos($outsider->title, 'ساعت ثبت شده' ) !== false) {
               // ||{}
-              // echo "||{}".PHP_EOL;
+              // echo "||{}".PHP_EOL;die();
             } else {
               // //||
-              // echo "//||".PHP_EOL;
+              // echo "//||".PHP_EOL;die();
               $insider->start = $outsider->end;
               unset($events_[$ok]);
               continue;
