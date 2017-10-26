@@ -1,5 +1,6 @@
 <?php
 include("pages/chat.php");
+$isdr
  ?>
     </div>
 <footer class="footer">
@@ -99,7 +100,10 @@ include("pages/chat.php");
     <?php if (!$isdr): ?>
     <!-- <script src="js/tcbot.js"></script> -->
     <script src="js/wizard-us.js"></script>
+    <script src="js/uprofile.js"></script>
+    <script src="js/tcbot.js"></script>
     <?php else: ?>
+    <script src="js/dprofile.js"></script>
     <script src="js/wizard-dr.js"></script>
     <?php endif; ?>
     <script src="js/fullcalendar/fullcalendar.js"></script>

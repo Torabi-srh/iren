@@ -23,12 +23,18 @@ if (empty($_SESSION['user_id'])) {
 }
 
 if (!is_ajax()) {
-  //echo $error500;die();
+  echo $error500;die();
+}
+if (empty($_POST['start']) || empty($_POST['end'])) {
+  echo $error500;die();
+} else {
+  $start_bound = parseDateTime(TextToDB($_POST['start']))->format('Y-m-d H:i:s');
+  $end_bound = parseDateTime(TextToDB($_POST['end']))->format('Y-m-d H:i:s');
 }
 try {
-    $sql = "SELECT DISTINCT `uid` ,`title` ,`allDay` ,`start` ,`end` ,`properties` FROM `calender` WHERE uid = ?";
+    $sql = "SELECT DISTINCT `uid` ,`title` ,`allDay` ,`start` ,`end` ,`properties` FROM `calender` WHERE `uid` = ? AND `start` >= ? AND `end` <= ?";
     if ($stmt = $mysqli->prepare($sql)) {
-      $stmt->bind_param('i', $uid);
+      $stmt->bind_param('iss', $uid, $start_bound, $end_bound);
       $stmt->execute();
       $stmt->store_result();
       $stmt->bind_result($uid, $title, $allDay, $start, $end, $prop);
@@ -41,14 +47,9 @@ try {
         foreach ($p as $kval_ => $vkal_) {
            $eve2[$kval_] = $vkal_;
         }
-			  //$eve[] = new Event($eve2);
-        $eve[] = $eve2;//array('title' => $title, 'allDay' => $allDay, 'start' => $start,'end' => $end, $p);
+				 $eve[] = $eve2;
       }
     } else {echo $error500;die();}
-    //$eve = array('title' => $mtitle, 'allDay' => $mallDay, 'start' => $mstart, 'end' => $mend, 'backgroundColor' => $mbackgroundColor, 'source' => array('events' => $eve));
-
-    // Returning array
-
     echo json_encode($eve, JSON_UNESCAPED_UNICODE);
     exit();
 } catch (Exception $e){

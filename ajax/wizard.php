@@ -335,17 +335,22 @@ if (isset($_POST["token"])) {
       	$stmt->bind_param('i', $uid);
       	$stmt->execute();
       	$stmt->store_result();
-      	$stmt->bind_result($username, $fname, $name, $email, $phone, $gender, $picture, $scode, $ncode, $bday, $iban, $salary, $edu, $province, $city, $addr, $pcode);
+				if ($isdr) {
+					$stmt->bind_result($username, $fname, $name, $email, $phone, $gender, $picture, $scode, $ncode, $bday, $iban, $salary, $drphone, $province, $city, $addr, $pcode);
+				} else {
+					$stmt->bind_result($username, $fname, $name, $email, $phone, $gender, $picture, $scode, $ncode, $bday, $iban, $salary, $edu, $province, $city, $addr, $pcode);
+				}
       	$stmt->fetch();
-        $are = array($username, $fname, $name, $email, $phone, $gender, $picture, $scode, $ncode, $bday, $iban, $salary, $edu, $province, $city, $addr, $pcode);
+				if ($isdr) {
+					$are = array($username, $fname, $name, $email, $gender, $picture);
+				} else {
+					$are = array($username, $fname, $name, $email, $gender, $picture);
+				}
         foreach ($are as $key => $value) {
             if (empty($value)) {
                echo $error500;die();
             }
         }
-
-
-
         $wiz = 1;
         $sql = "UPDATE users SET wizard = ? WHERE id = ?";
         if ($stmt2 = $mysqli->prepare($sql)) {

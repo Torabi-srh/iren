@@ -222,7 +222,6 @@ $('#step4-form').validate({
         },
         s4drphone: {
             required: true,
-            phoneValid: true,
             minlength:11,
             maxlength:11
         }
@@ -243,7 +242,7 @@ $('#s4btn').on('click', function (e) {
         $("html, body").animate({ scrollTop: 0 }, "slow");
         var fd = new FormData($("#step4-form").get(0));
         $.ajax({
-            type: "POST", 
+            type: "POST",
             contentType: false,
             processData: false,
             data: fd,

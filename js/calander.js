@@ -56,21 +56,41 @@
 						start: moment(dtv.start._d).format(),
 						eventsJson: json },
 					url: '/ajax/calender.php',
-					//dataType: 'json',
+					dataType: 'json',
 					success: function(result) {
-						console.log(result);
 									//result = JSON.parse(result);
 									var $elm = $("<div class=\"alert alert-"+ result.a +"\"><strong>"+ result.b +"</strong></div><br />");
 									$("#could_pass").html($elm);
 									setTimeout(function() {
 															$elm.remove();
 													}, 5000);
+									$('#calendar').fullCalendar( 'removeEvents');
 									$('#calendar').fullCalendar( 'refresh' );
 					}
 			});
 		}
 		$("#clear-events").click(function() {
-			$('#calendar').fullCalendar( 'removeEvents');
+			var dtv = $('#calendar').fullCalendar('getView');
+			$.ajax({
+					type: 'POST',
+					data: {
+						rm: 'la',
+						end: moment(dtv.end._d).format(),
+						start: moment(dtv.start._d).format(),
+						eventstart: event.start._i,
+						eventend: event.end._i
+					},
+					url: '/ajax/calender.php',
+					dataType: 'json',
+					success: function(result) {
+									var $elm = $("<div class=\"alert alert-"+ result.a +"\"><strong>"+ result.b +"</strong></div><br />");
+									$("#could_pass").html($elm);
+									setTimeout(function() {
+															$elm.remove();
+													}, 5000);
+									// $('#calendar').fullCalendar( 'removeEvents');
+					}
+			});
 		});
 		$("#reg-events").click(function() {
 			SendCalData();
@@ -85,19 +105,32 @@
 				right: 'month,agendaWeek'
 			},
             defaultView: 'agendaWeek',
-			buttonIcons: true, // show the prev/next text
+			buttonIcons: true,
 			weekNumbers: false ,
-			navLinks: true, // can click day/week names to navigate views
+			navLinks: true,
 			editable: true,
 			eventSources: [{
-            url: '/ajax/getCalender.php', // use the `url` property
+            url: '/ajax/getCalender.php',
+						type: 'POST',
+            data: function() {
+											var dtv = $('#calendar').fullCalendar('getView');
+					            return {
+													end: moment(dtv.end._d).format(),
+													start: moment(dtv.start._d).format()
+					            };
+					        }
         }],
-			eventLimit: true, // allow "more" link when too many events
+			eventLimit: true,
             isJalaali : true,
             locale: 'fa',
 			minTime: '07:00:00',
             firstDay: 1,
-			droppable: true, // this allows things to be dropped onto the calendar
+			droppable: true,
+			viewRender: function() {
+				$('#calendar').fullCalendar('rerenderEvents');
+				//$('#calendar').fullCalendar( 'removeEvents');
+				//$('#calendar').fullCalendar( 'refresh' );
+			},
 			eventAfterRender: function(event) {
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
@@ -113,9 +146,10 @@
 				var event = $(this).data('event');
 				if (event.id == 'undefined' || event.id == null || event.id == '') {
 					event.id = idi;
-					event.title += idi;
 					event._id = idi;
-					idi = idi+1;
+					event.title = event.title+idi;
+					idi += 1;
+					$('#calendar').fullCalendar('rerenderEvents');
 					SendCalData();
 				}
 			},
@@ -145,7 +179,7 @@
 				var x2 = ofs.left + trashEl.outerWidth(true);
 				var y1 = ofs.top;
 				var y2 = ofs.top + trashEl.outerHeight(true);
-
+				var dtv = $('#calendar').fullCalendar('getView');
 				if (jsEvent.pageX >= x1 && jsEvent.pageX<= x2 &&
 					jsEvent.pageY >= y1 && jsEvent.pageY <= y2) {
 
@@ -155,6 +189,8 @@
 								rm: '',
 								eventid: event.id,
 								eventtitle: event.title,
+								end: moment(dtv.end._d).format(),
+								start: moment(dtv.start._d).format(),
 								eventstart: event.start._i,
 								eventend: event.end._i
 							},
@@ -171,6 +207,7 @@
 
 					$('#calendar').fullCalendar('removeEvents', event.id);
 				} else {
+
 				}
 			}
 		});

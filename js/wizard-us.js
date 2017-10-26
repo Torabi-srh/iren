@@ -226,7 +226,7 @@ $('#step4-form').validate({
 $('#s4btn').on('click', function (e) {
     e.preventDefault();
     if ($("#step4-form").valid()) {
-        $("html, body").animate({ scrollTop: 0 }, "slow"); 
+        $("html, body").animate({ scrollTop: 0 }, "slow");
         var fd = new FormData($("#step4-form").get(0));
         $.ajax({
             type: "POST",

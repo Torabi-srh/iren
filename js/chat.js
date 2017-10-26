@@ -15,33 +15,9 @@ $(function() {
 jQuery.expr[':'].regex = function(elem, index, match) {
     var regex = new RegExp(match[3]),
         $elem = $(elem);
-    return regex.test($elem.attr('class')) || regex.test($elem.attr('id')); 
+    return regex.test($elem.attr('class')) || regex.test($elem.attr('id'));
 };
 $(function() {
-    $("#editClass").click(function() {
-        $('#settings-popup').toggleClass('popup-box-on');
-        //if ($(".popup-box-on")[0]) {
-        //    $('#settings-popup').removeClass('popup-box-on');
-        //} else {
-        //    $('#settings-popup').addClass('popup-box-on');
-        //}
-    });
-
-    $("#close-editClass").click(function() {
-        if ($(".popup-box-on")[0]) {
-            $('#settings-popup').removeClass('popup-box-on');
-        }
-    });
-
-
-    $("#xmoshaver-popup").click(function() {
-        $('#smoshaver-popup').toggleClass('popup-box-on');
-        //if ($(".popup-box-on")[0]) {
-        //    $('#smoshaver-popup').removeClass('popup-box-on');
-        //} else {
-        //    $('#smoshaver-popup').addClass('popup-box-on');
-        //}
-    });
     $("#close-smoshaverClass").click(function() {
         if ($(".popup-box-on")[0]) {
             $('#smoshaver-popup').removeClass('popup-box-on');
@@ -56,16 +32,9 @@ $(function() {
         try {
             $('#moshavere-popup').removeClass('popup-box-on');
         } catch (err) {}
-        
+
         $('#chat-box-popup').toggleClass('popup-box-on');
         $('#chat-box-popup2').toggleClass('popup-box-on');
-        //if ($(".popup-box-on")[0]) {
-        //    $('#chat-box-popup').removeClass('popup-box-on');
-        //    $('#chat-box-popup2').removeClass('popup-box-on');
-        //} else {
-        //    $('#chat-box-popup').addClass('popup-box-on');
-        //    $('#chat-box-popup2').addClass('popup-box-on');
-        //}
     });
     $("#appClass").click(function() {
         try {
@@ -117,10 +86,10 @@ function formatAMPM(date) {
     var strTime = hours + ':' + minutes + ' ' + ampm;
     return strTime;
 }
- 
+
 function insertChat(who, text, time, pic) {
     var control = "";
-    
+
     if (who == "me") {
 
         control = '<li style="width:100%">' +
@@ -176,7 +145,7 @@ function updateContacts() {
         }
     });
 }
-var cid = -1; 
+var cid = -1;
 function updateMsg(cid) {
     if (cid === -1) {
         $("#upper-avatar").attr("src","assets/images/users/no-image.jpg");
@@ -186,7 +155,7 @@ function updateMsg(cid) {
     try {
         cid = +cid.replace("c-", "");
     } catch (er) {
-        
+
     }
     resetChat();
     $.ajax({
@@ -211,7 +180,7 @@ function SendMsg(msg) {
     try {
         cid = +cid.replace("c-", "");
     } catch (er) {
-        
+
     }
     if (this.value === "" || this.value === null) return;
     $.ajax({
@@ -248,7 +217,7 @@ $("#chat-contacts").on('click', '.c-contact', function () {
     $(this).addClass('selected');
     cid = $(this).attr('id');
     updateMsg(cid);
-}); 
+});
 //-- Print Messages
 setInterval(function() {
     updateMsg(cid);

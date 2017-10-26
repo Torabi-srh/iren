@@ -1,5 +1,5 @@
-<?php
-  include_once("assets/functions.php") ; 
+  <?php
+  include_once("assets/functions.php") ;
   $log_check = login_check() ;
   // var_dump($log_check) ; die() ;
   if ($log_check === false) {

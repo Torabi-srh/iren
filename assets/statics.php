@@ -2,7 +2,8 @@
 
 //  setup
   header('Content-Type: text/html; charset=utf-8');
-
+  date_default_timezone_set('Asia/Dhaka');
+  
   include 'jdf.php';
   include 'bulletproof-3.0.2/bulletproof.php';
   require 'utils.php';
@@ -19,8 +20,9 @@
   define('BLUE', 'دیگر');
   define('DR', 'دکتر');
 //  upload path
-  define('UPLOAD_POST', '/assets/images/posts/');
-  define('UPLOAD_PROFILE_PIC', '/assets/images/users/');
+define ('SITE_ROOT', realpath(dirname(__FILE__)));
+  define('UPLOAD_POST', SITE_ROOT.'/images/posts/');
+  define('UPLOAD_PROFILE_PIC', SITE_ROOT.'/images/users/');
 //  site
   define('DOMAIN', ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false);
 //site specific configuration declartion
