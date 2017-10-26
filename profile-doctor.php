@@ -2,25 +2,40 @@
   include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
   if(isset($_POST['exit_btn'])) {
     lagout() ;
-    saferedirect('login.php');
+    saferedirect("login.php") ;
   }
-  $log_check = login_check();
-  if ($log_check === false) {
-    redirect("login.php") ;
-  } else {
-    if($log_check[0] === false) {
+$log_check = login_check() ;
+if ($log_check === false) {
+ redirect("login.php");die();
+} else {
+ if($log_check[0] === false) {
+   redirect("login.php");die();
+ }
+}
+if (empty($_SESSION['user_id'])) {
+ redirect("login.php");die();
+} else {
+ $uid = TextToDB($_SESSION['user_id']);
+}
+$isdr = $log_check[1];
+if($isdr === false) {
+  redirect("login.php");
+} elseif ($isdr === 0) {
+  redirect("profile-doctor.php") ;
+}
 
-      redirect("login.php") ;
-    } elseif ($log_check[1] === 0) {
-      redirect("profile-user.php") ;
-    }
-  }
+$user_id = $_SESSION['user_id'];
+  $mysqli = isset($mysqli) ? $mysqli : Connection();
+
+  $info = pull_out_users_data();
 ?>
 
 <?php
   // in script baraye check kardan email hast ke dar qesmat form
   // davat be site to page profile-doctor hast
   // age taraf email vared kone vasash mail davat be site mifreste !
+
+  // SECURITY BUG
   if(isset($_POST['send_mail'])) {
     $email = $_POST['send_mail'] ;
     $subject = "دعوت به سایت" ;
@@ -33,105 +48,7 @@
 <?php include("pages/header.php");head("doc"); ?>
       <!-- section 3 -->
       <div class="row">
-        <div class="col-md-3">
-
-            <div class="panel panel-default">
-          <div class="panel-body">  <div class="  well pull-right-lg" style="border:0px solid">
-    <div class="" style="padding:0px;">
-
-        <table class="table table-bordered table-style table-responsive">
-          <tr>
-            <th colspan="2"><a href="?ym=<?php echo $prev; ?>"><span class="glyphicon glyphicon-chevron-left"></span></a></th>
-            <th colspan="3"> Jan - 2017<!--?php echo $html_title; ?--></th>
-            <th colspan="2"><a href="?ym=<?php echo $next; ?>"><span class="glyphicon glyphicon-chevron-right"></span></a></th>
-          </tr>
-
-           <?php
-          // Set your timezone!!
-          date_default_timezone_set('Asia/Dhaka');
-
-          // Get prev & next month
-          if (isset($_GET['ym'])) {
-          	$ym = $_GET['ym'];
-          } else {
-          	// This month
-          	$ym = date('Y-m');
-          }
-
-          // Check format
-          $timestamp = strtotime($ym,"-01");
-          if ($timestamp === false) {
-          	$timestamp = time();
-          }
-
-          // Today
-          $today = date('Y-m-j', time());
-
-          // For H3 title
-          $html_title = date('M - Y', $timestamp);
-
-          // Create prev & next month link     mktime(hour,minute,second,month,day,year)
-          $prev = date('Y-m', mktime(0, 0, 0, date('m', $timestamp)-1, 1, date('Y', $timestamp)));
-          $next = date('Y-m', mktime(0, 0, 0, date('m', $timestamp)+1, 1, date('Y', $timestamp)));
-
-          // Number of days in the month
-          $day_count = date('t', $timestamp);
-
-          // 0:Sun 1:Mon 2:Tue ...
-          $str = date('w', mktime(0, 0, 0, date('m', $timestamp), 1, date('Y', $timestamp)));
-
-
-          // Create Calendar!!
-          $weeks = array();
-          $week = '';
-
-          // Add empty cell
-          $week .= str_repeat('<td></td>', $str);
-
-          for ( $day = 1; $day <= $day_count; $day++, $str++) {
-
-          	$date = $ym.'-'.$day;
-
-          	if ($today == $date) {
-          		$week .= '<td class="today">'.$day;
-          	} else {
-          		$week .= '<td>'.$day;
-          	}
-          	$week .= '</td>';
-
-          	// End of the week OR End of the month
-          	if ($str % 7 == 6 || $day == $day_count) {
-
-          		if($day == $day_count) {
-          			// Add empty cell
-          			$week .= str_repeat('<td></td>', 6 - ($str % 7));
-          		}
-
-          		$weeks[] = '<tr>'.$week.'</tr>';
-
-          		// Prepare for new week
-          		$week = '';
-
-          	}
-
-          }
-
-          ?>
-          <?php
-            foreach ($weeks as $week) {
-              echo $week;
-            };
-          ?>
-        </table>
-
-    </div>
-  </div>
-
-
-          </div>
-          </div>
-        </div>
-        <div class="col-md-9">
+        <div class="col-md-12">
           <div class="panel panel-default">
           <div class="panel-body">
 						<div class="row" style="margin-top: 25px;margin-bottom: 25px;">
@@ -155,70 +72,26 @@
 												<th></th>
 										</tr>
 								</thead>
-								<tbody>
-
-                  <?php
-                    $conn = Connection() ;
-                    $user_id = $_SESSION['user_id'] ;
-                    $sql = "SELECT * FROM users AS u INNER JOIN reservation AS r ON r.did = ? WHERE u.id = r.uid";
-										///////////////////////////
-										if ($result = $conn->prepare($sql)) {
-											$result->bind_param('i', $user_id);
-											$r = $result->execute();
-
-											if ($r) {
-												$row = $result->get_result();
-												// output data of each row
-                        $row_ind = 1;
-                        while($row = $row->fetch_assoc()) {
-                          $full_name = $row['fname'] .  " " . $row['name'] ;
-                          $today = jdate('Y/m/d', strtotime($row['date_time'])) ;
-                          $html_to_show = "<tr>
-                    												<td class=\"col-md-1\">
-                    														<h4>{$row_ind}</h4>
-                    												</td>
-                    												<td class=\"col-md-2\"><h5><strong>{$today}</strong></h5></td>
-                    												<td class=\"col-md-1\">
-                    														<a href=\"profile-user.php\">
-                    														 <b>{$full_name}</b>
-                    														</a>
-                    												</td>
-                    												<td class=\"col-md-3\">
-                    														<input type=\"text\" class=\"form-control\" placeholder=\"\">
-                    												</td>
-                    												<td class=\"col-sm-4 col-md-4\" style=\"display: contents;\">
-                    													<div class=\"btn-group\" style=\"margin-top: 5px;\">
-                    														<button type=\"button\" class=\"btn btn-warning\">
-                    																<i class=\"fa fa-user-md\" aria-hidden=\"true\"></i>
-                    																دعوت‌به‌مطب
-                    														</button>
-                    														<button type=\"button\" class=\"btn btn-success\">
-                    																<i class=\"fa fa-times\" aria-hidden=\"true\"></i>
-                    																ثبت
-                    														</button>
-                    														<button type=\"button\" class=\"btn btn-danger\">
-                    																<i class=\"fa fa-times\" aria-hidden=\"true\"></i>
-                    																حذف
-                    														</button>
-                    													</div>
-                    												</td>
-                    										</tr>";
-                                echo $html_to_show ;
-                                $row_ind ++ ;
-                        }
-											}
-										}
-										////////////////////////////
-                   ?>
-
+								<tbody id="p-show">
 								</tbody>
 						</table>
-						<ul class="pagination">
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-						</ul>
+
+              <ul class="pagination" id="pagination">
+        				<?php
+        					if ($stmt = $mysqli->prepare("SELECT count(id) FROM reservation AS r WHERE r.did = ?")):
+                      $stmt->bind_param('i', $user_id);
+            					$stmt->execute();
+            					$stmt->store_result();
+            					$stmt->bind_result($cnt);
+            					$stmt->fetch();
+        					    for ($cnti = 1; $cnti <= ceil($cnt / 5); $cnti++):
+        				?>
+        					<li class="<?php echo (1 == $cnti ? "active" : ""); ?>"><a href="#" id="<?php echo "$cnti"; ?>"><?php echo "$cnti"; ?></a></li>
+        				<?php
+        					endfor;
+        					endif;
+        				?>
+      			  </ul>
 						</div>
           </div>
           </div>
@@ -226,6 +99,189 @@
       </div>
       <!-- section 3 -->
       <!-- section 2  -->
+      <div class="row" id="settings-popup">
+        <div class="row" style="margin-top: 30px;min-width: 500px;">
+          <div class="col-md-3 pull-right">
+            <ul class="nav nav-pills nav-stacked" dir="rtl">
+              <li class="active"><a data-toggle="tab" href="#t1">اطلاعات شخصی</a></li>
+              <li><a data-toggle="tab" href="#t2">اطلاعات مالی</a></li>
+              <li><a data-toggle="tab" href="#t3">اطلاعات‌تماس</a></li>
+              <li><a data-toggle="tab" href="#t4">اطلاعات تماس</a></li>
+            </ul>
+         </div>
+        <div class="col-md-9 tab-content">
+          <div id="t1" class="tab-pane fade in active">
+            <h3>اطلاعات شخصی</h3>
+            <form id="step2-form">
+            <div class="row">
+              <div class="form-group">
+                <div class="col-md-7">
+                  <input class="form-control" name="s1name" id="s1name" value="<?php echo "{$info['name']}"; ?>" type="text">
+                </div>
+                <label class="col-md-4 control-label">نام</label>
+              </div>
+              <div class="form-group">
+                <div class="col-md-7">
+                  <input class="form-control" name="s1fname" id="s1fname" value="<?php echo "{$info['fname']}"; ?>" type="text">
+                </div>
+                <label class="col-md-4 control-label">نام خانوادگی</label>
+              </div>
+              <div class="form-group">
+                <div class="col-md-7">
+                  <input class="form-control" name="s1email" id="s1email" value="<?php echo "{$info['email']}"; ?>" dir="ltr" disabled="" type="text">
+                </div>
+                <label class="col-md-4 control-label">پست الکترونیک</label>
+              </div>
+              <div class="form-group">
+                <div class="col-md-7">
+                  <input class="form-control" name="s1user" id="s1user" value="<?php echo "{$info['username']}"; ?>" dir="ltr" disabled="" type="text">
+                </div>
+                <label class="col-md-4 control-label">نام کاربری</label>
+              </div>
+            </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-md-7">
+                <label>
+                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_m" value="1" <?php echo ("{$info['gender']}" === 1 ? "checked" : ""); ?>>مرد
+               </label>
+                <label>
+                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_f" value="0" <?php echo ("{$info['gender']}" === 0 ? "checked" : ""); ?>>زن
+               </label>
+                <label>
+                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_o" value="2" <?php echo ("{$info['gender']}" === 2 ? "checked" : ""); ?>>دیگر
+               </label>
+              </div>
+              <label class="control-label col-md-2 col-xs-12">جنسیت</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-md-7">
+                <input name="s1nid" id="s1nid" value="<?php echo "{$info['ncode']}"; ?>" maxlength="10" class="form-control number" type="text">
+              </div>
+              <label class="control-label col-md-2 col-xs-12">شماره ملی</label>
+            </div>
+            <div class="form-group">
+              <div class="col-md-7">
+                <input name="s1cid" id="s1cid" value="<?php echo "{$info['scode']}"; ?>" class="form-control" type="text">
+              </div>
+              <label class="control-label col-md-2 col-xs-12">شماره شناسنامه</label>
+            </div>
+            <div class="form-group">
+              <div class="col-md-7">
+                <div id="fullcalendar"></div>
+                <input name="s1bday" id="s1bday" value="<?php echo "{$info['bday']}"; ?>" class="form-control datepicker" type="text">
+              </div>
+              <label class="control-label col-md-2 col-xs-12">تاریخ تولد</label>
+            </div>
+          </div>
+           <ul class="list-inline pull-left">
+             <li><button type="button" class="btn btn-default">ثبت</button></li>
+           </ul>
+           </form>
+        </div>
+        <div id="t2" class="tab-pane fade">
+          <h3>اطلاعات مالی</h3>
+          <form id="step2-form">
+            <div class="row">
+          <div class="form-group">
+            <div class="col-md-7">
+              <input class="form-control" id="s2f1mal" name="s2f1mal" value="<?php echo "{$info['iban']}"; ?>" type="text">
+            </div>
+            <label class="col-md-4 control-label">شغل</label>
+          </div>
+          <div class="form-group">
+           <div class="col-md-7">
+              <select class="form-control" id="s2f2mal" name="s2f2mal" value="" type="text">
+               <option value="0" <?php echo ($info['salary'] == 0 ? "selected=\"selected\"" : ""); ?>>کمتر از 1200000</option>
+               <option value="1" <?php echo ($info['salary'] == 1 ? "selected=\"selected\"" : ""); ?>>متوسط</option>
+               <option value="2" <?php echo ($info['salary'] == 2 ? "selected=\"selected\"" : ""); ?>>بیشتر از 3000000</option>
+              </select>
+           </div>
+           <label class="col-md-4 control-label">میزان درآمد</label>
+          </div></div>
+           <ul class="list-inline pull-left">
+             <li><button type="button" class="btn btn-default">ثبت</button></li>
+           </ul>
+          </form>
+        </div>
+        <div id="t3" class="tab-pane fade">
+          <h3>اطلاعات‌تماس</h3>
+          <form class="form-horizontal" id="step3-form">
+          <div class="form-group">
+                <label for="comment">تحصیلات</label>
+              <select class="form-control" id="s3f1u" name="s3f1u" value="" type="text">
+                <option value="0" <?php echo ($info['edu'] == 0 ? "selected=\"selected\"" : ""); ?>>زیر‌دیپلم</option>
+                <option value="1" <?php echo ($info['edu'] == 1 ? "selected=\"selected\"" : ""); ?>>دیپلم</option>
+                <option value="2" <?php echo ($info['edu'] == 2 ? "selected=\"selected\"" : ""); ?>>کارشناسی</option>
+                <option value="3" <?php echo ($info['edu'] == 3 ? "selected=\"selected\"" : ""); ?>>ارشد</option>
+                <option value="4" <?php echo ($info['edu'] == 4 ? "selected=\"selected\"" : ""); ?>>دکترا</option>
+              </select>
+          </div>
+          <div class="form-group">
+             <label for="comment">بیوگرافی</label>
+             <textarea class="form-control" rows="5" id="s3f2" name="s3f2" value="<?php echo "{$info['bio']}"; ?>"><?php echo "{$info['bio']}"; ?></textarea>
+          </div>
 
+           <ul class="list-inline pull-left">
+             <li><button type="button" class="btn btn-default">ثبت</button></li>
+           </ul>
+        </form>
+        </div>
+        <div id="t4" class="tab-pane fade">
+          <h3>اطلاعات‌تماس</h3>
+            <form id="step4-form">
+              <input id="w" name="w" value="4" type="hidden">
+              <input id="token" name="token" value="" type="hidden">
+          <div class="form-group">
+             <label for="">عکس:</label>
+             <span class="btn btn-success fileinput-button">
+            <i class="glyphicon glyphicon-plus"></i>
+            <span>Select files...</span>
+            <!-- The file input field used as target for the file upload widget -->
+            <input id="fileupload" name="fileupload[]" accept="image/jpeg, image/jpg" multiple="" type="file">
+          <img id="outputimg" src="<?php echo "{$info['picture']}"; ?>" />
+          </span>
+          </div>
+          <div class="form-group">
+             <label for="">شماره همراه:</label>
+             <input class="form-control" placeholder="09350000000" value="<?php echo "{$info['phone']}"; ?>" id="s4phone" name="s4phone" required="" type="text">
+          </div>
+
+          <div class="form-group">
+             <label for="">استان:</label>
+             <select class="form-control province"  id="s4province" name="s4province">
+              <option>استان</option>
+              <?php echo "<option selected=\"selected\">{$info['province']}</option>"; ?>
+             </select>
+          </div>
+
+          <div class="form-group">
+             <label for="">شهر:</label>
+             <select class="form-control city"  id="s4city" name="s4city">
+              <option>شهر</option>
+              <?php echo "<option selected=\"selected\">{$info['city']}</option>"; ?>
+             </select>
+          </div>
+
+          <div class="form-group">
+             <label for="">آدرس:</label>
+             <textarea class="form-control" placeholder="آدرس" value="<?php echo "{$info['addr']}"; ?>" required="" type="text" id="s4addr" name="s4addr"><?php echo "{$info['addr']}"; ?></textarea>
+          </div>
+
+          <div class="form-group">
+             <label for="">کد پستی:</label>
+             <input class="form-control" placeholder="00000000000" value="<?php echo "{$info['pcode']}"; ?>" required="" type="text" id="s4post" name="s4post">
+          </div>
+
+           <ul class="list-inline pull-left">
+             <li><button type="button" class="btn btn-default">ثبت</button></li>
+           </ul>
+         </form>
+        </div>
+      </div>
+      </div>
+      </div>
       <!-- section 2  -->
       <?php include("pages/footer.php"); ?>

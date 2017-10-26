@@ -11,7 +11,6 @@ if ($log_check === false) {
     redirect("profile-user.php") ;
   }
 }
-
 include("pages/header.php"); head(""); ?>
 <div id="could_pass">
 </div>

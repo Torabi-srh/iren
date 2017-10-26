@@ -1,6 +1,6 @@
 .tcbot-body {
   /*padding: 50px;*/
-  min-width: 282px; 
+  min-width: 282px;
   background-color: #ccc;
   font-family: sans-serif;
 }
@@ -27,4 +27,18 @@
 .box {
   background: #ececec;
   padding: .5em;
+}
+.tcbot-body .emote{
+    width: 150px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+.tcbot-body .emote:hover{
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 0px 30px 0px rgba(255, 255, 255, 0.67);
+    -moz-box-shadow:    0px 0px 30px 0px rgba(255, 255, 255, 0.67);
+    box-shadow:         0px 0px 30px 0px rgba(255, 255, 255, 0.67);
 }

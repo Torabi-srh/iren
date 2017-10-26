@@ -3,6 +3,7 @@
   // just to make sure this page has not any errors !
   $GLOBALS['a'] = 1;
   function head($var) {
+    $mysqli = isset($mysqli) ? $mysqli : Connection();
       if ($var == "doc") {
         $GLOBALS['a'] = 2;
       } elseif ($var == "norm") {
@@ -112,16 +113,19 @@
                   <div class="form-group">
                     <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">
                       <?php
-                        $conn = Connection() ;
                         $id = $info['id'] ;
-                        $sql = "SELECT depose FROM invoice WHERE uid = '$id'" ;
-                        $result = $conn->query($sql);
+                        $depose = null;
                         $sum_depose = 0.0 ;
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {
-                            $sum_depose += $row['depose'] ;
+                        $sql = "SELECT depose FROM invoice WHERE uid = ?" ;
+                        if ($stmt = $mysqli->prepare($sql)):
+                          $stmt->bind_param('i', $id);
+                					$stmt->execute();
+                					$stmt->store_result();
+                					$stmt->bind_result($depose);
+                          while($stmt->fetch()) {
+                            $sum_depose += $depose;
                           }
-                        }
+                        endif;
                         echo $sum_depose . " " . "ریال" ;
                       ?>
                     </p></div>
@@ -316,16 +320,19 @@
                   <div class="form-group">
                     <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">
                       <?php
-                        $conn = Connection() ;
                         $id = $info['id'] ;
-                        $sql = "SELECT depose FROM invoice WHERE uid = '$id'" ;
-                        $result = $conn->query($sql);
+                        $depose = null;
                         $sum_depose = 0.0 ;
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {
-                            $sum_depose += $row['depose'] ;
+                        $sql = "SELECT depose FROM invoice WHERE uid = ?" ;
+                        if ($stmt = $mysqli->prepare($sql)):
+                          $stmt->bind_param('i', $id);
+                					$stmt->execute();
+                					$stmt->store_result();
+                					$stmt->bind_result($depose);
+                          while($stmt->fetch()) {
+                            $sum_depose += $depose;
                           }
-                        }
+                        endif;
                         echo $sum_depose . " " . "ریال" ;
                       ?>
                     </p></div>
