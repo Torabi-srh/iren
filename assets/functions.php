@@ -1,5 +1,5 @@
 <?php
-include_once 'statics.php'; 
+include_once 'statics.php';
 isdebug();
 /* create database */
 if (!islocal()) {
@@ -822,8 +822,6 @@ function is_email($email) {
 }
 
 
-
-
   function is_user_activities_set() {
     if (!isset($_SESSION['Last_URL']) && !is_session_started()) {
         sessionStart("Login");
@@ -852,10 +850,10 @@ function is_email($email) {
     return ($user_agent == $user_agent ? true : false);
   }
 /* to get user datas */
-  function pull_out_users_data() {
+  function pull_out_users_data($uname = null) {
+    if ($uname == null) $uname = $_SESSION['username'];
     $mysqli = isset($mysqli) ? $mysqli : Connection();
-
-    $username = (!empty($_SESSION['username']) ? TextToDB($_SESSION['username']) : "guest");
+    $username = (!empty($uname) ? TextToDB($uname) : "guest");
     $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
     if ($result = $mysqli->prepare($sql)) {
       $result->bind_param('s', $username);
@@ -1184,4 +1182,12 @@ function CleanFullCalendarEvents($events_) {
     }
   }
   return $events_;
+}
+
+function DateToAge($date_) {
+  //date in mm/dd/yyyy format
+  $date_ = explode("-", $date_);
+  $date_ = jalali_to_gregorian($date_[0],$date_[1],$date_[2]);// خروجی: array(2011,2,11);
+  //get age from date or birthdate
+  return (date("md", date("U", mktime(0, 0, 0, $date_[2], $date_[0], $date_[1]))) > date("md") ? ((date("Y") - $date_[0]) - 1) : (date("Y") - $date_[0]));
 }

@@ -24,10 +24,11 @@ if($isdr === false) {
   redirect("profile-doctor.php") ;
 }
 
-$user_id = $_SESSION['user_id'];
   $mysqli = isset($mysqli) ? $mysqli : Connection();
 
   $info = pull_out_users_data();
+
+
 ?>
 
 <?php
@@ -47,6 +48,8 @@ $user_id = $_SESSION['user_id'];
 ?>
 <?php include("pages/header.php");head("doc"); ?>
       <!-- section 3 -->
+      <div id="could_pass">
+      </div>
       <div class="row">
         <div class="col-md-12">
           <div class="panel panel-default">
@@ -79,7 +82,7 @@ $user_id = $_SESSION['user_id'];
               <ul class="pagination" id="pagination">
         				<?php
         					if ($stmt = $mysqli->prepare("SELECT count(id) FROM reservation AS r WHERE r.did = ?")):
-                      $stmt->bind_param('i', $user_id);
+                      $stmt->bind_param('i', $uid);
             					$stmt->execute();
             					$stmt->store_result();
             					$stmt->bind_result($cnt);
@@ -112,7 +115,7 @@ $user_id = $_SESSION['user_id'];
         <div class="col-md-9 tab-content">
           <div id="t1" class="tab-pane fade in active">
             <h3>اطلاعات شخصی</h3>
-            <form id="step2-form">
+            <form id="step1-form">
             <div class="row">
               <div class="form-group">
                 <div class="col-md-7">
@@ -143,13 +146,13 @@ $user_id = $_SESSION['user_id'];
             <div class="form-group">
               <div class="col-md-7">
                 <label>
-                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_m" value="1" <?php echo ("{$info['gender']}" === 1 ? "checked" : ""); ?>>مرد
+                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_m" value="1" <?php echo ($info['gender'] === 1 ? "checked=\"checked\"" : ""); ?>>مرد
                </label>
                 <label>
-                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_f" value="0" <?php echo ("{$info['gender']}" === 0 ? "checked" : ""); ?>>زن
+                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_f" value="0" <?php echo ($info['gender'] === 0 ? "checked=\"checked\"" : ""); ?>>زن
                </label>
                 <label>
-                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_o" value="2" <?php echo ("{$info['gender']}" === 2 ? "checked" : ""); ?>>دیگر
+                  <input type="radio" class="s1gen" name="s1gen" id="s1gen_o" value="2" <?php echo ($info['gender'] === 2 ? "checked=\"checked\"" : ""); ?>>دیگر
                </label>
               </div>
               <label class="control-label col-md-2 col-xs-12">جنسیت</label>
@@ -189,17 +192,13 @@ $user_id = $_SESSION['user_id'];
             <div class="col-md-7">
               <input class="form-control" id="s2f1mal" name="s2f1mal" value="<?php echo "{$info['iban']}"; ?>" type="text">
             </div>
-            <label class="col-md-4 control-label">شغل</label>
+            <label class="col-md-4 control-label">شماره شبا</label>
           </div>
           <div class="form-group">
-           <div class="col-md-7">
-              <select class="form-control" id="s2f2mal" name="s2f2mal" value="" type="text">
-               <option value="0" <?php echo ($info['salary'] == 0 ? "selected=\"selected\"" : ""); ?>>کمتر از 1200000</option>
-               <option value="1" <?php echo ($info['salary'] == 1 ? "selected=\"selected\"" : ""); ?>>متوسط</option>
-               <option value="2" <?php echo ($info['salary'] == 2 ? "selected=\"selected\"" : ""); ?>>بیشتر از 3000000</option>
-              </select>
-           </div>
-           <label class="col-md-4 control-label">میزان درآمد</label>
+            <div class="col-md-7">
+               <input class="form-control" id="s2f2mal" name="s2f2mal"  value="<?php echo "{$info['salary']}"; ?>" type="text">
+            </div>
+            <label class="col-md-4 control-label">هزینه‌یکساعت‌مشاوره</label>
           </div></div>
            <ul class="list-inline pull-left">
              <li><button type="button" class="btn btn-default">ثبت</button></li>
@@ -209,16 +208,134 @@ $user_id = $_SESSION['user_id'];
         <div id="t3" class="tab-pane fade">
           <h3>اطلاعات‌تماس</h3>
           <form class="form-horizontal" id="step3-form">
-          <div class="form-group">
-                <label for="comment">تحصیلات</label>
-              <select class="form-control" id="s3f1u" name="s3f1u" value="" type="text">
-                <option value="0" <?php echo ($info['edu'] == 0 ? "selected=\"selected\"" : ""); ?>>زیر‌دیپلم</option>
-                <option value="1" <?php echo ($info['edu'] == 1 ? "selected=\"selected\"" : ""); ?>>دیپلم</option>
-                <option value="2" <?php echo ($info['edu'] == 2 ? "selected=\"selected\"" : ""); ?>>کارشناسی</option>
-                <option value="3" <?php echo ($info['edu'] == 3 ? "selected=\"selected\"" : ""); ?>>ارشد</option>
-                <option value="4" <?php echo ($info['edu'] == 4 ? "selected=\"selected\"" : ""); ?>>دکترا</option>
-              </select>
-          </div>
+            <div class="form-group">
+              <label for="comment">شماره‌نظام‌روانشناسی</label>
+              <input type="text" class="form-control" rows="5" id="drcode" name="drcode" value="<?php echo "{$info['drcode']}"; ?>"></input>
+            </div>
+            <div class="form-group">
+              <label for="comment">تخصص‌ها</label>
+            <div class="row" id="p-">
+                  <?php
+                  $takh1 = $takh2 = $takh3 = $takh4 = $takh5 = $takh6 = $takh7 = $takh8 = $takh9 = $takh10 = $takh11 = false;
+                  $p12 = 12;
+                    if ($stmt = $mysqli->prepare("SELECT * FROM takhasos WHERE uid = ?")):
+                        $stmt->bind_param('i', $uid);
+                        $stmt->execute();
+                        $stmt->store_result();
+                        $stmt->bind_result($tid, $tuid, $tname);
+                        $stmt->fetch();
+                        while ($stmt->fetch()):
+                          if (strpos($tname, 'استرس') !== false):
+                            $takh1 = true;
+                          elseif (strpos($tname, 'وسواس') !== false):
+                            $takh2 = true;
+                          elseif (strpos($tname, 'روابط بین فردی') !== false):
+                            $takh3 = true;
+                          elseif (strpos($tname, 'رابطه') !== false):
+                            $takh4 = true;
+                          elseif (strpos($tname, 'اختلالات اضطرابی') !== false):
+                            $takh5 = true;
+                          elseif (strpos($tname, 'اختلالات شخصیت') !== false):
+                            $takh6 = true;
+                          elseif (strpos($tname, 'افسردگی') !== false):
+                            $takh7 = true;
+                          elseif (strpos($tname, 'خانواده') !== false):
+                            $takh8 = true;
+                          elseif (strpos($tname, 'کنکور / مشاوره‌درسی') !== false):
+                            $takh9 = true;
+                          elseif (strpos($tname, 'مسائل جنسی') !== false):
+                            $takh10 = true;
+                          elseif (strpos($tname, 'کنترل خشم') !== false):
+                            $takh11 = true;
+                          else:
+                  ?>
+                      <label for="p-<?php echo $p12; ?>" class="btn btn-default child"><?php echo "{$tname}"; ?><input type="checkbox" id="p-<?php echo $p12;$p12++; ?>" <?php echo "checked=\"checked\""; ?> class="badgebox takhasos" name="takhasos" value="<?php echo "{$tname}"; ?>"><span class="badge">&check;</span></label>
+                  <?php
+                          endif;
+                  ?>
+                  <?php
+                    endwhile;
+                    endif;
+                  ?>
+                  <label for="p-1" class="btn btn-default child">استرس <input type="checkbox" id="p-1" <?php echo ($takh1 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="استرس"><span class="badge">&check;</span></label>
+                  <label for="p-2" class="btn btn-default child">وسواس <input type="checkbox" id="p-2" <?php echo ($takh2 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="وسواس"><span class="badge">&check;</span></label>
+                  <label for="p-3" class="btn btn-default child">روابط بین فردی <input type="checkbox" id="p-3" <?php echo ($takh3 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="روابط بین فرد"><span class="badge">&check;</span></label>
+                  <label for="p-4" class="btn btn-default child">رابطه <input type="checkbox" id="p-4" <?php echo ($takh4 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="رابطه"><span class="badge">&check;</span></label>
+                  <label for="p-5" class="btn btn-default child">اختلالات اضطرابی <input type="checkbox" id="p-5" <?php echo ($takh5 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="اختلالات اضطراب"><span class="badge">&check;</span></label>
+                  <label for="p-6" class="btn btn-default child">اختلالات شخصیت <input type="checkbox" id="p-6" <?php echo ($takh6 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="اختلالات شخصی"><span class="badge">&check;</span></label>
+                  <label for="p-7" class="btn btn-default child">افسردگی <input type="checkbox" id="p-7" <?php echo ($takh7 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="افسردگی"><span class="badge">&check;</span></label>
+                  <label for="p-8" class="btn btn-default child">خانواده <input type="checkbox" id="p-8" <?php echo ($takh8 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="خانواده"><span class="badge">&check;</span></label>
+                  <label for="p-9" class="btn btn-default child">کنکور / مشاوره‌درسی <input type="checkbox" id="p-9" <?php echo ($takh9 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="کنکور / مشاوره‌درس"><span class="badge">&check;</span></label>
+                  <label for="p-10" class="btn btn-default child">مسائل جنسی <input type="checkbox" id="p-10" <?php echo ($takh10 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="مسائل جنسی"><span class="badge">&check;</span></label>
+                  <label for="p-11" class="btn btn-default child">کنترل خشم <input type="checkbox" id="p-11" <?php echo ($takh11 ? "checked=\"checked\"" : ""); ?> class="badgebox takhasos" name="takhasos" value="کنترل خشم"><span class="badge">&check;</span></label>
+
+            </div>
+            <div class="row">
+                  <div class="col-md-5" style="display: inline-flex;float: right;margin-top: 10px;">
+                         <input class="form-control" id="p-n" placeholder="تخصص" type="text">
+  <button type="button" class="btn btn-success" style="margin-right: 10px;" id="p-b">
+  <i class="fa fa-plus" aria-hidden="true"></i>
+                         </button>
+                  </div>
+            </div>
+            </div>
+            <div class="form-group">
+              <label for="comment">رویکردها</label>
+                  <div class="row" id="m-">
+                    <?php
+                    $takh1 = $takh2 = $takh3 = $takh4 = $takh5 = $takh6 = $takh7 = $takh8 = false;
+                    $p12 = 12;
+                      if ($stmt = $mysqli->prepare("SELECT * FROM takhasos WHERE uid = ?")):
+                          $stmt->bind_param('i', $uid);
+                          $stmt->execute();
+                          $stmt->store_result();
+                          $stmt->bind_result($tid, $tuid, $tname);
+                          $stmt->fetch();
+                          while ($stmt->fetch()):
+                            if (strpos($tname, 'درمان شناختی رفتاری') !== false):
+                              $takh1 = true;
+                            elseif (strpos($tname, 'درمان روان کاوی') !== false):
+                              $takh2 = true;
+                            elseif (strpos($tname, 'درمان روان پوشی') !== false):
+                              $takh3 = true;
+                            elseif (strpos($tname, 'درمان ترنس پرسنال') !== false):
+                              $takh4 = true;
+                            elseif (strpos($tname, 'درمان اگزیستانسیالیست') !== false):
+                              $takh5 = true;
+                            elseif (strpos($tname, 'درمان زوج') !== false):
+                              $takh6 = true;
+                            elseif (strpos($tname, 'درمان گروهی') !== false):
+                              $takh7 = true;
+                            elseif (strpos($tname, 'درمان معنایی') !== false):
+                              $takh8 = true;
+                            else:
+                    ?>
+                        <label for="m-<?php echo $p12; ?>" class="btn btn-default child"><?php echo "{$tname}"; ?><input type="checkbox" id="m-<?php echo $p12;$p12++; ?>" <?php echo "checked=\"checked\""; ?> class="badgebox roykard" name="roykard" value="<?php echo "{$tname}"; ?>"><span class="badge">&check;</span></label>
+                    <?php
+                            endif;
+                    ?>
+                    <?php
+                      endwhile;
+                      endif;
+                    ?>
+                        <label for="m-1" class="btn btn-default child">درمان شناختی رفتاری <input type="checkbox" id="m-1"  <?php echo ($takh1 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان شناختی رفتاری"><span class="badge">&check;</span></label>
+                        <label for="m-2" class="btn btn-default child">درمان روان کاوی <input type="checkbox" id="m-2"  <?php echo ($takh2 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان روان کاوی"><span class="badge">&check;</span></label>
+                        <label for="m-3" class="btn btn-default child">درمان روان پوشی <input type="checkbox" id="m-3"  <?php echo ($takh3 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان روان پوشی"><span class="badge">&check;</span></label>
+                        <label for="m-4" class="btn btn-default child">درمان ترنس پرسنال <input type="checkbox" id="m-4"  <?php echo ($takh4 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان ترنس پرسنال"><span class="badge">&check;</span></label>
+                        <label for="m-5" class="btn btn-default child">درمان اگزیستانسیالیست <input type="checkbox" id="m-5"  <?php echo ($takh5 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان اگزیستانسیالیست"><span class="badge">&check;</span></label>
+                        <label for="m-6" class="btn btn-default child">درمان زوج <input type="checkbox" id="m-6"  <?php echo ($takh6 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان زوج"><span class="badge">&check;</span></label>
+                        <label for="m-7" class="btn btn-default child">درمان گروهی <input type="checkbox" id="m-7"  <?php echo ($takh7 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان گروهی"><span class="badge">&check;</span></label>
+                        <label for="m-8" class="btn btn-default child">درمان معنایی <input type="checkbox" id="m-8"  <?php echo ($takh8 ? "checked=\"checked\"" : ""); ?>  class="badgebox roykard" name="roykard" value="درمان معنایی"><span class="badge">&check;</span></label>
+                  </div>
+                  <div class="row">
+                        <div class="col-md-5" style="display: inline-flex;float: right;margin-top: 10px;">
+                              <input class="form-control" id="m-n" placeholder="رویکرد" type="text">
+  <button type="button" class="btn btn-success" style="margin-right: 10px;" id="m-b" >
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        </button>
+                        </div>
+                          </Div>
+            </div>
           <div class="form-group">
              <label for="comment">بیوگرافی</label>
              <textarea class="form-control" rows="5" id="s3f2" name="s3f2" value="<?php echo "{$info['bio']}"; ?>"><?php echo "{$info['bio']}"; ?></textarea>
@@ -273,6 +390,11 @@ $user_id = $_SESSION['user_id'];
           <div class="form-group">
              <label for="">کد پستی:</label>
              <input class="form-control" placeholder="00000000000" value="<?php echo "{$info['pcode']}"; ?>" required="" type="text" id="s4post" name="s4post">
+          </div>
+
+          <div class="form-group">
+             <label for="">شماره مطب:</label>
+             <input class="form-control" placeholder="05130000000" required="" type="text" id="s4drphone" name="s4drphone" value="<?php echo "{$info['drphone']}"; ?>">
           </div>
 
            <ul class="list-inline pull-left">

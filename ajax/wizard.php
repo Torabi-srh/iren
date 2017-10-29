@@ -175,6 +175,7 @@ if (isset($_POST["token"])) {
         if (isset($_POST["takhasos"])) {
 					$takhasos = $_POST["takhasos"];
 				} else {
+					$takhasos = null;
 					// $myObj->b = "لطفا تخصص خود را وارد کنید.";
 					// $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 					// echo $r;die();
@@ -182,6 +183,7 @@ if (isset($_POST["token"])) {
         if (isset($_POST["roykard"])) {
 					$roykard = $_POST["roykard"];
 				} else {
+					$roykard = null;
 					// $myObj->b = "لطفا رویکرد خود را وارد کنید.";
 					// $r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
 					// echo $r;die();
@@ -202,29 +204,38 @@ if (isset($_POST["token"])) {
 					//echo $r;die();
 				}
 				$trr = array();
+
+        if ($stmt = $mysqli->prepare("DELETE FROM takhasos WHERE takhasos.uid = ?;")) {
+          $stmt->bind_param('i', $uid);
+          $stmt->execute();
+          $stmt->store_result();
+          $stmt->fetch();
+        } else { echo $error500;die(); }
+        if ($stmt = $mysqli->prepare("DELETE FROM roykard WHERE roykard.uid = ?;")) {
+          $stmt->bind_param('i', $uid);
+          $stmt->execute();
+          $stmt->store_result();
+          $stmt->fetch();
+        } else { echo $error500;die(); }
 				foreach ($takhasos as $key => $value) {
-					$trr[] = array('t' => $value);
+					$sql = "INSERT INTO takhasos(`uid`, `name`) VALUES (? , ?);";
+					if ($stmt = $mysqli->prepare($sql)) {
+						$stmt->bind_param('is', $uid, $value);
+						$stmt->execute();
+						$stmt->store_result();
+						$stmt->fetch();
+					} else { echo $error500;die(); }
+					$myObj->b .= "$key => $value";
 				}
 				foreach ($roykard as $key => $value) {
-					$trr[] = array('r' => $value);
-				}
-				if ($stmt = $mysqli->prepare("DELETE roykard, takhasos FROM roykard INNER JOIN takhasos ON takhasos.uid = roykard.uid WHERE	roykard.uid = ?;")) {
-					$stmt->bind_param('i', $uid);
-					$stmt->execute();
-					$stmt->store_result();
-					$stmt->fetch();
-				} else { echo $error500;die(); }
-				foreach ($trr as $key => $value) {
-					foreach ($value as $key => $value) {
-						$sql = "INSERT INTO ".($key == "t" ? "takhasos" : "roykard")."(`uid`, `name`) VALUES (? , ?);";
-						if ($stmt = $mysqli->prepare($sql)) {
-							$stmt->bind_param('is', $uid, $value);
-							$stmt->execute();
-							$stmt->store_result();
-							$stmt->fetch();
-						} else { echo $error500;die(); }
-						$myObj->b .= "$key => $value";
-					}
+					$sql = "INSERT INTO roykard(`uid`, `name`) VALUES (? , ?);";
+					if ($stmt = $mysqli->prepare($sql)) {
+						$stmt->bind_param('is', $uid, $value);
+						$stmt->execute();
+						$stmt->store_result();
+						$stmt->fetch();
+					} else { echo $error500;die(); }
+					$myObj->b .= "$key => $value";
 				}
         $sql = "UPDATE users SET drcode = ?, bio = ? WHERE id = ?";
 			}
