@@ -97,6 +97,7 @@ $isdr
     <script src="js/chat.js"></script>
     <script src="js/shop.js"></script>
     <script src="js/jdf.js"></script>
+    <script src="js/doctor.js"></script>
     <?php if (!$isdr): ?>
     <!-- <script src="js/tcbot.js"></script> -->
     <script src="js/wizard-us.js"></script>
