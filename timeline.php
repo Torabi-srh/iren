@@ -1,23 +1,21 @@
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
-
-
-$mysqli = isset($mysqli) ? $mysqli : Connection();
-
+include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
 $log_check = login_check() ;
 if ($log_check === false) {
-	redirect("login.php");die();
+redirect("login.php");die();
 } else {
-	if($log_check[0] === false) {
-		redirect("login.php");die();
-	}
+if($log_check[0] === false) {
+ redirect("login.php");die();
 }
-
+}
 if (empty($_SESSION['user_id'])) {
-	redirect("login.php");die();
+redirect("login.php");die();
 } else {
-	$uid = TextToDB($_SESSION['user_id']);
+$uid = TextToDB($_SESSION['user_id']);
 }
+$isdr = $log_check[1];
+
+$mysqli = isset($mysqli) ? $mysqli : Connection();
 
 $er = "";
 if (isset($_POST['submit-post'])) {
@@ -46,7 +44,7 @@ if (isset($_POST['submit-post'])) {
 		$image->setSize(0, 1000000);
 
 		// define allowed mime types to upload
-		$image->setMime(array('jpeg', 'png', 'jpg'));
+		$image->setMime(array('jpg', 'png', 'jpeg'));
 
 		// set the max width/height limit of images to upload (limit in pixels)
 		//$image->setDimension($width, $height);
@@ -62,20 +60,18 @@ if (isset($_POST['submit-post'])) {
 			$upload = $image->upload();
 
 			if($upload) {
-				var_dump($upload);die();
-				//echo $upload->getFullPath();
+				$im_g = $image->getFullPath();
+				$zero = 0;
+
+				if ($stmt = $mysqli->prepare("INSERT INTO posts(publisher, views, likes, header, image, txt) VALUES(?, ?, ?, ?, ?, ?)")) {
+					$stmt->bind_param('iiisss', $uid, $zero, $zero, $header, $im_g, $msg);
+					$stmt->execute();
+					$er = "پست با موفقیت فرستاده شد";
+				}
+
 			}else{
 				$er = $image["error"];
 			}
-		}
-
-		$im_g = $image->getFullPath();
-		$zero = 0;
-
-		if ($stmt = $mysqli->prepare("INSERT INTO posts(publisher, views, likes, header, image, txt) VALUES(?, ?, ?, ?, ?, ?)")) {
-			$stmt->bind_param('iiisss', $uid, $zero, $zero, $header, $im_g, $msg);
-			$stmt->execute();
-			$er = "پست با موفقیت فرستاده شد";
 		}
 	}
 }
@@ -137,7 +133,7 @@ include("pages/header.php");head("");
 					<div class="row">
 					  <div class="col-sm-6 col-md-4">
 						<div>
-						  <img src="<?php echo "$pimage"; ?>">
+						  <img src="<?php echo "$pimage"; ?>" width="200" height="200">
 						</div>
 					  </div>
 						<div class="col-sm-6 col-md-8">
@@ -214,7 +210,7 @@ include("pages/header.php");head("");
         											<div>
         												<a href="post.php?id=<?php echo "$pid"; ?>">
         													<img src="<?php echo "$pimage"; ?>"
-        														 alt="Post thumb">
+        														 alt="<?php echo "$pheader"; ?>" width="200" height="200">
         												</a>
         											</div>
         										</div>
@@ -244,7 +240,7 @@ include("pages/header.php");head("");
         											<div>
         												<a href="post.php?id=<?php echo "$pid"; ?>">
         													<img src="<?php echo "$pimage"; ?>"
-        														 alt="Post thumb">
+        														 alt="<?php echo "$pheader"; ?>" width="200" height="200">
         												</a>
         											</div>
         										</div>
@@ -274,7 +270,7 @@ include("pages/header.php");head("");
         											<div>
         												<a href="post.php?id=<?php echo "$pid"; ?>">
         													<img src="<?php echo "$pimage"; ?>"
-        														 alt="Post thumb">
+        														 alt="<?php echo "$pheader"; ?>" width="200" height="200">
         												</a>
         											</div>
         										</div>

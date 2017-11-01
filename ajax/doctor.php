@@ -34,7 +34,7 @@ if (empty($_SESSION['user_id'])) {
     <div class="row">
       <div class="col-sm-6 col-md-4">
       <div>
-        <img src="<?php echo "$pimage"; ?>">
+        <img src="<?php echo "$pimage"; ?>" width="200" height="200">
       </div>
       </div>
       <div class="col-sm-6 col-md-8">

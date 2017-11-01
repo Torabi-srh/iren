@@ -1,15 +1,21 @@
   <?php
-  include_once("assets/functions.php") ;
+  include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
   $log_check = login_check() ;
-  // var_dump($log_check) ; die() ;
   if ($log_check === false) {
-    saferedirect("login.php") ;
+  redirect("login.php");die();
   } else {
-    // var_dump($_SESSION) ; die() ;
-    if($log_check[0] === false) {
-      redirect("login.php") ;
-    }
+  if($log_check[0] === false) {
+   redirect("login.php");die();
   }
+  }
+  if (empty($_SESSION['user_id'])) {
+  redirect("login.php");die();
+  } else {
+  $uid = TextToDB($_SESSION['user_id']);
+  }
+  $isdr = $log_check[1];
+
+  $mysqli = isset($mysqli) ? $mysqli : Connection();
 ?>
 <?php include("pages/header.php");head(""); ?>
     <div class="row">

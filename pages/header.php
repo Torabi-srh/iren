@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="css/normalize.min.css">
     <link rel="stylesheet" href="css/wizard.css">
     <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/uprofile.css">
     <link rel="stylesheet" href="css/tcbot.css">
     <link href='css/fullcalendar.css' rel='stylesheet' />
     <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
@@ -182,6 +183,17 @@
       <!-- section 1  -->
 
 <?php elseif ($GLOBALS['a'] == 4): ?>
+  <?php
+  if(!empty($_GET['uname'])) {
+    $uname = $_GET['uname'];
+  } else {
+    redirect("profile-doctor.php") ;
+  }
+  $info = pull_out_users_data($uname);
+  if ($info['isdr'] == 1) {
+    redirect("doctor.php?uname=$uname") ;
+  }
+   ?>
       <div class="row">
         <div class="col-md-8">
           <div class="panel panel-default">
@@ -189,29 +201,33 @@
               <div class="col-md-5" style="left: 130px;">
                 <form class="form-horizontal">
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">12</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo DateToAge($info['bday']); ?></p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-birthday-cake" aria-hidden="true"></i> سن</label>
                   </div>
                   <div class="form-group">
-                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">kharrrrr</p></div>
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo ($info['gender'] == 0 ? FEMALE : ($info['gender'] == 1 ? MALE : BLUE)) ; ?></p></div>
                     <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-mars" aria-hidden="true"></i> جنسیت</label>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-6" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo "{$info['drphone']}"; ?></p></div>
+                    <label class="control-label col-sm-6 input-group-addon" style="min-width: 85px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-phone" aria-hidden="true"></i> تلفن</label>
                   </div>
                 </form>
               </div>
               <div class="col-md-7">
                 <form class="form-horizontal pull-right" style="min-width:80%;">
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">god is here</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo "{$info['name']}"; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام</label>
                   </div>
 
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">تست</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo "{$info['fname']}"; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-user-o" aria-hidden="true"></i> نام‌خانوادگی</label>
                   </div>
 
                   <div class="form-group">
-                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;">someone@example.com</p></div>
+                    <div class="col-sm-7" style="margin: 0px;padding: 0px;"><p class="form-control" style="border-radius: 5px 0px 0px 5px;margin: 0px;min-height: 32px;"><?php echo "{$info['email']}"; ?></p></div>
                     <label class="control-label col-sm-4 input-group-addon" style="min-width: 115px;border-radius: 0px 5px 5px 0px;"><i class="fa fa-envelope-o" aria-hidden="true"></i> پست‌الکترونیک</label>
                   </div>
                 </form>
@@ -223,7 +239,7 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="thumbnail">
-                <img src="assets/images/users/avatar2_large.png" class="img-circle" alt="Cinque Terre" width="150" height="150">
+                <img src="<?php echo "{$info['picture']}"; ?>" class="img-circle" alt="<?php echo "{$info['username']}"; ?>" width="150" height="150">
                 <div class="caption" style="text-align: center;">
                   <p>یوزر</p>
                   <div class="btn-group">
@@ -246,7 +262,9 @@
     redirect("profile-user.php") ;
   }
   $info = pull_out_users_data($uname);
-
+  if ($info['isdr'] == 0) {
+    redirect("user.php?uname=$uname") ;
+  }
    ?>
       <div class="row">
         <div class="col-md-8">

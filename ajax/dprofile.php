@@ -15,7 +15,7 @@
     echo $error500;die();
   }
   $mysqli = isset($mysqli) ? $mysqli : Connection();
-  $uid = $_SESSION['user_id'];
+  $uid = TextToDB($_SESSION['user_id']);
   $isdr = true;
   $page = 0;
 /////////////////////////////////////
