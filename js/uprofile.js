@@ -1,4 +1,26 @@
 $(document).ready(function(){
+  $("#smoshaver-popup").on('mouseover', '.ratings_stars', function(e) {
+        $(".ratings_stars").removeClass('rated');
+        $(this).nextAll().andSelf().toggleClass('rated');
+  });
+  $("#smoshaver-popup").on('click', '.ratings_stars', function(e) {
+    var rt = 0;
+    $('.ratings_stars').each(function(i) {
+      if ($(this).hasClass("rated")) rt++;
+    });
+    var duid = $("#sdid").val();
+    $.ajax({
+        type: "POST",
+        data: {
+          token: '',
+          uid: duid,
+          rate: rt
+        },
+        url: '/ajax/uprofile.php',
+        success: function(result) {
+        }
+    });
+  });
   dialog2 = $( "#smoshaver-popup" ).dialog({
     autoOpen: false,
     height: "auto",

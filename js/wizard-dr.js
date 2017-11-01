@@ -89,6 +89,7 @@ jQuery.validator.addMethod("isDJalali", function (value, element, param) {
                         setTimeout(function() {
                                     $elm.remove();
                                 }, 5000);
+                        
                     }
                 }
             });

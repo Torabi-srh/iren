@@ -95,26 +95,36 @@ $isdr
     <script src="js/ReactJs/react.min.js"></script> -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/chat.js"></script>
-    <script src="js/shop.js"></script>
     <script src="js/jdf.js"></script>
-    <script src="js/doctor.js"></script>
-    <?php if (!$isdr): ?>
-    <!-- <script src="js/tcbot.js"></script> -->
-    <script src="js/wizard-us.js"></script>
-    <script src="js/uprofile.js"></script>
-    <script src="js/tcbot.js"></script>
-    <?php else: ?>
-    <script src="js/dprofile.js"></script>
-    <script src="js/wizard-dr.js"></script>
-    <?php endif; ?>
+    <?php if (strpos(PAGE_NAME, 'shop.php') == false): ?>
+      <script src="js/shop.js"></script>
+    <?php endif;if (strpos(PAGE_NAME, 'doctor.php') == false): ?>
+      <script src="js/doctor.js"></script>
+    <?php endif;if (!$isdr): ?>
+      <?php if (strpos(PAGE_NAME, 'wizard') == false): ?>
+        <script src="js/wizard-us.js"></script>
+      <?php endif;if (strpos(PAGE_NAME, 'profile') == false): ?>
+        <script src="js/uprofile.js"></script>
+        <script src="js/tcbot.js"></script>
+    <?php endif;else: ?>
+      <?php if (strpos(PAGE_NAME, 'wizard') == false): ?>
+        <script src="js/wizard-dr.js"></script>
+      <?php endif;if (strpos(PAGE_NAME, 'profile') == false): ?>
+        <script src="js/dprofile.js"></script>
+    <?php endif;endif; ?>
     <script src="js/fullcalendar/fullcalendar.js"></script>
     <script src="js/calander.js"></script>
     <script src="js/ckeditor/ckeditor.js"></script>
     <script src="js/jquery.validate.min.js"></script>
     <script src='js/locale-all.js'></script>
-    <script src="js/blog.js"></script>
+    <?php if (strpos(PAGE_NAME, 'post') == false): ?>
+      <script src="js/blog.js"></script>
+    <?php endif;if (strpos(PAGE_NAME, 'invoice') == false): ?>
+        <script src="js/invoice.js"></script>
+    <?php endif;if (strpos(PAGE_NAME, 'timeline') == false): ?>
+      <script src="js/timeline.js"></script>
+    <?php endif; ?>
     <script src="js/persian-date.min.js"></script>
     <script src="js/persian-datepicker.min.js"></script>
-    <script src="js/timeline.js"></script>
   </body>
 </html>

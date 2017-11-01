@@ -1,5 +1,4 @@
 <?php
-
 include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
 $log_check = login_check() ;
 if ($log_check === false) {

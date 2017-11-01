@@ -17,13 +17,34 @@ if (!is_ajax()) {
 $mysqli = isset($mysqli) ? $mysqli : Connection();
 
 
-$uid = $_SESSION['user_id'];
+$uid = TextToDB($_SESSION['user_id']);
 $isdr = true;
 $myObj = new StdClass;
 $myObj->a = "danger";
 $myObj->b = "<a href=\".\">صفحه خود را دوباره بارگذاری کنید.</a>";
 $error500 = json_encode($myObj, JSON_UNESCAPED_UNICODE);
 if (isset($_POST["token"])) {
+  if (!empty($_POST["rate"])) {
+    if (!empty($_POST["uid"])) {
+      $rate = TextToDB($_POST["rate"]);
+      $did =  TextToDB($_POST["uid"]);
+      $sql = "INSERT INTO rating(`uid`, `rid`, `rate`) VALUES (?, ?, ?)";
+			if ($stmt = $mysqli->prepare($sql)) {
+				$stmt->bind_param('iii', $did, $uid, $rate);
+				$stmt->execute();
+				$stmt->store_result();
+				$stmt->fetch();
+				$myObj->a = "success";
+				$myObj->b = "";
+				$r = json_encode($myObj, JSON_UNESCAPED_UNICODE );
+				echo $r;die();
+			} else { echo $error500;die(); }
+    } else {
+      echo $error500;die();
+    }
+  } else {
+
+  }
   $myObj->a = "warning";
 	if (!empty($_POST['w'])) {
 		$w = $_POST['w'];
@@ -348,7 +369,15 @@ if (isset($_POST["token"])) {
 
 if (!empty($_POST['mdialog'])) {
   $ididi = TextToDB($_POST['mdialog']);
-  $sql = "SELECT `id`, `picture`, `fname`, `name`, `username`, `bio` FROM users where id = ?";
+  $sql = "SELECT AVG(r.`rate`) FROM rating AS r WHERE r.uid = ?";
+  if ($stmt = $mysqli->prepare($sql)):
+    $stmt->bind_param('i', $ididi);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($rrate);
+    $stmt->fetch();
+  endif;
+  $sql = "SELECT u.`id`, u.`picture`, u.`fname`, u.`name`, u.`username`, u.`bio` FROM users AS u WHERE u.id = ?";
   if ($stmt = $mysqli->prepare($sql)):
     $stmt->bind_param('i', $ididi);
     $stmt->execute();
@@ -359,10 +388,17 @@ if (!empty($_POST['mdialog'])) {
 
 <div class="col-*-*">
   <div class="panel-body">
+      <input type="hidden" name="sdid" id="sdid" value="<?php echo "$pid"; ?>"></input>
       <a class="btn btn-default" id ="close-smoshaverClass" style="float: left;">X</a>
       <div class="form-group" style="width: 200px;float: right;">
         <img src="<?php echo "{$ppicture}"; ?>" alt="<?php echo "{$pusername}"; ?>">
-        <span style="align-content: center;text-align: center;display: block;margin-top: 10px;"><i class="fa fa-star fa-3x" aria-hidden="true"></i><i class="fa fa-star  fa-3x" aria-hidden="true"></i><i class="fa fa-star fa-3x" aria-hidden="true" style="color: gold;"></i></span>
+        <span id="rating" style="align-content: center;text-align: center;display: block;margin-top: 10px;">
+          <i class="fa fa-star fa-3x ratings_stars <?php echo ($rrate > 4 ? "rated" : ""); ?>" aria-hidden="true"></i>
+          <i class="fa fa-star fa-3x ratings_stars <?php echo ($rrate > 3 ? "rated" : ""); ?>" aria-hidden="true"></i>
+          <i class="fa fa-star fa-3x ratings_stars <?php echo ($rrate > 2 ? "rated" : ""); ?>" aria-hidden="true"></i>
+          <i class="fa fa-star fa-3x ratings_stars <?php echo ($rrate > 1 ? "rated" : ""); ?>" aria-hidden="true"></i>
+          <i class="fa fa-star fa-3x ratings_stars <?php echo ($rrate > 0 ? "rated" : ""); ?>" aria-hidden="true"></i>
+        </span>
       </div>
      <div class="form-group" style="padding-right: 195px;margin-top: 10%;">
           <blockquote class="blockquote-reverse">
@@ -372,11 +408,11 @@ if (!empty($_POST['mdialog'])) {
       </div>
 
       <div class="btn-group" style="margin-right: 20px;">
-        <button type="button" id="editClass" class="btn btn-primary">چت</button>
-        <button type="button" class="btn btn-primary">بلاگ</button>
-        <button type="button" class="btn btn-primary">درخواست نوبت</button>
-        <button type="button" class="btn btn-primary">انتخاب به عنوان مشاور</button>
-        <button type="button" class="btn btn-primary">نظر شما</button>
+        <a type="button" id="editClass" class="btn btn-default">چت</a>
+        <a type="button" href="doctor.php?uname=<?php echo "{$pusername}"; ?>" class="btn btn-default">بلاگ</a>
+        <a type="button" class="btn btn-default">درخواست نوبت</a>
+        <a type="button" class="btn btn-default">انتخاب به عنوان مشاور</a>
+        <!-- <a type="button" class="btn btn-default">نظر شما</a> -->
       </div>
   </div>
 </div>

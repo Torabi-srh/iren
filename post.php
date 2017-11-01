@@ -1,26 +1,39 @@
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'].'/assets/functions.php');
-
+include_once($_SERVER['DOCUMENT_ROOT'] . "/assets/functions.php");
 $log_check = login_check() ;
 if ($log_check === false) {
-	redirect("login.php");
+redirect("login.php");die();
 } else {
-	if($log_check[0] === false) {
-		redirect("login.php");
-	}
+if($log_check[0] === false) {
+ redirect("login.php");die();
 }
+}
+if (empty($_SESSION['user_id'])) {
+redirect("login.php");die();
+} else {
+$uid = TextToDB($_SESSION['user_id']);
+}
+$isdr = $log_check[1];
 
 $mysqli = isset($mysqli) ? $mysqli : Connection();
+
 if (empty($_GET['id'])) {
 	redirect("timeline.php");die();
 } else {
-	$pid = $_GET['id'];
-	$pid = TextToDB($pid);
-	$uid = TextToDB($_SESSION['user_id']);
+	$pid = TextToDB($_GET['id']);
 	if (!filter_var($pid, FILTER_VALIDATE_INT) || !is_numeric($pid)) { redirect("timeline.php");die(); }
 }
 
-
+if (isset($_POST['token'])) {
+	if (!empty($_POST['comment'])) {
+		$ctxt = TextToDB($_POST['comment']);
+		if ($stmt = $mysqli->prepare("INSERT INTO post_comments(uid, pid, comment) VALUES(?, ?, ?)")) {
+			$stmt->bind_param('iis', $pid, $uid, $ctxt);
+			$stmt->execute();
+			echo "باتشکر";die();
+		}
+	}
+}
 if ($stmt = $mysqli->prepare("update posts SET views = views+1 where id = ?")) {
 			$stmt->bind_param('i', $pid);
 			$stmt->execute();
@@ -47,15 +60,6 @@ function islikes($l) {
 	return ($r == 1 ? true : false);
 }
 
-if (isset($_POST['stb-comment'])) {
-	if (!empty($_POST['stt-comment'])) {
-		$ctxt = TextToDB($_POST['stt-comment']);
-		if ($stmt = $mysqli->prepare("INSERT INTO post_comments(uid, pid, comment) VALUES(?, ?, ?)")) {
-			$stmt->bind_param('iis', $pid, $uid, $ctxt);
-			$stmt->execute();
-		}
-	}
-}
 if (!empty($_POST['like'])) {
 	if (islikes(1)) {
 		if ($stmt = $mysqli->prepare("INSERT INTO posts_likes(uid, pid, lod) VALUES(?, ?, ?)")) {
@@ -85,6 +89,8 @@ if (!empty($_POST['dislike'])) {
 	}
 }
 include("pages/header.php");head(""); ?>
+<div id="could_pass">
+</div>
       <!-- section 3 -->
 			<div class="well">
         <div class="row">
@@ -119,9 +125,10 @@ include("pages/header.php");head(""); ?>
 							<div class="row">
 								<div class="widget-area no-padding blank">
 										<div class="status-upload">
-											<form action="" method="post">
-												<textarea id="comment-text" name="stt-comment" placeholder="نظر شما" ></textarea>
-												<button type="submit" id="comment-submit" class="btn btn-success green pull-left" name="stb-comment"><i class="fa fa-share"></i> ثبت</button>
+											<form id="f1">
+												<input type="hidden" name="id" id="id" value="<?php echo "$pid"; ?>"></input>
+												<textarea id="comment" name="comment" placeholder="نظر شما" ></textarea>
+												<button type="button" id="comment-submit" class="btn btn-success green pull-left" name="stb-comment"><i class="fa fa-share"></i> ثبت</button>
 											</form>
 										</div><!-- Status Upload  -->
 								</div><!-- Widget Area -->
@@ -134,12 +141,12 @@ include("pages/header.php");head(""); ?>
 									<!-- First Comment -->
 									<?php
 								$sql = "SELECT pc.comment, pc.c_date, u.username, u.picture FROM post_comments AS pc INNER JOIN users AS u ON u.id = pc.uid WHERE pc.pid = ?";
-				if ($stmt = $mysqli->prepare($sql)):
-					$stmt->bind_param('i', $pid);
-					$stmt->execute();
-					$stmt->store_result();
-					$stmt->bind_result($pccomment, $pcc_date, $uusername, $upicture);
-					while ($stmt->fetch()):
+								if ($stmt = $mysqli->prepare($sql)):
+									$stmt->bind_param('i', $pid);
+									$stmt->execute();
+									$stmt->store_result();
+									$stmt->bind_result($pccomment, $pcc_date, $uusername, $upicture);
+									while ($stmt->fetch()):
 			?>
 				<article class="row">
 					<div class="col-md-2 col-sm-2 hidden-xs">
@@ -153,7 +160,7 @@ include("pages/header.php");head(""); ?>
 							<div class="panel-body">
 								<header class="text-left">
 									<div class="comment-user"><i class="fa fa-user"></i> <?php echo "$uusername"; ?></div>
-									<time class="comment-date" datetime="16-12-2014 01:05"><i class="fa fa-clock-o"></i><?php echo "$pcc_date"; ?></time>
+									<time class="comment-date" datetime="<?php echo "$pcc_date"; ?>"><i class="fa fa-clock-o"></i><?php echo "$pcc_date"; ?></time>
 								</header>
 								<div class="comment-post">
 									<p>

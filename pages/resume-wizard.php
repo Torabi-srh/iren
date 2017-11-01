@@ -3,8 +3,6 @@
                 <div class="wizard-inner">
                     <div class="connecting-line"></div>
                     <ul class="nav nav-tabs" role="tablist">
-                        
-                        
                         <li role="presentation" class="active">
                             <a href="#step1" data-toggle="tab" aria-controls="step1" role="tab" title="ویژگی های کلی بیمار">
                                 <span class="round-tab">
@@ -40,10 +38,10 @@
                                 </span>
                             </a>
                         </li>
-                          
+
                     </ul>
                 </div>
-    
+
                     <div class="tab-content" style="padding: 0% 5% 5% 5%;">
                         <div class="tab-pane active" role="tabpanel" id="step1">
                             <h3>ویژگی های کلی بیمار</h3>
@@ -134,7 +132,7 @@
                             <div class="form-group">
                                <label for="comment">ارزیابی:</label>
                                <textarea class="form-control" rows="5" id="comment"></textarea>
-                            </div> 
+                            </div>
                             <ul class="list-inline pull-left">
                                 <li><button type="button" class="btn btn-default prev-step">صفحه قبل</button></li>
                                 <li><button type="button" class="btn btn-primary next-step">ذخیره و ادامه</button></li>
@@ -143,17 +141,17 @@
                         <div class="tab-pane" role="tabpanel" id="step4">
                             <h3>برنامه درمانی</h3>
                             <p>افزودن برنامه درمانی</p>
-                            
+
                             <div class="form-group">
                                <label for="comment">هدف های درمان مورد توجه:</label>
                                <textarea class="form-control" rows="5" id="comment"></textarea>
                             </div>
-                            
+
                             <div class="form-group">
                                <label for="comment">طرح و برنامه:</label>
                                <textarea class="form-control" rows="5" id="comment"></textarea>
                             </div>
-                            
+
                             <ul class="list-inline pull-left">
                                 <li><button type="button" class="btn btn-default prev-step">صفحه قبل</button></li>
                                 <li><button type="button" class="btn btn-primary next-step">ذخیره و ادامه</button></li>
@@ -166,7 +164,7 @@
                                <label for="comment">آیا خطری برای خود یا دیگران دارد:<br/><small>اگر بله توضیح دهید</small></label>
                                <textarea class="form-control" rows="5" id="comment"></textarea>
                             </div>
-                            
+
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -184,7 +182,7 @@
                                         <td class="col-md-3"><h5><strong>diaspam</strong></h5></td>
                                         <td class="col-md-1">
                                             100
-                                        </td> 
+                                        </td>
                                         <td class="col-sm-1 col-md-1">
                                             <button type="button" class="btn btn-danger">
                                                 <i class="fa fa-times" aria-hidden="true"></i>
@@ -203,7 +201,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            
+
                             <div class="form-group">
                               <label for="pwd">پیشرفت درمان:</label>
                               <label class="" style="margin-right: 10px;"><input type="radio" name="optradio">استثنایی</label>
@@ -213,12 +211,12 @@
                               <label class="" style="margin-right: 10px;"><input type="radio" name="optradio">پایدار</label>
                               <label class="" style="margin-right: 10px;"><input type="radio" name="optradio">نگهداری</label>
                             </div>
-                            
+
                             <ul class="list-inline pull-left">
                                 <li><button type="button" class="btn btn-default end-step">ذخیره</button></li>
                             </ul>
                         </div>
                         <div class="clearfix"></div>
-                    </div> 
+                    </div>
             </div>
         </section>

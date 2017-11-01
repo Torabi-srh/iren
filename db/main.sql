@@ -75,6 +75,18 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (`id`,`username`,`email`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `rating` (
+  `id`  int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL,
+  `rid` int(11) NOT NULL,
+  `rate`int(5) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`uid`) REFERENCES users(`id`)
+      ON UPDATE CASCADE,
+  FOREIGN KEY (`rid`) REFERENCES users(`id`)
+      ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `takhasos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int(11) NOT NULL,
@@ -177,7 +189,7 @@ CREATE TABLE IF NOT EXISTS `file_meds` (
 CREATE TABLE IF NOT EXISTS `invoice` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `uid` int(11) NOT NULL,
-    `depose` int,
+    `depose` float,
     `depose_date` datetime,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`uid`) REFERENCES users(`id`)
@@ -287,8 +299,8 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `did` int(11) NOT NULL,
   `date_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`uid`) REFERENCES users(`id`),
-    ON UPDATE CASCADE
+  FOREIGN KEY (`uid`) REFERENCES users(`id`)
+    ON UPDATE CASCADE,
   FOREIGN KEY (`did`) REFERENCES users(`id`)
     ON UPDATE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

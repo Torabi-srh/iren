@@ -2,13 +2,13 @@ $(document).ready(function(){
   function loaddr() {
     $.ajax({
         type: "POST",
-        url: '/ajax/doctor.php',
+        url: '/ajax/invoice.php',
         data: {
             token: '',
             p: $('#pagination li.active a').attr('id')
         },
         success: function(result) {
-            $("#content").html(result);
+            $("#inv").html(result);
         }
     });
   }
