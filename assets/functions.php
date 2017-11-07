@@ -893,6 +893,9 @@ function TextToDB($input) {
   $input = $mysqli->real_escape_string($input);
   $input = strip_tags($input);
   $input = trim($input);
+  $input = preg_replace('/<[^(=\d\' )].*?>/', '', $input);
+  $input = FixPersianNumber($input);
+  $input = FixPersianString($input);
   $mysqli->close();
   return $input;
 }

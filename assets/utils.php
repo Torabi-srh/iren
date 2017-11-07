@@ -82,6 +82,7 @@ class Event {
 function parseDateTime($string, $timezone=null) {
 	$string = str_replace("T", " ", $string);
 	$string = _FixPersianNumber($string);
+
 	$date = new DateTime(
 		$string,
 		$timezone ? $timezone : new DateTimeZone('UTC')

@@ -17829,7 +17829,7 @@ li.ext_zip {
 }
 /* chat */
 /*footer*/
-.col-footer { 
+.col-footer {
     float: right;
     border-right: 1px solid #4e4e4e;
     border-left: 1px solid #2a2a2a;
@@ -17837,12 +17837,12 @@ li.ext_zip {
     margin: 25px 0px;
     min-height: 180px !important;
     overflow: hidden !important;
-} 
-.col-footer:first-of-type {  
-    border-right: 0px; 
 }
-.col-footer:last-of-type {  
-    border-left: 0px; 
+.col-footer:first-of-type {
+    border-right: 0px;
+}
+.col-footer:last-of-type {
+    border-left: 0px;
 }
 .logo-link.grayscale:hover, .logo-link.grayscale:active {
     -webkit-filter: grayscale(0%);
@@ -17944,7 +17944,7 @@ li.ext_zip {
 }
 .logo-link {
     background-image: url("/assets/images/logo/ICON.png");
-    
+
     width: 128px;
     height: 128px;
     margin: 0 auto;
@@ -17975,12 +17975,12 @@ li.ext_zip {
     margin: 0px;
 }
 .footer {
-    text-align: center; 
+    text-align: center;
     background-color: #3c3c3c;
     width: 100%;
-    color: white; 
+    color: white;
 }
-.footer .row:first-child { 
+.footer .row:first-child {
     border-color: #1F7500;
     border-style: solid;
     border-width: 2px 0px 0px 0px;
@@ -18019,11 +18019,11 @@ li.ext_zip {
     color: #FFF;
     font-size: 1.3em;
 }
-.input-container i { 
+.input-container i {
     cursor: pointer;
     font-weight: bold;
 }
-.fc-unthemed .fc-day { 
+.fc-unthemed .fc-day {
     background-color: #E5E5E5 !important;
 }
 .fc-unthemed .fc-today {
@@ -18034,7 +18034,7 @@ li.ext_zip {
     padding: 1.2em 1.2em 1.2em 2.8em;
     background-color: #292929;
 }
-.input-container i { 
+.input-container i {
     cursor: pointer;
     font-weight: bold;
 }
@@ -18841,8 +18841,8 @@ figure img{
 }
 /*timeline*/
 
-/*shop*/ 
-.wrap { 
+/*shop*/
+.wrap {
     margin: 0 auto ;
 }
 .items {
@@ -19122,7 +19122,7 @@ body {
 
 
 @media screen and (min-width: 912px) {
-	
+
 }
 
 
@@ -20158,7 +20158,7 @@ span.round-tab i{
 .wizard li.active span.round-tab {
     background: #fff;
     border: 2px solid #5bc0de;
-    
+
 }
 .wizard li.active span.round-tab i{
     color: #5bc0de;
@@ -20245,14 +20245,14 @@ span.round-tab:hover {
 }
 /*resume wiz*/
 
-/*shop*/ 
+/*shop*/
 
 
 /*Menu !!!!*/
 .menu {
     vertical-align: top;
     display: inline-block;
-    margin: 10px ; 
+    margin: 10px ;
 }
 .menu-item {
     background-color: #FEFEFE;
@@ -20262,10 +20262,10 @@ span.round-tab:hover {
     border-radius: 3px;
     box-shadow:0 0 8px rgba(0, 0, 0, 0.06);
 }
- 
 
 
-/*BTN*/ 
+
+/*BTN*/
 
 .mini-menu{
     width: 200px;
@@ -20288,16 +20288,16 @@ span.round-tab:hover {
     position: relative;
 }
 .mini-menu > ul > li > a {
-    display: block;	
-    outline: 0;	
-    padding: 1.2em 1em;	
-    text-decoration: none;	
-    color:#3C3D41;	
+    display: block;
+    outline: 0;
+    padding: 1.2em 1em;
+    text-decoration: none;
+    color:#3C3D41;
     font-weight: normal;
-    letter-spacing: 2px;	
+    letter-spacing: 2px;
     background: #FEFEFE;
     border-bottom: 1.5px solid #EAEAEA;
-   
+
 }
 
 .mini-menu .sub > ul {
@@ -20313,7 +20313,7 @@ span.round-tab:hover {
     text-decoration: none;
     padding: .7em 1em;
     text-transform: capitalize;
-    font-style: normal; 
+    font-style: normal;
     letter-spacing: 1px;
 }
 /*.mini-menu .sub > ul > li > a:hover,*/
@@ -20447,11 +20447,11 @@ margin-right: 7px;
 }
 /*post*/
 /*cal*/
-    #wrap {
+  #wrap {
 		/*width: 1100px;*/
 		margin: 0 auto;
 	}
-		
+
 	#external-events {
 		float: left;
 		width: 150px;
@@ -20460,34 +20460,29 @@ margin-right: 7px;
 		background: #eee;
 		text-align: left;
 	}
-		
+
 	#external-events h4 {
 		font-size: 16px;
 		margin-top: 0;
 		padding-top: 1em;
 	}
-		
+
 	#external-events .fc-event,.fc-event2 {
 		margin: 10px 0;
 		cursor: pointer;
-	}	
-		
+	}
+
 	#external-events p {
 		margin: 1.5em 0;
 		font-size: 11px;
 		color: #666;
 	}
-		
+
 	#external-events p input {
 		margin: 0;
 		vertical-align: middle;
 	}
 
-	#calendar {
-		float: right;
-		/*width: 900px;*/
-	}
-  
   .green-dot {
     cursor: url('data:image/x-icon;base64,AAACAAEAICACAAsACAAwAQAAFgAAACgAAAAgAAAAQAAAAAEAAQAAAAAAgAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAP9AAAAAAAAAAAAAAAAAAAAAAAAAD/AAAA/wAAAf+AAAH/gAAD/4AAA//AAAf/wAAF/8AADf/AAB3/wAAZ/sAAAbbAAAG2gAABtgAAAbAAAAGAAAABgAAAAYAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////////////////+AH///gB///4Af//8AD///AA///gAP//4AB//8AAf//AAH//gAB//wAAf/8AAH//EAB///AA///wAf//8Af///A////w////8P////D////5/////////////////////////////////////////////8='), auto;
   }
