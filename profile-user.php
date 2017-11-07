@@ -43,22 +43,28 @@
       <!-- section 3 -->
       <!-- section 2  -->
       <div class="row">
-        <div id="show-dr"></div>
-        <ul class="pagination" id="pagination">
-				<?php
-					if ($stmt = $mysqli->prepare("SELECT count(id) FROM users where isdr = 1")):
-					$stmt->execute();
-					$stmt->store_result();
-					$stmt->bind_result($cnt);
-					$stmt->fetch();
-					for ($cnti = 1; $cnti <= ceil($cnt / 8); $cnti++):
-				?>
-					<li class="<?php echo (1 == $cnti ? "active" : ""); ?>"><a href="#" id="<?php echo "$cnti"; ?>"><?php echo "$cnti"; ?></a></li>
-				<?php
-					endfor;
-					endif;
-				?>
-			  </ul>
+        <div class="col-md-12">
+          <div class="panel panel-default">
+          <div class="panel-body">
+            <div id="show-dr"></div>
+            <ul class="pagination" id="pagination">
+    				<?php
+    					if ($stmt = $mysqli->prepare("SELECT count(id) FROM users where isdr = 1")):
+    					$stmt->execute();
+    					$stmt->store_result();
+    					$stmt->bind_result($cnt);
+    					$stmt->fetch();
+    					for ($cnti = 1; $cnti <= ceil($cnt / 8); $cnti++):
+    				?>
+    					<li class="<?php echo (1 == $cnti ? "active" : ""); ?>"><a href="#" id="<?php echo "$cnti"; ?>"><?php echo "$cnti"; ?></a></li>
+    				<?php
+    					endfor;
+    					endif;
+    				?>
+    			  </ul>
+          </div>
+          </div>
+        </div>
       </div>
  <!-- style="display: none; position: fixed;top: 10%;width: 50%;right: 25%;left: 25%;border: 2px;border-style: solid;background-color: whitesmoke;z-index: 99999;z-index: 99999;" -->
      <div class="row" id="settings-popup">

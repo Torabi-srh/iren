@@ -112,9 +112,14 @@ $isdr
       <?php endif;if (strpos(PAGE_NAME, 'profile') == false): ?>
         <script src="js/dprofile.js"></script>
     <?php endif;endif; ?>
-    <script src="js/fullcalendar/fullcalendar.js"></script>
-    <script src="js/calander.js"></script>
-    <script src="js/ckeditor/ckeditor.js"></script>
+    <?php if (strpos(PAGE_NAME, 'calander') == false): ?>
+      <script src="js/fullcalendar/fullcalendar.js"></script>
+      <script src="js/calander.js"></script>
+    <?php endif; ?>
+    <?php if (strpos(PAGE_NAME, 'reservation') == false): ?>
+      <script src="js/fullcalendar/fullcalendar.js"></script>
+      <script src="js/reservation.js"></script>
+    <?php endif; ?>
     <script src="js/jquery.validate.min.js"></script>
     <script src='js/locale-all.js'></script>
     <?php if (strpos(PAGE_NAME, 'post') == false): ?>
@@ -123,6 +128,7 @@ $isdr
         <script src="js/invoice.js"></script>
     <?php endif;if (strpos(PAGE_NAME, 'timeline') == false): ?>
       <script src="js/timeline.js"></script>
+      <script src="js/ckeditor/ckeditor.js"></script>
     <?php endif; ?>
     <script src="js/persian-date.min.js"></script>
     <script src="js/persian-datepicker.min.js"></script>

@@ -40,6 +40,7 @@
     <link href='css/fullcalendar.css' rel='stylesheet' />
     <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
     <link href='css/persian-datepicker.min.css' rel='stylesheet'/>
+
     <script src="js/fullcalendar/lib/moment.min.js"></script>
     <script src='js/fullcalendar/lib/moment-jalaali.js'></script>
     <script src="js/jquery.min.js"></script>
@@ -74,19 +75,7 @@
                       <a href="shop.php">فروشگاه<b></b></a>
                     </li>
                     <li>
-                      <a href="profile-user.php">پروفایل بیمار<b></b></a>
-                    </li>
-                    <li>
-                      <a href="profile-user2.php">پروفایل بیمار 2<b></b></a>
-                    </li>
-                    <li>
-                      <a href="profile-doctor.php">پروفایل دکتر<b></b></a>
-                    </li>
-                    <li>
-                      <a href="profile-doctor2.php">پروفایل دکتر 2<b></b></a>
-                    </li>
-                    <li>
-                      <a href="resume.php">پرونده<b></b></a>
+                      <a href="profile-user.php">پروفایل<b></b></a>
                     </li>
                 </ul>
             </div>

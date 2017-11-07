@@ -8,8 +8,14 @@ if ($log_check === false) {
   if($log_check[0] === false) {
     redirect("login.php") ;
   } elseif ($log_check[1] === 0) {
-    redirect("profile-user.php") ;
+  //  redirect("profile-user.php") ;
   }
+  if (empty($_SESSION['user_id'])) {
+   redirect("login.php");die();
+  } else {
+   $uid = TextToDB($_SESSION['user_id']);
+  }
+  $isdr = $log_check[1];
 }
 include("pages/header.php"); head(""); ?>
 <div id="could_pass">

@@ -410,7 +410,7 @@ if (!empty($_POST['mdialog'])) {
       <div class="btn-group" style="margin-right: 20px;">
         <a type="button" id="editClass" class="btn btn-default">چت</a>
         <a type="button" href="doctor.php?uname=<?php echo "{$pusername}"; ?>" class="btn btn-default">بلاگ</a>
-        <a type="button" class="btn btn-default">درخواست نوبت</a>
+        <a type="button" href="reservation.php" class="btn btn-default">درخواست نوبت</a>
         <a type="button" class="btn btn-default">انتخاب به عنوان مشاور</a>
         <!-- <a type="button" class="btn btn-default">نظر شما</a> -->
       </div>
