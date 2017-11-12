@@ -89,15 +89,82 @@ $properties = array(); // an array of other misc properties
 // cleaning events
 $events_ = CleanFullCalendarEvents($events_);
 
+$tid = 1;
+$strnil = "ساعت حضور";
+// $o = 0;
+for ($i=0; $i <= count($events_); $i++) {
+  // $o++;
+  // 1 0 1
+  // 2 0 2
+  // 3 1 2
+  // 4 2 2
+  // if ($o > 3) console($events_[$i]);
+  if (empty($events_[$i])) continue;
+  if (strpos($events_[$i]->title, $strnil) === false) {
+    unset($events_[$i]);
+    continue;
+  }
+  $events_[$i]->title = preg_replace('/\d+/u', '', $events_[$i]->title);
+  $events_[$i]->title	= "$strnil $tid";
+  $events_[$i]->id = $tid;
+  $events_[$i]->_id = $tid;
+  $tid++;
+  if (gettype($events_[$i]->start) === "string") {
+    $events_[$i]->start = parseDateTime($events_[$i]->start);
+  }
+  if (gettype($events_[$i]->end) === "string") {
+    $events_[$i]->end = parseDateTime($events_[$i]->end);
+  }
+  $edate = clone $events_[$i]->end;
+  $sdate = clone $events_[$i]->start;
+
+  date_modify($sdate, "+1 hour");
+  if ($sdate == $edate) {
+    continue;
+  } elseif ($sdate > $edate) {
+    unset($events_[$i]);
+    continue;
+  }
+  // do {
+    $e = clone $events_[$i];
+    $e->end = clone $sdate;
+    $e->title	= "$strnil $tid";
+    $e->id = $tid;
+    $e->_id = $tid;
+    $tid++;
+    $events_[] = $e;
+
+    $e = clone $events_[$i];
+    $e->start = clone $sdate;
+    $e->end = clone $edate;
+
+    $e->title	= "$strnil $tid";
+    $e->id = $tid;
+    $e->_id = $tid;
+    $tid++;
+    $events_[] = $e;
+    // date_modify($sdate, "+1 hour");
+  // } while ($tsdate < $edate);
+    unset($events_[$i]);
+    $i--;
+}
+
 foreach ($events_ as $eve) {
-  $eve->start = $eve->start->format('Y-m-d H:i:s');
-  $eve->end = $eve->end->format('Y-m-d H:i:s');
-  $eve->allDay = ($eve->allDay ? 1: 0);
-  $eve->properties = json_encode($eve->properties, JSON_UNESCAPED_UNICODE);
+  // $evestart = clone unserialize(serialize($eve->start));
+  // $eveend = clone unserialize(serialize($eve->end));
+  if (gettype($eve->start) == "object" || gettype($eve->start) == "DateTime") {
+    $evestart = $eve->start->format('Y-m-d H:i:s');
+  }
+  if (gettype($eve->end) == "object" || gettype($eve->end) == "DateTime") {
+    $eveend = $eve->end->format('Y-m-d H:i:s');
+  }
+  $eveallDay = ($eve->allDay ? 1: 0);
+  $eveproperties = json_encode($eve->properties, JSON_UNESCAPED_UNICODE);
+  $evetitle = $eve->title;
   if (empty($eve) || !isset($eve)) continue;
   $sql = "SELECT `id` FROM `calender` WHERE `uid` = ? AND `start` = ? AND `end` = ?;";
   if ($stmt = $mysqli->prepare($sql)) {
-    $stmt->bind_param('iss', $uid, $eve->start, $eve->end);
+    $stmt->bind_param('iss', $uid, $evestart, $eveend);
     $stmt->execute();
     $stmt->store_result();
     if ($stmt->num_rows > 0) {continue;}
@@ -106,7 +173,7 @@ foreach ($events_ as $eve) {
   $up = false;
   $sql = "SELECT `id` FROM `calender` WHERE `uid` = ? AND `title` = ? AND `start` >= ? AND `end` <= ?";
   if ($stmt = $mysqli->prepare($sql)) {
-    $stmt->bind_param('isss', $uid, $eve->title, $start_bound, $end_bound);
+    $stmt->bind_param('isss', $uid, $evetitle, $start_bound, $end_bound);
     $stmt->execute();
     $stmt->store_result();
     if ($stmt->num_rows > 0) $up = true;
@@ -118,11 +185,12 @@ foreach ($events_ as $eve) {
   }
 	if ($stmt = $mysqli->prepare($sql)) {
     if ($up) {
-  		$stmt->bind_param('isisssisss', $uid, $eve->title, $eve->allDay, $eve->start, $eve->end, $eve->properties, $uid, $eve->title, $start, $end);
+  		$stmt->bind_param('isisssisss', $uid, $evetitle, $eveallDay, $evestart, $eveend, $eveproperties, $uid, $evetitle, $start, $end);
     } else {
-  		$stmt->bind_param('isisss', $uid, $eve->title, $eve->allDay, $eve->start, $eve->end, $eve->properties);
+  		$stmt->bind_param('isisss', $uid, $evetitle, $eveallDay, $evestart, $eveend, $eveproperties);
     }
 		$stmt->execute();
+
 	} else {echo $error500;die();}
   $sql = "delete e1 from `calender` e1, `calender` e2 where e1.id > e2.id and e1.`start` = e2.`start` and e1.`end` = e2.`end`;";
   if ($stmt = $mysqli->prepare($sql)) {

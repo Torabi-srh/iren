@@ -21,7 +21,7 @@
  if($isdr === false) {
    redirect("login.php");
  } elseif ($isdr === 1) {
-   redirect("profile-doctor.php") ;
+   redirect("profile-doctor.php") ;die();
  }
 		include("pages/header.php");head("norm");
 

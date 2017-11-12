@@ -8,7 +8,7 @@ if ($log_check === false) {
   if($log_check[0] === false) {
     redirect("login.php") ;
   } elseif ($log_check[1] === 0) {
-  //  redirect("profile-user.php") ;
+    redirect("profile-user.php") ;
   }
   if (empty($_SESSION['user_id'])) {
    redirect("login.php");die();
@@ -41,6 +41,7 @@ include("pages/header.php"); head(""); ?>
             </div>
             <div class="row" style="margin-top: 1%;">
               <div id='external-events'>
+                <div class='fc-event2' id="ref-events">بروزرسانی تقویم</div>
                 <div class='fc-event2' id="reg-events">ثبت</div>
                 <div class='fc-event2' id="clear-events">پاک کردن همه</div>
               </div>

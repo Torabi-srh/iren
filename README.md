@@ -18,3 +18,7 @@
     1. bound date loading
     2. ajax onedit
     3. commit / rollback (add button)
+## bugs
+###I. calendar.php
+    1. if event more than 1 day its cant split to hours
+    

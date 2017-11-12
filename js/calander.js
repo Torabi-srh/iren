@@ -43,6 +43,24 @@
 			});
 
 		});
+		function refreshevents() {
+			var events = {
+          url: '/ajax/getCalender.php',
+					type: 'POST',
+					data: function() {
+										var dtv = $('#calendar').fullCalendar('getView');
+										return {
+												end: moment(dtv.end._d).format(),
+												start: moment(dtv.start._d).format()
+										};
+								}
+			}
+
+			$('#calendar').fullCalendar( 'removeEvents');
+			$('#calendar').fullCalendar( 'removeEventSource', events);
+			$('#calendar').fullCalendar( 'addEventSource', events);
+			$('#calendar').fullCalendar( 'refetchEvents' );
+		}
 		function SendCalData() {
 			var dtv = $('#calendar').fullCalendar('getView');
 			var eventsFromCalendar = $('#calendar').fullCalendar('clientEvents');
@@ -64,8 +82,7 @@
 									setTimeout(function() {
 															$elm.remove();
 													}, 5000);
-									$('#calendar').fullCalendar( 'removeEvents');
-									$('#calendar').fullCalendar( 'refresh' );
+									refreshevents();
 					}
 			});
 		}
@@ -94,6 +111,10 @@
 		});
 		$("#reg-events").click(function() {
 			SendCalData();
+		});
+
+		$("#ref-events").click(function() {
+			refreshevents();
 		});
 		/* initialize the calendar
 		-----------------------------------------------------------------*/
