@@ -96,37 +96,37 @@ $isdr
     <script src="js/bootstrap.min.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/jdf.js"></script>
-    <?php if (strpos(PAGE_NAME, 'shop.php') == false): ?>
+    <?php if (strpos(PAGE_NAME, 'shop') !== false): ?>
       <script src="js/shop.js"></script>
-    <?php endif;if (strpos(PAGE_NAME, 'doctor.php') == false): ?>
+    <?php endif;if (strpos(PAGE_NAME, 'doctor') !== false): ?>
       <script src="js/doctor.js"></script>
     <?php endif;if (!$isdr): ?>
-      <?php if (strpos(PAGE_NAME, 'wizard') == false): ?>
+      <?php if (strpos(PAGE_NAME, 'wizard') !== false): ?>
         <script src="js/wizard-us.js"></script>
-      <?php endif;if (strpos(PAGE_NAME, 'profile') == false): ?>
+      <?php endif;if (strpos(PAGE_NAME, 'profile') !== false): ?>
         <script src="js/uprofile.js"></script>
         <script src="js/tcbot.js"></script>
     <?php endif;else: ?>
-      <?php if (strpos(PAGE_NAME, 'wizard') == false): ?>
+      <?php if (strpos(PAGE_NAME, 'wizard') !== false): ?>
         <script src="js/wizard-dr.js"></script>
-      <?php endif;if (strpos(PAGE_NAME, 'profile') == false): ?>
+      <?php endif;if (strpos(PAGE_NAME, 'profile') !== false): ?>
         <script src="js/dprofile.js"></script>
     <?php endif;endif; ?>
-    <?php if (strpos(PAGE_NAME, 'calander') == false): ?>
+    <?php if (strpos(PAGE_NAME, 'calander.php') !== false): ?>
       <script src="js/fullcalendar/fullcalendar.js"></script>
       <script src="js/calander.js"></script>
     <?php endif; ?>
-    <?php if (strpos(PAGE_NAME, 'reservation') == false): ?>
+    <?php if (strpos(PAGE_NAME, 'reservation.php') !== false): ?>
       <script src="js/fullcalendar/fullcalendar.js"></script>
       <script src="js/reservation.js"></script>
     <?php endif; ?>
     <script src="js/jquery.validate.min.js"></script>
     <script src='js/locale-all.js'></script>
-    <?php if (strpos(PAGE_NAME, 'post') == false): ?>
+    <?php if (strpos(PAGE_NAME, 'post') !== false): ?>
       <script src="js/blog.js"></script>
-    <?php endif;if (strpos(PAGE_NAME, 'invoice') == false): ?>
+    <?php endif;if (strpos(PAGE_NAME, 'invoice') !== false): ?>
         <script src="js/invoice.js"></script>
-    <?php endif;if (strpos(PAGE_NAME, 'timeline') == false): ?>
+    <?php endif;if (strpos(PAGE_NAME, 'timeline') !== false): ?>
       <script src="js/timeline.js"></script>
       <script src="js/ckeditor/ckeditor.js"></script>
     <?php endif; ?>

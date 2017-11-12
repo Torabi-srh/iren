@@ -12,9 +12,9 @@
 
 //  database
   define('DB_HOST', 'localhost');
-  define('DB_USER', 'skyf5_20947548');
-  define('DB_PASSWORD', 'e833xsbf');
-  define('DB_NAME', 'skyf5_20947548_telepathy_master');
+  define('DB_USER', 'id2938997_bionix');
+  define('DB_PASSWORD', '@e833xsbf');
+  define('DB_NAME', 'id2938997_telepathy_master');
   define('DB_PORT', '3306');
 // Names
   define('MALE', 'مرد');

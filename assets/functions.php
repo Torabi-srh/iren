@@ -11,6 +11,9 @@ if (!islocal()) {
         }
     }
 }
+function console($str) {
+  throw new Exception(print_r($str, true));
+}
 function dbc() {
     $sql = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
     $mysqli = isset($mysqli) ? $mysqli : Connection();
